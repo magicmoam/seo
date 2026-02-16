@@ -181,6 +181,60 @@
       border-color: rgba(255, 107, 107, 0.4);
       color: var(--c-red);
     }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hamburger-btn {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      width: 32px;
+      height: 32px;
+      padding: 6px;
+      background: transparent;
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .hamburger-btn:hover {
+      border-color: var(--c-glass-border-hover);
+    }
+    .hamburger-btn span {
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: var(--c-text-secondary);
+      border-radius: 1px;
+      transition: all 0.3s;
+    }
+    .hamburger-btn.open span:nth-child(1) {
+      transform: translateY(5.5px) rotate(45deg);
+    }
+    .hamburger-btn.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger-btn.open span:nth-child(3) {
+      transform: translateY(-5.5px) rotate(-45deg);
+    }
+
+    /* ── Sidebar Overlay (mobile) ── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 149;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .sidebar-overlay.open {
+      display: block;
+      opacity: 1;
+    }
 
     /* ════════════════════════════════════════
        LAYOUT
@@ -794,7 +848,24 @@
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
-      .sidebar { display: none; }
+      .hamburger-btn { display: flex; }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 150;
+        width: 280px;
+        height: 100vh;
+        padding-top: 72px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        background: rgba(10, 13, 16, 0.97);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
       .main { padding: 24px 16px 60px; }
       .topbar { padding: 0 16px; }
       .topbar-user span { display: none; }
@@ -829,6 +900,17 @@
       }
       .auth-screen {
         padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+      @media (max-width: 768px) {
+        .sidebar {
+          top: 0;
+          height: 100vh;
+          padding-top: calc(72px + env(safe-area-inset-top));
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+        .sidebar-overlay {
+          top: 0;
+        }
       }
     }
 
@@ -904,7 +986,12 @@
 <!-- Main App (hidden until authed) -->
 <div id="app" style="display:none">
   <div class="topbar">
-    <span class="topbar-brand">Wongzo</span>
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <span class="topbar-brand">Wongzo</span>
+    </div>
     <div class="topbar-user">
       <img id="user-pic" src="" alt="">
       <span id="user-name"></span>
@@ -912,8 +999,10 @@
     </div>
   </div>
 
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
   <div class="layout">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <div class="sidebar-label">
         <span class="sidebar-label-text">History</span>
         <span class="count" id="history-count">0</span>
@@ -1122,7 +1211,31 @@ function renderHistory(items) {
 }
 
 function showHistoryItem(item) {
+  closeSidebar();
   renderResult({ tool_used: item.tool_used, query: item.query, result: item.result });
+}
+
+function toggleSidebar() {
+  const sidebar = $('sidebar');
+  const overlay = $('sidebar-overlay');
+  const btn = $('hamburger');
+  const isOpen = sidebar.classList.contains('open');
+  if (isOpen) {
+    closeSidebar();
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+function closeSidebar() {
+  const sidebar = $('sidebar');
+  const overlay = $('sidebar-overlay');
+  const btn = $('hamburger');
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+  btn.classList.remove('open');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1162,6 +1275,8 @@ async function submitQuery() {
       return;
     }
     renderResult(data);
+    $('query').value = '';
+    $('query').style.height = 'auto';
     loadHistory();
     loadUsage();
   } catch (err) {
