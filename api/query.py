@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 app = FastAPI()
 
@@ -140,3 +140,26 @@ async def history(request: Request):
 
     records = await get_history(user["email"])
     return JSONResponse(records)
+
+
+@app.post("/api/report")
+async def report(request: Request):
+    """Generate an HTML report from a previous query result.
+
+    Accepts the same AgentResponse JSON that /api/query returns.
+    Returns the HTML report directly (can be opened in a new tab or downloaded).
+    """
+    from src.models import AgentResponse
+    from src.report_exporter import export_html_string
+
+    auth_result = await _authenticate(request)
+    if isinstance(auth_result, JSONResponse):
+        return auth_result
+
+    try:
+        body = await request.json()
+        response = AgentResponse(**body)
+        html = export_html_string(response)
+        return HTMLResponse(content=html)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
