@@ -186,7 +186,14 @@ def _build_path_to_80(rubric: ScoringRubricResult) -> PathTo80 | None:
 
 async def run(url: str) -> tuple[WebsiteAnalysisResult, dict, EvidenceTrace]:
     # Scrape the target page
-    page, raw_page = await jina.scrape_with_raw(url)
+    try:
+        page, raw_page = await jina.scrape_with_raw(url)
+    except Exception as exc:
+        raise RuntimeError(
+            f"Unable to fetch {url}. The site may be temporarily unreachable, "
+            f"blocking automated requests, or the URL may be invalid. "
+            f"Please check the URL and try again. (Details: {exc})"
+        ) from exc
 
     page_data = f"URL: {url}\n"
     page_data += f"Title: {page.get('title', 'N/A')}\n"
