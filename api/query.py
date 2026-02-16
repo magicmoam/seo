@@ -192,3 +192,30 @@ async def report(request: Request):
         return HTMLResponse(content=html)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=400)
+
+
+@app.post("/api/client-report")
+async def client_report(request: Request):
+    """Generate a client-facing Word document (.docx) pitch report."""
+    from starlette.responses import Response
+
+    from src.client_report import generate_client_report
+    from src.models import AgentResponse
+
+    auth_result = await _authenticate(request)
+    if isinstance(auth_result, JSONResponse):
+        return auth_result
+
+    try:
+        body = await request.json()
+        response = AgentResponse(**body)
+        docx_bytes = generate_client_report(response)
+        domain = response.query.replace("https://", "").replace("http://", "").split("/")[0]
+        filename = f"wongzo_report_{domain}.docx"
+        return Response(
+            content=docx_bytes,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
