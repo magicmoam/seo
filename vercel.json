@@ -8,6 +8,7 @@
   ],
   "routes": [
     { "src": "/api/query", "dest": "/api/query.py" },
+    { "src": "/api/report", "dest": "/api/query.py" },
     { "src": "/api/history", "dest": "/api/history.py" },
     { "src": "/api/config", "dest": "/api/config.py" },
     { "src": "/api/usage", "dest": "/api/usage.py" },
