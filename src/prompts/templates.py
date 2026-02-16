@@ -147,6 +147,45 @@ Produce a JSON object with:
 
 Write the full article in the 'content' field. Make it publication-ready."""
 
+WEBSITE_ANALYZER_SYSTEM = """\
+You are an expert SEO auditor. Analyze a webpage and produce a comprehensive SEO audit report.
+Evaluate the page across four dimensions: performance, SEO, content quality, and technical health.
+Score each dimension as "poor", "fair", "good", or "excellent".
+Always respond with valid JSON matching the schema exactly. No markdown fences."""
+
+WEBSITE_ANALYZER_USER = """\
+Analyze this webpage for SEO:
+
+{page_data}
+
+Produce a JSON object with:
+{{
+  "url": "{url}",
+  "page_title": "the page's title tag",
+  "meta_description": "the page's meta description",
+  "overall_score": 75,
+  "performance_score": "poor|fair|good|excellent",
+  "seo_score": "poor|fair|good|excellent",
+  "content_score": "poor|fair|good|excellent",
+  "technical_score": "poor|fair|good|excellent",
+  "word_count": 0,
+  "internal_links": 0,
+  "external_links": 0,
+  "heading_structure": ["H1: Main heading", "H2: Subheading", ...],
+  "issues": [
+    {{
+      "issue": "short name of the issue",
+      "severity": "critical|warning|info",
+      "description": "what the problem is",
+      "recommendation": "how to fix it"
+    }}
+  ],
+  "schema_markup": ["list any structured data / schema.org types found, or empty if none"],
+  "summary": "2-3 sentence overall SEO assessment"
+}}
+
+Be thorough. Identify at least 5 issues across all severity levels. Count words, links, and headings from the content provided."""
+
 AGENT_ROUTER_SYSTEM = """\
 You are an SEO agent router. Given a user query, determine which SEO tool to use.
 
@@ -156,6 +195,9 @@ Available tools:
 3. serp_analysis - Analyze the search results page for a query
 4. content_gap - Find content gaps and untapped opportunities in a niche
 5. content_generation - Generate SEO-optimized content (articles, blog posts)
+6. website_analyzer - Analyze a specific URL/webpage for SEO issues, scores, and recommendations
+
+IMPORTANT: If the user provides a URL (starts with http://, https://, or www.) and asks to analyze, audit, or review it, use website_analyzer. The query should be the full URL.
 
 Respond with ONLY a JSON object:
 {{"tool": "tool_name", "query": "the core search query to research", "extras": {{}}}}

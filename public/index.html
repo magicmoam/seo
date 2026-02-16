@@ -7,61 +7,70 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --c-bg-deep: #1a262b;
-      --c-bg-light: #8e6e53;
-      --c-text-primary: #ffffff;
-      --c-text-secondary: rgba(255, 255, 255, 0.7);
-      --c-text-tertiary: rgba(255, 255, 255, 0.4);
+      --c-bg-deep: #0a0d10;
+      --c-bg-card: rgba(255, 255, 255, 0.03);
+      --c-text-primary: #f0f0f0;
+      --c-text-secondary: rgba(255, 255, 255, 0.6);
+      --c-text-tertiary: rgba(255, 255, 255, 0.3);
       --c-accent: #d4b895;
+      --c-accent-dim: rgba(212, 184, 149, 0.15);
       --c-red: #ff6b6b;
-      --c-glass-bg: rgba(255, 255, 255, 0.03);
-      --c-glass-border: rgba(255, 255, 255, 0.15);
-      --c-glass-hover: rgba(255, 255, 255, 0.05);
-      --c-pill-bg: rgba(255, 255, 255, 0.05);
-      --c-pill-border: rgba(255, 255, 255, 0.3);
+      --c-green: #6bcf7f;
+      --c-yellow: #f5c542;
+      --c-blue: #6ba3ff;
+      --c-glass-border: rgba(255, 255, 255, 0.08);
+      --c-glass-border-hover: rgba(255, 255, 255, 0.15);
+      --radius: 3px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     html {
       scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,0.15) transparent;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
     }
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background-color: var(--c-bg-deep);
-      background-image: linear-gradient(135deg, rgba(26, 38, 43, 0.8) 0%, rgba(66, 52, 40, 0.8) 100%);
-      background-attachment: fixed;
       color: var(--c-text-primary);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
       font-weight: 300;
       line-height: 1.6;
+      position: relative;
+    }
+
+    /* Cinematic background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(135deg,
+          rgba(10, 13, 16, 0.92) 0%,
+          rgba(30, 25, 20, 0.85) 40%,
+          rgba(10, 13, 16, 0.95) 100%
+        ),
+        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80') center/cover no-repeat;
+      z-index: -1;
     }
 
     /* ── Animations ── */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
+      from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Glass panel utility ── */
-    .glass-panel {
-      background: var(--c-glass-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--c-glass-border);
-      border-radius: 12px;
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
     }
 
     /* ════════════════════════════════════════
@@ -73,36 +82,35 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      animation: fadeIn 0.8s ease-out;
+      animation: fadeIn 1s ease-out;
     }
     .auth-card {
-      background: var(--c-glass-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: var(--c-bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--c-glass-border);
-      border-radius: 20px;
-      padding: 56px 48px;
+      border-radius: var(--radius);
+      padding: 64px 48px;
       text-align: center;
-      max-width: 420px;
+      max-width: 440px;
       width: 90%;
     }
     .auth-card h1 {
-      font-size: 48px;
-      font-weight: 400;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      background: linear-gradient(180deg, #ffffff 0%, #dcdcdc 100%);
+      font-size: 56px;
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      background: linear-gradient(180deg, #ffffff 0%, var(--c-accent) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
     .auth-card p {
       color: var(--c-text-secondary);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 300;
-      margin-bottom: 32px;
-      line-height: 1.6;
+      margin-bottom: 36px;
     }
     .auth-card #google-btn {
       display: flex;
@@ -128,15 +136,15 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
-      height: 56px;
-      background: rgba(26, 38, 43, 0.7);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      padding: 0 32px;
+      height: 52px;
+      background: rgba(10, 13, 16, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--c-glass-border);
     }
     .topbar-brand {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
       letter-spacing: -0.02em;
       color: var(--c-text-primary);
@@ -147,33 +155,31 @@
       gap: 12px;
     }
     .topbar-user img {
-      width: 28px; height: 28px;
+      width: 26px; height: 26px;
       border-radius: 50%;
       border: 1px solid var(--c-glass-border);
     }
     .topbar-user span {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--c-text-secondary);
       font-weight: 400;
     }
     .btn-logout {
-      padding: 5px 16px;
-      border: 1px solid var(--c-pill-border);
-      border-radius: 999px;
-      background: var(--c-pill-bg);
-      color: var(--c-text-secondary);
-      font-size: 12px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 400;
+      padding: 4px 14px;
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--c-text-tertiary);
+      font-size: 11px;
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.2s;
     }
     .btn-logout:hover {
-      border-color: rgba(255, 107, 107, 0.5);
+      border-color: rgba(255, 107, 107, 0.4);
       color: var(--c-red);
-      background: rgba(255, 107, 107, 0.08);
-      box-shadow: 0 2px 12px rgba(255, 107, 107, 0.1);
-      transform: translateY(-1px);
     }
 
     /* ════════════════════════════════════════
@@ -182,79 +188,75 @@
     .layout {
       display: flex;
       min-height: 100vh;
-      padding-top: 56px;
+      padding-top: 52px;
     }
 
     /* ════════════════════════════════════════
        SIDEBAR
        ════════════════════════════════════════ */
     .sidebar {
-      width: 280px;
+      width: 260px;
       flex-shrink: 0;
-      background: var(--c-glass-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.02);
       border-right: 1px solid var(--c-glass-border);
-      padding: 24px 16px;
+      padding: 20px 14px;
       overflow-y: auto;
-      height: calc(100vh - 56px);
+      height: calc(100vh - 52px);
       position: sticky;
-      top: 56px;
+      top: 52px;
     }
     .sidebar-label {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
-      padding-top: 16px;
+      margin-bottom: 16px;
+      padding-top: 14px;
       position: relative;
     }
     .sidebar-label::before {
       content: '';
       position: absolute;
       top: 0; left: 0;
-      width: 40px; height: 1px;
+      width: 32px; height: 1px;
       background: var(--c-accent);
     }
     .sidebar-label-text {
       font-family: 'Space Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: var(--c-accent);
     }
     .sidebar-label .count {
       font-family: 'Space Mono', monospace;
       font-size: 10px;
       color: var(--c-text-tertiary);
-      background: rgba(255, 255, 255, 0.06);
-      padding: 2px 8px;
-      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1px 7px;
+      border-radius: var(--radius);
     }
     .history-item {
-      padding: 12px 14px;
-      border-radius: 10px;
-      margin-bottom: 2px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      margin-bottom: 1px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.15s;
     }
-    .history-item:hover { background: var(--c-glass-hover); }
+    .history-item:hover { background: rgba(255, 255, 255, 0.04); }
     .history-item .hi-query {
       font-size: 13px;
       font-weight: 400;
       color: var(--c-text-primary);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-height: 1.4;
     }
     .history-item .hi-meta {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--c-text-tertiary);
       display: flex;
-      gap: 10px;
-      align-items: center;
+      gap: 8px;
     }
     .history-item .hi-tool {
       color: var(--c-accent);
@@ -263,10 +265,9 @@
     }
     .history-empty {
       color: var(--c-text-tertiary);
-      font-size: 13px;
+      font-size: 12px;
       text-align: center;
-      padding: 48px 0;
-      font-weight: 300;
+      padding: 40px 0;
     }
 
     /* ════════════════════════════════════════
@@ -274,133 +275,189 @@
        ════════════════════════════════════════ */
     .main {
       flex: 1;
-      max-width: 920px;
+      max-width: 960px;
       margin: 0 auto;
-      padding: 40px 32px 80px;
-      animation: fadeIn 0.6s ease-out 0.1s both;
+      padding: 48px 36px 80px;
     }
 
-    /* ── Tool Chips ── */
-    .tools {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
+    /* ── Hero Section ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
     }
-    .tool-chip {
-      padding: 8px 20px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 400;
-      background: var(--c-pill-bg);
-      border: 1px solid var(--c-pill-border);
-      color: var(--c-text-secondary);
+    .hero h2 {
+      font-size: 44px;
+      font-weight: 300;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      background: linear-gradient(180deg, #ffffff 30%, var(--c-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+      animation: fadeIn 1.2s ease-out both;
+    }
+    .hero p {
+      color: var(--c-text-tertiary);
+      font-size: 15px;
+      font-weight: 300;
+      max-width: 480px;
+      margin: 0 auto;
+      animation: fadeIn 1.2s ease-out 0.2s both;
+    }
+
+    /* ── Tool Pillar Cards ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 32px;
+      animation: fadeIn 1.2s ease-out 0.4s both;
+    }
+    .tool-card {
+      padding: 16px 18px;
+      background: var(--c-bg-card);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
       cursor: pointer;
-      transition: all 0.25s ease;
-      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+      position: relative;
     }
-    .tool-chip:hover {
-      background: rgba(212, 184, 149, 0.08);
-      border-color: rgba(212, 184, 149, 0.4);
-      color: var(--c-accent);
-      box-shadow: 0 4px 16px rgba(212, 184, 149, 0.08);
-      transform: translateY(-1px);
+    .tool-card:hover {
+      border-color: var(--c-glass-border-hover);
+      background: rgba(255, 255, 255, 0.05);
     }
-    .tool-chip.active {
-      background: rgba(212, 184, 149, 0.12);
-      border-color: var(--c-accent);
-      color: var(--c-accent);
-      box-shadow: 0 4px 20px rgba(212, 184, 149, 0.12);
+    .tool-card.active {
+      border-color: rgba(212, 184, 149, 0.3);
+      background: rgba(212, 184, 149, 0.05);
+    }
+    .tool-card .tool-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--c-text-tertiary);
+      margin-bottom: 6px;
+    }
+    .tool-card .tool-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--c-text-primary);
+      margin-bottom: 3px;
+    }
+    .tool-card .tool-desc {
+      font-size: 11px;
+      color: var(--c-text-tertiary);
+      line-height: 1.4;
+    }
+
+    /* ── Dashboard Stats ── */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 32px;
+      animation: fadeIn 1.2s ease-out 0.6s both;
+    }
+    .dash-cell {
+      padding: 14px 16px;
+      background: var(--c-bg-card);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+    }
+    .dash-cell .dash-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--c-text-tertiary);
+      margin-bottom: 4px;
+    }
+    .dash-cell .dash-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--c-text-primary);
     }
 
     /* ── Input Area ── */
     .input-area {
       position: relative;
-      margin-bottom: 36px;
+      margin-bottom: 32px;
+      animation: fadeIn 1.2s ease-out 0.8s both;
     }
     .input-area textarea {
       width: 100%;
-      padding: 20px 130px 20px 24px;
-      background: var(--c-glass-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      padding: 18px 120px 18px 20px;
+      background: var(--c-bg-card);
       border: 1px solid var(--c-glass-border);
-      border-radius: 16px;
+      border-radius: var(--radius);
       color: var(--c-text-primary);
-      font-size: 15px;
+      font-size: 14px;
       font-family: 'Inter', sans-serif;
       font-weight: 300;
       resize: none;
       outline: none;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      min-height: 64px;
-      max-height: 140px;
-      line-height: 1.6;
+      transition: border-color 0.2s;
+      min-height: 58px;
+      max-height: 120px;
+      line-height: 1.5;
     }
     .input-area textarea:focus {
-      border-color: var(--c-accent);
-      box-shadow: 0 0 0 3px rgba(212, 184, 149, 0.08);
+      border-color: rgba(212, 184, 149, 0.3);
     }
     .input-area textarea::placeholder {
       color: var(--c-text-tertiary);
-      font-weight: 300;
     }
     .input-area button {
       position: absolute;
-      right: 12px; bottom: 12px;
-      padding: 10px 28px;
-      border: 1px solid var(--c-pill-border);
-      border-radius: 999px;
-      background: var(--c-pill-bg);
-      color: var(--c-text-primary);
-      font-size: 13px;
+      right: 10px; bottom: 10px;
+      padding: 8px 24px;
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      background: rgba(212, 184, 149, 0.08);
+      color: var(--c-accent);
+      font-size: 12px;
       font-weight: 500;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.2s;
     }
     .input-area button:hover:not(:disabled) {
-      background: rgba(212, 184, 149, 0.12);
-      border-color: var(--c-accent);
-      color: var(--c-accent);
-      box-shadow: 0 4px 16px rgba(212, 184, 149, 0.1);
-      transform: translateY(-1px);
+      background: rgba(212, 184, 149, 0.15);
+      border-color: rgba(212, 184, 149, 0.3);
     }
-    .input-area button:disabled { opacity: 0.35; cursor: not-allowed; }
+    .input-area button:disabled { opacity: 0.3; cursor: not-allowed; }
 
     /* ── Loading ── */
     .loading {
       text-align: center;
-      padding: 72px 0;
+      padding: 60px 0;
       display: none;
-      animation: fadeIn 0.4s ease-out;
     }
-    .loading.show { display: block; }
+    .loading.show { display: block; animation: fadeIn 0.3s ease-out; }
     .spinner {
-      width: 36px; height: 36px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      width: 32px; height: 32px;
+      border: 2px solid rgba(255, 255, 255, 0.06);
       border-top-color: var(--c-accent);
       border-radius: 50%;
-      animation: spin 0.9s linear infinite;
-      margin: 0 auto 20px;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
     }
     .loading p {
       color: var(--c-text-tertiary);
-      font-size: 14px;
-      font-weight: 300;
+      font-size: 13px;
     }
 
     /* ── Error ── */
     .error {
       background: rgba(255, 107, 107, 0.06);
-      border: 1px solid rgba(255, 107, 107, 0.2);
-      border-radius: 12px;
-      padding: 16px 20px;
+      border: 1px solid rgba(255, 107, 107, 0.15);
+      border-radius: var(--radius);
+      padding: 14px 18px;
       color: var(--c-red);
-      font-size: 14px;
-      font-weight: 400;
-      margin-bottom: 24px;
+      font-size: 13px;
+      margin-bottom: 20px;
       display: none;
     }
     .error.show { display: block; animation: fadeIn 0.3s ease-out; }
@@ -414,69 +471,70 @@
     .result-header {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 28px;
-      padding-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
       border-bottom: 1px solid var(--c-glass-border);
     }
     .result-badge {
-      padding: 5px 14px;
-      border-radius: 999px;
+      padding: 4px 12px;
+      border-radius: var(--radius);
       font-family: 'Space Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      background: rgba(212, 184, 149, 0.12);
+      letter-spacing: 0.06em;
+      background: var(--c-accent-dim);
       color: var(--c-accent);
-      border: 1px solid rgba(212, 184, 149, 0.2);
+      border: 1px solid rgba(212, 184, 149, 0.15);
     }
     .result-query {
       color: var(--c-text-tertiary);
-      font-size: 14px;
-      font-weight: 300;
+      font-size: 13px;
     }
 
     /* ── Result Panels ── */
     .result-panel {
-      padding: 24px;
-      margin-bottom: 20px;
+      background: var(--c-bg-card);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 12px;
     }
     .panel-label {
       font-family: 'Space Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: var(--c-accent);
-      margin-bottom: 14px;
-      padding-top: 12px;
+      margin-bottom: 12px;
+      padding-top: 10px;
       position: relative;
     }
     .panel-label::before {
       content: '';
       position: absolute;
       top: 0; left: 0;
-      width: 40px; height: 1px;
+      width: 28px; height: 1px;
       background: var(--c-accent);
     }
     .panel-list { list-style: none; padding: 0; }
     .panel-list li {
-      padding: 6px 0 6px 20px;
-      font-size: 14px;
+      padding: 5px 0 5px 18px;
+      font-size: 13px;
       font-weight: 300;
       color: var(--c-text-secondary);
       position: relative;
-      line-height: 1.6;
+      line-height: 1.5;
     }
     .panel-list li::before {
       content: '\203A';
       position: absolute;
       left: 2px;
       color: var(--c-accent);
-      font-size: 16px;
-      line-height: 1.5;
+      font-size: 14px;
     }
     .summary-text {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 300;
       line-height: 1.7;
       color: var(--c-text-secondary);
@@ -486,23 +544,23 @@
     .data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 12px;
     }
     .data-table th {
       text-align: left;
-      padding: 12px 14px;
+      padding: 10px 12px;
       font-family: 'Space Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 400;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       color: var(--c-accent);
       border-bottom: 1px solid var(--c-glass-border);
       background: rgba(255, 255, 255, 0.02);
     }
     .data-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       vertical-align: top;
       font-weight: 300;
       color: var(--c-text-secondary);
@@ -513,33 +571,39 @@
     }
     .data-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
     .data-table tr:last-child td { border-bottom: none; }
-    .cell-dim { color: var(--c-text-tertiary); font-size: 12px; }
+    .cell-dim { color: var(--c-text-tertiary); font-size: 11px; }
 
     /* ── Badges ── */
     .badge {
       display: inline-block;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: var(--radius);
+      font-size: 10px;
       font-weight: 500;
       letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-family: 'Space Mono', monospace;
     }
-    .badge-low {
-      background: rgba(212, 184, 149, 0.15);
-      color: var(--c-accent);
+    .badge-low, .badge-good, .badge-info {
+      background: rgba(107, 207, 127, 0.12);
+      color: var(--c-green);
     }
-    .badge-medium {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--c-text-secondary);
+    .badge-medium, .badge-fair, .badge-warning {
+      background: rgba(245, 197, 66, 0.12);
+      color: var(--c-yellow);
     }
-    .badge-high {
-      background: rgba(255, 107, 107, 0.15);
+    .badge-high, .badge-poor, .badge-critical {
+      background: rgba(255, 107, 107, 0.12);
       color: var(--c-red);
     }
+    .badge-excellent {
+      background: rgba(107, 163, 255, 0.12);
+      color: var(--c-blue);
+    }
     .badge-intent {
-      background: rgba(212, 184, 149, 0.1);
+      background: var(--c-accent-dim);
       color: var(--c-accent);
-      border: 1px solid rgba(212, 184, 149, 0.15);
+      border: 1px solid rgba(212, 184, 149, 0.1);
     }
 
     /* ── SERP Position ── */
@@ -547,106 +611,100 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px; height: 28px;
-      border-radius: 8px;
-      background: rgba(212, 184, 149, 0.1);
+      width: 26px; height: 26px;
+      border-radius: var(--radius);
+      background: var(--c-accent-dim);
       font-family: 'Space Mono', monospace;
-      font-size: 12px;
-      font-weight: 400;
+      font-size: 11px;
       color: var(--c-accent);
-      border: 1px solid rgba(212, 184, 149, 0.15);
+      border: 1px solid rgba(212, 184, 149, 0.1);
     }
 
     /* ── Competitor Cards ── */
     .competitor-card h3 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 500;
       color: var(--c-text-primary);
-      margin-bottom: 4px;
-      line-height: 1.3;
+      margin-bottom: 3px;
     }
     .comp-url {
       color: var(--c-text-tertiary);
-      font-size: 12px;
-      margin-bottom: 14px;
+      font-size: 11px;
+      margin-bottom: 12px;
       word-break: break-all;
-      font-weight: 300;
     }
     .comp-meta {
       display: flex;
-      gap: 16px;
-      margin-bottom: 16px;
-      font-size: 12px;
+      gap: 14px;
+      margin-bottom: 14px;
+      font-size: 11px;
       color: var(--c-text-tertiary);
-      font-weight: 400;
     }
     .strengths, .weaknesses {
-      font-size: 13px;
-      margin-bottom: 8px;
+      font-size: 12px;
+      margin-bottom: 6px;
       list-style: none;
       padding: 0;
     }
-    .strengths li { color: var(--c-accent); font-weight: 400; }
-    .weaknesses li { color: rgba(255, 107, 107, 0.7); font-weight: 400; }
+    .strengths li { color: var(--c-green); }
+    .weaknesses li { color: rgba(255, 107, 107, 0.7); }
     .strengths li, .weaknesses li {
-      margin-bottom: 5px;
-      padding-left: 18px;
+      margin-bottom: 4px;
+      padding-left: 16px;
       position: relative;
-      line-height: 1.5;
+      line-height: 1.4;
+      font-weight: 400;
     }
     .strengths li::before {
       content: '+';
       position: absolute; left: 0;
       font-family: 'Space Mono', monospace;
-      font-size: 13px;
+      font-size: 12px;
     }
     .weaknesses li::before {
       content: '\2212';
       position: absolute; left: 0;
       font-family: 'Space Mono', monospace;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     /* ── Content Generation ── */
     .article-meta h2 {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 400;
-      line-height: 1.2;
       letter-spacing: -0.02em;
       color: var(--c-text-primary);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .meta-desc {
       color: var(--c-text-secondary);
-      font-size: 14px;
+      font-size: 13px;
       font-style: italic;
       font-weight: 300;
-      margin-bottom: 18px;
-      line-height: 1.6;
+      margin-bottom: 14px;
     }
     .kw-tags {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .kw-tag {
-      padding: 4px 14px;
-      background: rgba(212, 184, 149, 0.12);
-      border: 1px solid rgba(212, 184, 149, 0.2);
-      border-radius: 999px;
-      font-size: 12px;
+      padding: 3px 10px;
+      background: var(--c-accent-dim);
+      border: 1px solid rgba(212, 184, 149, 0.15);
+      border-radius: var(--radius);
+      font-size: 11px;
       color: var(--c-accent);
-      font-weight: 400;
+      font-family: 'Space Mono', monospace;
     }
     .word-count {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--c-text-tertiary);
-      font-weight: 300;
-      margin-top: 8px;
+      font-family: 'Space Mono', monospace;
     }
     .article-content {
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.8;
       font-weight: 300;
       color: var(--c-text-secondary);
@@ -655,30 +713,79 @@
     .article-content h2,
     .article-content h3 {
       color: var(--c-text-primary);
-      margin: 28px 0 14px;
+      margin: 24px 0 12px;
       font-weight: 400;
       letter-spacing: -0.02em;
     }
-    .article-content h1 { font-size: 24px; }
+    .article-content h1 { font-size: 22px; }
     .article-content h2 {
-      font-size: 20px;
-      padding-bottom: 10px;
+      font-size: 18px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--c-glass-border);
     }
-    .article-content h3 { font-size: 17px; color: var(--c-accent); }
-    .article-content p { margin-bottom: 14px; }
-    .article-content ul, .article-content ol { margin: 10px 0 18px 24px; }
-    .article-content li { margin-bottom: 6px; font-weight: 300; }
+    .article-content h3 { font-size: 16px; color: var(--c-accent); }
+    .article-content p { margin-bottom: 12px; }
+    .article-content ul, .article-content ol { margin: 8px 0 16px 20px; }
+    .article-content li { margin-bottom: 4px; }
     .article-content strong { color: var(--c-text-primary); font-weight: 500; }
+
+    /* ── Website Analyzer ── */
+    .analyzer-overview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .analyzer-stat {
+      padding: 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    .analyzer-stat .stat-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--c-text-tertiary);
+      margin-bottom: 4px;
+    }
+    .analyzer-stat .stat-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--c-text-primary);
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .score-cell {
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+    }
+    .score-cell .score-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--c-text-tertiary);
+      margin-bottom: 6px;
+    }
 
     /* ── Fallback pre ── */
     .result pre {
-      background: var(--c-glass-bg);
+      background: var(--c-bg-card);
       border: 1px solid var(--c-glass-border);
-      border-radius: 12px;
-      padding: 24px;
+      border-radius: var(--radius);
+      padding: 20px;
       font-family: 'Space Mono', monospace;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--c-text-secondary);
       overflow-x: auto;
       white-space: pre-wrap;
@@ -688,16 +795,19 @@
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .sidebar { display: none; }
-      .main { padding: 28px 16px 60px; }
+      .main { padding: 24px 16px 60px; }
       .topbar { padding: 0 16px; }
       .topbar-user span { display: none; }
-      .auth-card { padding: 40px 28px; }
-      .auth-card h1 { font-size: 36px; }
-      .tool-chip { padding: 6px 14px; font-size: 12px; }
-      .input-area textarea { padding: 16px 110px 16px 18px; }
-      .result-panel { padding: 18px; }
-      .data-table { font-size: 12px; }
-      .data-table th, .data-table td { padding: 10px 10px; }
+      .auth-card { padding: 40px 24px; }
+      .auth-card h1 { font-size: 40px; }
+      .hero h2 { font-size: 28px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .dashboard { grid-template-columns: repeat(2, 1fr); }
+      .analyzer-overview { grid-template-columns: repeat(2, 1fr); }
+      .score-grid { grid-template-columns: repeat(2, 1fr); }
+      .input-area textarea { padding: 14px 100px 14px 14px; }
+      .result-panel { padding: 16px; }
+      .data-table th, .data-table td { padding: 8px 8px; }
     }
   </style>
 </head>
@@ -727,7 +837,7 @@
   <div class="layout">
     <div class="sidebar">
       <div class="sidebar-label">
-        <span class="sidebar-label-text">Search History</span>
+        <span class="sidebar-label-text">History</span>
         <span class="count" id="history-count">0</span>
       </div>
       <div id="history-list">
@@ -736,14 +846,67 @@
     </div>
 
     <div class="main">
-      <div class="tools">
-        <span class="tool-chip" data-q="Find keywords for ">Keywords</span>
-        <span class="tool-chip" data-q="Analyze competitors for ">Competitors</span>
-        <span class="tool-chip" data-q="Analyze SERP for ">SERP</span>
-        <span class="tool-chip" data-q="Find content gaps for ">Content Gaps</span>
-        <span class="tool-chip" data-q="Write a blog post about ">Generate Content</span>
+      <!-- Hero -->
+      <div class="hero">
+        <h2>Research, analyze &amp; rank.</h2>
+        <p>AI-powered SEO intelligence. Keywords, competitors, content gaps, SERP analysis, content generation, and website audits.</p>
       </div>
 
+      <!-- Tool Pillar Cards -->
+      <div class="tools-grid">
+        <div class="tool-card" data-q="Find keywords for ">
+          <div class="tool-num">01</div>
+          <div class="tool-name">Keywords</div>
+          <div class="tool-desc">Volume, difficulty &amp; long-tail</div>
+        </div>
+        <div class="tool-card" data-q="Analyze competitors for ">
+          <div class="tool-num">02</div>
+          <div class="tool-name">Competitors</div>
+          <div class="tool-desc">Strengths, weaknesses &amp; gaps</div>
+        </div>
+        <div class="tool-card" data-q="Analyze SERP for ">
+          <div class="tool-num">03</div>
+          <div class="tool-name">SERP</div>
+          <div class="tool-desc">Features, intent &amp; positions</div>
+        </div>
+        <div class="tool-card" data-q="Find content gaps for ">
+          <div class="tool-num">04</div>
+          <div class="tool-name">Content Gaps</div>
+          <div class="tool-desc">Underserved topics &amp; angles</div>
+        </div>
+        <div class="tool-card" data-q="Write a blog post about ">
+          <div class="tool-num">05</div>
+          <div class="tool-name">Generate Content</div>
+          <div class="tool-desc">SEO-optimized articles</div>
+        </div>
+        <div class="tool-card" data-q="Analyze the website ">
+          <div class="tool-num">06</div>
+          <div class="tool-name">Website Analyzer</div>
+          <div class="tool-desc">SEO audit &amp; scoring</div>
+        </div>
+      </div>
+
+      <!-- Dashboard Stats -->
+      <div class="dashboard">
+        <div class="dash-cell">
+          <div class="dash-label">Total Cost</div>
+          <div class="dash-value" id="dash-cost">$0.00</div>
+        </div>
+        <div class="dash-cell">
+          <div class="dash-label">Queries Today</div>
+          <div class="dash-value" id="dash-today">0</div>
+        </div>
+        <div class="dash-cell">
+          <div class="dash-label">Tokens Used</div>
+          <div class="dash-value" id="dash-tokens">0</div>
+        </div>
+        <div class="dash-cell">
+          <div class="dash-label">Total Searches</div>
+          <div class="dash-value" id="dash-searches">0</div>
+        </div>
+      </div>
+
+      <!-- Input -->
       <div class="input-area">
         <textarea id="query" rows="2" placeholder="e.g. What keywords should I target for hard water shower filters?"></textarea>
         <button id="submit" onclick="submitQuery()">Run</button>
@@ -780,7 +943,7 @@ function initGoogleAuth() {
   google.accounts.id.renderButton($('google-btn'), {
     theme: 'filled_black',
     size: 'large',
-    shape: 'pill',
+    shape: 'rectangular',
     text: 'signin_with',
   });
   const stored = sessionStorage.getItem('seo_token');
@@ -805,6 +968,7 @@ function showApp(user) {
   $('user-pic').src = user.picture || '';
   $('user-name').textContent = user.email;
   loadHistory();
+  loadUsage();
 }
 
 function logout() {
@@ -842,6 +1006,24 @@ async function loadHistory() {
   } catch (e) {}
 }
 
+async function loadUsage() {
+  try {
+    const res = await fetch('/api/usage', { headers: authHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    $('dash-cost').textContent = '$' + (data.total_cost || 0).toFixed(2);
+    $('dash-today').textContent = data.today_queries || 0;
+    $('dash-tokens').textContent = formatNum(data.total_tokens || 0);
+    $('dash-searches').textContent = data.total_searches || 0;
+  } catch (e) {}
+}
+
+function formatNum(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+
 function renderHistory(items) {
   const list = $('history-list');
   $('history-count').textContent = items.length;
@@ -866,14 +1048,14 @@ function showHistoryItem(item) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.tool-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
+  document.querySelectorAll('.tool-card').forEach(card => {
+    card.addEventListener('click', () => {
       const q = $('query');
-      q.value = chip.dataset.q;
+      q.value = card.dataset.q;
       q.focus();
       q.setSelectionRange(q.value.length, q.value.length);
-      document.querySelectorAll('.tool-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
+      document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
     });
   });
   $('query').addEventListener('keydown', e => {
@@ -903,6 +1085,7 @@ async function submitQuery() {
     }
     renderResult(data);
     loadHistory();
+    loadUsage();
   } catch (err) {
     $('error').textContent = 'Network error: ' + err.message;
     $('error').classList.add('show');
@@ -925,6 +1108,7 @@ function renderResult(data) {
   else if (tool === 'serp_analysis') html += renderSERP(r);
   else if (tool === 'content_gap') html += renderGaps(r);
   else if (tool === 'content_generation') html += renderContent(r);
+  else if (tool === 'website_analyzer') html += renderAnalyzer(r);
   else html += `<pre>${JSON.stringify(r, null, 2)}</pre>`;
   el.innerHTML = html;
   el.classList.add('show');
@@ -933,17 +1117,21 @@ function renderResult(data) {
 
 function diffBadge(d) {
   const l = d.toLowerCase();
-  const cls = { low: 'low', medium: 'medium', high: 'high' }[l] || 'medium';
+  const map = {
+    low: 'low', medium: 'medium', high: 'high',
+    poor: 'poor', fair: 'fair', good: 'good', excellent: 'excellent',
+    critical: 'critical', warning: 'warning', info: 'info'
+  };
+  const cls = map[l] || 'medium';
   return `<span class="badge badge-${cls}">${d}</span>`;
 }
 
 function intentBadge(i) {
-  const l = i.toLowerCase();
   return `<span class="badge badge-intent">${i}</span>`;
 }
 
 function renderKeywords(r) {
-  let h = `<div class="glass-panel result-panel"><table class="data-table"><thead><tr>
+  let h = `<div class="result-panel"><table class="data-table"><thead><tr>
     <th>Keyword</th><th>Volume</th><th>Difficulty</th><th>Intent</th><th>CPC</th><th>Notes</th>
   </tr></thead><tbody>`;
   for (const k of r.keywords) {
@@ -953,33 +1141,33 @@ function renderKeywords(r) {
   }
   h += `</tbody></table></div>`;
   if (r.long_tail_suggestions?.length) {
-    h += `<div class="glass-panel result-panel"><div class="panel-label">Long-tail Suggestions</div><ul class="panel-list">`;
+    h += `<div class="result-panel"><div class="panel-label">Long-tail Suggestions</div><ul class="panel-list">`;
     for (const s of r.long_tail_suggestions) h += `<li>${esc(s)}</li>`;
     h += `</ul></div>`;
   }
-  h += `<div class="glass-panel result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
+  h += `<div class="result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
 }
 
 function renderCompetitors(r) {
   let h = '';
   for (const c of r.competitors) {
-    h += `<div class="glass-panel result-panel competitor-card"><h3>${esc(c.title)}</h3><div class="comp-url">${esc(c.url)}</div>
+    h += `<div class="result-panel competitor-card"><h3>${esc(c.title)}</h3><div class="comp-url">${esc(c.url)}</div>
       <div class="comp-meta"><span>${esc(c.content_type)}</span><span>~${esc(c.estimated_word_count)} words</span></div>
       <ul class="strengths">${c.strengths.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
       <ul class="weaknesses">${c.weaknesses.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></div>`;
   }
   if (r.opportunities?.length) {
-    h += `<div class="glass-panel result-panel"><div class="panel-label">Opportunities</div><ul class="panel-list">`;
+    h += `<div class="result-panel"><div class="panel-label">Opportunities</div><ul class="panel-list">`;
     for (const o of r.opportunities) h += `<li>${esc(o)}</li>`;
     h += `</ul></div>`;
   }
-  h += `<div class="glass-panel result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
+  h += `<div class="result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
 }
 
 function renderSERP(r) {
-  let h = `<div class="glass-panel result-panel"><table class="data-table"><thead><tr>
+  let h = `<div class="result-panel"><table class="data-table"><thead><tr>
     <th>#</th><th>Title</th><th>Type</th><th>URL</th>
   </tr></thead><tbody>`;
   for (const e of r.entries) {
@@ -989,16 +1177,16 @@ function renderSERP(r) {
       <td class="cell-dim" style="word-break:break-all">${esc(e.url)}</td></tr>`;
   }
   h += `</tbody></table></div>`;
-  h += `<div class="glass-panel result-panel"><div class="panel-label">SERP Features</div><ul class="panel-list">`;
+  h += `<div class="result-panel"><div class="panel-label">SERP Features</div><ul class="panel-list">`;
   for (const f of r.serp_features) h += `<li>${esc(f)}</li>`;
   h += `</ul></div>`;
-  h += `<div class="glass-panel result-panel"><div class="panel-label">Dominant Intent: ${esc(r.dominant_intent)}</div>
+  h += `<div class="result-panel"><div class="panel-label">Dominant Intent: ${esc(r.dominant_intent)}</div>
     <p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
 }
 
 function renderGaps(r) {
-  let h = `<div class="glass-panel result-panel"><table class="data-table"><thead><tr>
+  let h = `<div class="result-panel"><table class="data-table"><thead><tr>
     <th>Topic</th><th>Gap Type</th><th>Opportunity</th><th>Suggested Angle</th>
   </tr></thead><tbody>`;
   for (const g of r.gaps) {
@@ -1007,22 +1195,22 @@ function renderGaps(r) {
   }
   h += `</tbody></table></div>`;
   if (r.underserved_subtopics?.length) {
-    h += `<div class="glass-panel result-panel"><div class="panel-label">Underserved Subtopics</div><ul class="panel-list">`;
+    h += `<div class="result-panel"><div class="panel-label">Underserved Subtopics</div><ul class="panel-list">`;
     for (const s of r.underserved_subtopics) h += `<li>${esc(s)}</li>`;
     h += `</ul></div>`;
   }
-  h += `<div class="glass-panel result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
+  h += `<div class="result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
 }
 
 function renderContent(r) {
-  let h = `<div class="glass-panel result-panel article-meta"><h2>${esc(r.title)}</h2>
+  let h = `<div class="result-panel article-meta"><h2>${esc(r.title)}</h2>
     <p class="meta-desc">${esc(r.meta_description)}</p>
     <div class="kw-tags"><span class="kw-tag">${esc(r.target_keyword)}</span>`;
   for (const k of r.secondary_keywords) h += `<span class="kw-tag">${esc(k)}</span>`;
   h += `</div><p class="word-count">${r.word_count} words</p></div>`;
   if (r.outline?.length) {
-    h += `<div class="glass-panel result-panel"><div class="panel-label">Outline</div><ul class="panel-list">`;
+    h += `<div class="result-panel"><div class="panel-label">Outline</div><ul class="panel-list">`;
     for (const o of r.outline) h += `<li>${esc(o)}</li>`;
     h += `</ul></div>`;
   }
@@ -1035,12 +1223,87 @@ function renderContent(r) {
     .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>');
-  h += `<div class="glass-panel result-panel article-content"><p>${content}</p></div>`;
+  h += `<div class="result-panel article-content"><p>${content}</p></div>`;
   if (r.seo_notes?.length) {
-    h += `<div class="glass-panel result-panel"><div class="panel-label">SEO Notes</div><ul class="panel-list">`;
+    h += `<div class="result-panel"><div class="panel-label">SEO Notes</div><ul class="panel-list">`;
     for (const n of r.seo_notes) h += `<li>${esc(n)}</li>`;
     h += `</ul></div>`;
   }
+  return h;
+}
+
+function renderAnalyzer(r) {
+  let h = '';
+
+  // Overall score + stats
+  h += `<div class="analyzer-overview">
+    <div class="analyzer-stat">
+      <div class="stat-label">Overall Score</div>
+      <div class="stat-value">${r.overall_score}/100</div>
+    </div>
+    <div class="analyzer-stat">
+      <div class="stat-label">Word Count</div>
+      <div class="stat-value">${formatNum(r.word_count)}</div>
+    </div>
+    <div class="analyzer-stat">
+      <div class="stat-label">Internal Links</div>
+      <div class="stat-value">${r.internal_links}</div>
+    </div>
+    <div class="analyzer-stat">
+      <div class="stat-label">External Links</div>
+      <div class="stat-value">${r.external_links}</div>
+    </div>
+  </div>`;
+
+  // Score breakdown
+  h += `<div class="score-grid">
+    <div class="score-cell"><div class="score-label">Performance</div>${diffBadge(r.performance_score)}</div>
+    <div class="score-cell"><div class="score-label">SEO</div>${diffBadge(r.seo_score)}</div>
+    <div class="score-cell"><div class="score-label">Content</div>${diffBadge(r.content_score)}</div>
+    <div class="score-cell"><div class="score-label">Technical</div>${diffBadge(r.technical_score)}</div>
+  </div>`;
+
+  // Meta info
+  h += `<div class="result-panel">
+    <div class="panel-label">Page Meta</div>
+    <p style="font-size:14px;font-weight:500;color:var(--c-text-primary);margin-bottom:4px">${esc(r.page_title)}</p>
+    <p style="font-size:12px;color:var(--c-text-tertiary);margin-bottom:8px;word-break:break-all">${esc(r.url)}</p>
+    <p class="summary-text" style="font-style:italic">${esc(r.meta_description)}</p>
+  </div>`;
+
+  // Issues table
+  if (r.issues?.length) {
+    h += `<div class="result-panel"><div class="panel-label">Issues Found</div>
+      <table class="data-table"><thead><tr>
+        <th>Severity</th><th>Issue</th><th>Description</th><th>Recommendation</th>
+      </tr></thead><tbody>`;
+    for (const iss of r.issues) {
+      h += `<tr>
+        <td>${diffBadge(iss.severity)}</td>
+        <td><strong>${esc(iss.issue)}</strong></td>
+        <td class="cell-dim">${esc(iss.description)}</td>
+        <td class="cell-dim">${esc(iss.recommendation)}</td>
+      </tr>`;
+    }
+    h += `</tbody></table></div>`;
+  }
+
+  // Heading structure
+  if (r.heading_structure?.length) {
+    h += `<div class="result-panel"><div class="panel-label">Heading Structure</div><ul class="panel-list">`;
+    for (const hs of r.heading_structure) h += `<li>${esc(hs)}</li>`;
+    h += `</ul></div>`;
+  }
+
+  // Schema markup
+  if (r.schema_markup?.length) {
+    h += `<div class="result-panel"><div class="panel-label">Schema Markup</div><ul class="panel-list">`;
+    for (const sm of r.schema_markup) h += `<li>${esc(sm)}</li>`;
+    h += `</ul></div>`;
+  }
+
+  // Summary
+  h += `<div class="result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
 }
 

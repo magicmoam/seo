@@ -13,6 +13,7 @@ from src.tools import (
     keyword_research,
     llm,
     serp_analysis,
+    website_analyzer,
 )
 
 TOOLS = {
@@ -21,34 +22,43 @@ TOOLS = {
     "serp_analysis": serp_analysis.run,
     "content_gap": content_gap.run,
     "content_generation": content_generator.run,
+    "website_analyzer": website_analyzer.run,
 }
 
 
-async def route(user_input: str) -> dict:
+async def route(user_input: str) -> tuple[dict, dict]:
     """Use the LLM to determine which tool to call and with what query."""
-    response = await llm.complete(
+    result = await llm.complete(
         system=AGENT_ROUTER_SYSTEM,
         user=user_input,
         temperature=0.0,
     )
-    return json.loads(response)
+    routing = json.loads(result.text)
+    usage = {
+        "input_tokens": result.input_tokens,
+        "output_tokens": result.output_tokens,
+        "model": result.model,
+    }
+    return routing, usage
 
 
 async def run(user_input: str) -> AgentResponse:
     """Process a user query end-to-end."""
-    routing = await route(user_input)
+    routing, _ = await route(user_input)
     tool_name = routing["tool"]
     query = routing["query"]
     extras = routing.get("extras", {})
 
     if tool_name == "content_generation":
-        result = await content_generator.run(
+        result, _ = await content_generator.run(
             keyword=query,
             content_type=extras.get("content_type", "blog post"),
             tone=extras.get("tone", "professional"),
         )
+    elif tool_name == "website_analyzer":
+        result, _ = await website_analyzer.run(query)
     elif tool_name in TOOLS:
-        result = await TOOLS[tool_name](query)
+        result, _ = await TOOLS[tool_name](query)
     else:
         raise ValueError(f"Unknown tool: {tool_name}")
 

@@ -35,7 +35,7 @@ async def _authenticate(request: Request) -> dict | JSONResponse:
 @app.post("/api/query")
 async def query(request: Request):
     from src.agent import route
-    from src.db import save_search
+    from src.db import save_search, save_usage
     from src.models import AgentResponse
     from src.tools import (
         competitor_analysis,
@@ -43,6 +43,7 @@ async def query(request: Request):
         content_generator,
         keyword_research,
         serp_analysis,
+        website_analyzer,
     )
 
     auth_result = await _authenticate(request)
@@ -56,33 +57,51 @@ async def query(request: Request):
         return JSONResponse({"error": "Empty query"}, status_code=400)
 
     try:
-        routing = await route(user_input)
+        routing, router_usage = await route(user_input)
         tool_name = routing["tool"]
         q = routing["query"]
         extras = routing.get("extras", {})
 
         if tool_name == "content_generation":
-            result = await content_generator.run(
+            result, tool_usage = await content_generator.run(
                 keyword=q,
                 content_type=extras.get("content_type", "blog post"),
                 tone=extras.get("tone", "professional"),
             )
         elif tool_name == "keyword_research":
-            result = await keyword_research.run(q)
+            result, tool_usage = await keyword_research.run(q)
         elif tool_name == "competitor_analysis":
-            result = await competitor_analysis.run(q)
+            result, tool_usage = await competitor_analysis.run(q)
         elif tool_name == "serp_analysis":
-            result = await serp_analysis.run(q)
+            result, tool_usage = await serp_analysis.run(q)
         elif tool_name == "content_gap":
-            result = await content_gap.run(q)
+            result, tool_usage = await content_gap.run(q)
+        elif tool_name == "website_analyzer":
+            result, tool_usage = await website_analyzer.run(q)
         else:
             return JSONResponse({"error": f"Unknown tool: {tool_name}"}, status_code=400)
+
+        # Merge router + tool usage
+        total_input = router_usage.get("input_tokens", 0) + tool_usage.get("input_tokens", 0)
+        total_output = router_usage.get("output_tokens", 0) + tool_usage.get("output_tokens", 0)
 
         response = AgentResponse(tool_used=tool_name, query=q, result=result)
         response_data = json.loads(response.model_dump_json())
 
         # Save to database
         await save_search(user["email"], q, tool_name, response_data["result"])
+
+        # Save usage
+        await save_usage(
+            user_email=user["email"],
+            tool_used=tool_name,
+            query=q,
+            model=tool_usage.get("model", ""),
+            input_tokens=total_input,
+            output_tokens=total_output,
+            jina_searches=tool_usage.get("jina_searches", 0),
+            jina_scrapes=tool_usage.get("jina_scrapes", 0),
+        )
 
         return JSONResponse(response_data)
 

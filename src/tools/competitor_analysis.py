@@ -9,7 +9,7 @@ from src.prompts.templates import COMPETITOR_ANALYSIS_SYSTEM, COMPETITOR_ANALYSI
 from src.tools import jina, llm
 
 
-async def run(query: str) -> CompetitorAnalysisResult:
+async def run(query: str) -> tuple[CompetitorAnalysisResult, dict]:
     # Scrape top-ranking pages for deeper content analysis
     pages = await jina.search_and_scrape(query, num_results=5)
 
@@ -18,12 +18,19 @@ async def run(query: str) -> CompetitorAnalysisResult:
         for p in pages
     )
 
-    response = await llm.complete(
+    result = await llm.complete(
         system=COMPETITOR_ANALYSIS_SYSTEM,
         user=COMPETITOR_ANALYSIS_USER.format(
             query=query, competitor_data=competitor_data
         ),
     )
 
-    data = json.loads(response)
-    return CompetitorAnalysisResult(**data)
+    data = json.loads(result.text)
+    usage = {
+        "input_tokens": result.input_tokens,
+        "output_tokens": result.output_tokens,
+        "model": result.model,
+        "jina_searches": 1,
+        "jina_scrapes": min(len(pages), 5),
+    }
+    return CompetitorAnalysisResult(**data), usage

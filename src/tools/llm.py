@@ -3,8 +3,17 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 from src.config import config
+
+
+@dataclass
+class LLMResult:
+    text: str
+    input_tokens: int
+    output_tokens: int
+    model: str
 
 
 def _strip_fences(text: str) -> str:
@@ -12,16 +21,15 @@ def _strip_fences(text: str) -> str:
     return re.sub(r"^```(?:json)?\s*\n?", "", text.strip(), flags=re.MULTILINE).rstrip("`").strip()
 
 
-async def complete(system: str, user: str, temperature: float = 0.3) -> str:
+async def complete(system: str, user: str, temperature: float = 0.3) -> LLMResult:
     """Send a chat completion request to the configured LLM provider."""
     if config.llm_provider == "anthropic":
-        raw = await _anthropic(system, user, temperature)
+        return await _anthropic(system, user, temperature)
     else:
-        raw = await _openai(system, user, temperature)
-    return _strip_fences(raw)
+        return await _openai(system, user, temperature)
 
 
-async def _openai(system: str, user: str, temperature: float) -> str:
+async def _openai(system: str, user: str, temperature: float) -> LLMResult:
     from openai import AsyncOpenAI
 
     client = AsyncOpenAI(api_key=config.openai_api_key)
@@ -34,10 +42,17 @@ async def _openai(system: str, user: str, temperature: float) -> str:
             {"role": "user", "content": user},
         ],
     )
-    return resp.choices[0].message.content or ""
+    text = _strip_fences(resp.choices[0].message.content or "")
+    usage = resp.usage
+    return LLMResult(
+        text=text,
+        input_tokens=usage.prompt_tokens if usage else 0,
+        output_tokens=usage.completion_tokens if usage else 0,
+        model=config.openai_model,
+    )
 
 
-async def _anthropic(system: str, user: str, temperature: float) -> str:
+async def _anthropic(system: str, user: str, temperature: float) -> LLMResult:
     from anthropic import AsyncAnthropic
 
     client = AsyncAnthropic(api_key=config.anthropic_api_key)
@@ -48,4 +63,10 @@ async def _anthropic(system: str, user: str, temperature: float) -> str:
         temperature=temperature,
         messages=[{"role": "user", "content": user}],
     )
-    return resp.content[0].text
+    text = _strip_fences(resp.content[0].text)
+    return LLMResult(
+        text=text,
+        input_tokens=resp.usage.input_tokens,
+        output_tokens=resp.usage.output_tokens,
+        model=config.anthropic_model,
+    )

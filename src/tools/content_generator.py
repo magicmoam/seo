@@ -13,16 +13,18 @@ async def run(
     keyword: str,
     content_type: str = "blog post",
     tone: str = "professional",
-) -> GeneratedContent:
+) -> tuple[GeneratedContent, dict]:
     # Research the topic thoroughly
     search_results = await jina.search(keyword, num_results=5)
 
     # Scrape top 3 for depth
     scraped = []
+    scrape_count = 0
     for result in search_results[:3]:
         try:
             page = await jina.scrape(result["url"])
             scraped.append(page)
+            scrape_count += 1
         except Exception:
             scraped.append(result)
 
@@ -39,7 +41,7 @@ async def run(
         f"- {q['title']}: {q['description']}" for q in questions
     )
 
-    response = await llm.complete(
+    result = await llm.complete(
         system=CONTENT_GENERATION_SYSTEM,
         user=CONTENT_GENERATION_USER.format(
             keyword=keyword,
@@ -50,5 +52,12 @@ async def run(
         temperature=0.5,  # slightly more creative for content
     )
 
-    data = json.loads(response)
-    return GeneratedContent(**data)
+    data = json.loads(result.text)
+    usage = {
+        "input_tokens": result.input_tokens,
+        "output_tokens": result.output_tokens,
+        "model": result.model,
+        "jina_searches": 2,
+        "jina_scrapes": scrape_count,
+    }
+    return GeneratedContent(**data), usage

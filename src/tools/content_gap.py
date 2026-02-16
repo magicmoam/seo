@@ -9,7 +9,7 @@ from src.prompts.templates import CONTENT_GAP_SYSTEM, CONTENT_GAP_USER
 from src.tools import jina, llm
 
 
-async def run(query: str) -> ContentGapResult:
+async def run(query: str) -> tuple[ContentGapResult, dict]:
     # Search for existing content in the niche
     existing = await jina.search(query, num_results=8)
 
@@ -33,10 +33,17 @@ async def run(query: str) -> ContentGapResult:
         f"### {r['title']}\n{r['content'][:600]}" for r in gaps_search
     )
 
-    response = await llm.complete(
+    result = await llm.complete(
         system=CONTENT_GAP_SYSTEM,
         user=CONTENT_GAP_USER.format(query=query, gap_data=gap_data),
     )
 
-    data = json.loads(response)
-    return ContentGapResult(**data)
+    data = json.loads(result.text)
+    usage = {
+        "input_tokens": result.input_tokens,
+        "output_tokens": result.output_tokens,
+        "model": result.model,
+        "jina_searches": 3,
+        "jina_scrapes": 0,
+    }
+    return ContentGapResult(**data), usage

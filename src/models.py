@@ -77,6 +77,31 @@ class GeneratedContent(BaseModel):
     seo_notes: list[str]
 
 
+class SEOIssue(BaseModel):
+    issue: str
+    severity: str  # critical / warning / info
+    description: str
+    recommendation: str
+
+
+class WebsiteAnalysisResult(BaseModel):
+    url: str
+    page_title: str
+    meta_description: str
+    overall_score: int  # 0-100
+    performance_score: str  # poor / fair / good / excellent
+    seo_score: str
+    content_score: str
+    technical_score: str
+    word_count: int
+    internal_links: int
+    external_links: int
+    heading_structure: list[str]  # e.g. ["H1: Main Title", "H2: Section"]
+    issues: list[SEOIssue]
+    schema_markup: list[str]
+    summary: str
+
+
 class AgentResponse(BaseModel):
     tool_used: str
     query: str
@@ -86,5 +111,6 @@ class AgentResponse(BaseModel):
         | SERPAnalysisResult
         | ContentGapResult
         | GeneratedContent
+        | WebsiteAnalysisResult
     )
     raw_sources: list[str] = []

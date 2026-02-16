@@ -9,7 +9,7 @@ from src.prompts.templates import SERP_ANALYSIS_SYSTEM, SERP_ANALYSIS_USER
 from src.tools import jina, llm
 
 
-async def run(query: str) -> SERPAnalysisResult:
+async def run(query: str) -> tuple[SERPAnalysisResult, dict]:
     results = await jina.search(query, num_results=10)
 
     serp_data = "\n\n".join(
@@ -17,10 +17,17 @@ async def run(query: str) -> SERPAnalysisResult:
         for i, r in enumerate(results)
     )
 
-    response = await llm.complete(
+    result = await llm.complete(
         system=SERP_ANALYSIS_SYSTEM,
         user=SERP_ANALYSIS_USER.format(query=query, serp_data=serp_data),
     )
 
-    data = json.loads(response)
-    return SERPAnalysisResult(**data)
+    data = json.loads(result.text)
+    usage = {
+        "input_tokens": result.input_tokens,
+        "output_tokens": result.output_tokens,
+        "model": result.model,
+        "jina_searches": 1,
+        "jina_scrapes": 0,
+    }
+    return SERPAnalysisResult(**data), usage

@@ -9,7 +9,7 @@ from src.prompts.templates import KEYWORD_RESEARCH_SYSTEM, KEYWORD_RESEARCH_USER
 from src.tools import jina, llm
 
 
-async def run(seed_keyword: str) -> KeywordResearchResult:
+async def run(seed_keyword: str) -> tuple[KeywordResearchResult, dict]:
     # Gather real search data via Jina
     results = await jina.search(seed_keyword, num_results=8)
 
@@ -26,12 +26,19 @@ async def run(seed_keyword: str) -> KeywordResearchResult:
         for r in related
     )
 
-    response = await llm.complete(
+    result = await llm.complete(
         system=KEYWORD_RESEARCH_SYSTEM,
         user=KEYWORD_RESEARCH_USER.format(
             seed_keyword=seed_keyword, search_data=search_data
         ),
     )
 
-    data = json.loads(response)
-    return KeywordResearchResult(**data)
+    data = json.loads(result.text)
+    usage = {
+        "input_tokens": result.input_tokens,
+        "output_tokens": result.output_tokens,
+        "model": result.model,
+        "jina_searches": 2,
+        "jina_scrapes": 0,
+    }
+    return KeywordResearchResult(**data), usage
