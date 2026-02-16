@@ -529,6 +529,35 @@
       margin-bottom: 24px;
       padding-bottom: 16px;
       border-bottom: 1px solid var(--c-glass-border);
+      flex-wrap: wrap;
+    }
+    .btn-download {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(212, 184, 149, 0.2);
+      background: rgba(212, 184, 149, 0.08);
+      color: var(--c-accent);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-download:hover {
+      background: rgba(212, 184, 149, 0.15);
+      border-color: rgba(212, 184, 149, 0.35);
+    }
+    .btn-download:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .btn-download svg {
+      width: 14px;
+      height: 14px;
     }
     .result-badge {
       padding: 4px 12px;
@@ -944,6 +973,7 @@
       .result-panel { padding: 14px; margin-bottom: 8px; }
       .result-header { margin-bottom: 16px; padding-bottom: 12px; }
       .result-badge { font-size: 9px; padding: 3px 10px; }
+      .btn-download { font-size: 10px; padding: 5px 10px; }
       .result-query { font-size: 12px; }
       .data-table { font-size: 11px; }
       .data-table th { font-size: 9px; padding: 8px 6px; }
@@ -1288,13 +1318,49 @@ async function submitQuery() {
   }
 }
 
+let _lastResult = null;
+
+async function downloadReport() {
+  if (!_lastResult) return;
+  const btn = document.querySelector('.btn-download');
+  if (btn) { btn.disabled = true; btn.querySelector('.dl-label').textContent = 'Generating...'; }
+  try {
+    const res = await fetch('/api/report', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(_lastResult)
+    });
+    if (!res.ok) throw new Error('Report generation failed');
+    const html = await res.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wongzo_${_lastResult.tool_used}_${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    $('error').textContent = 'Download failed: ' + err.message;
+    $('error').classList.add('show');
+  } finally {
+    if (btn) { btn.disabled = false; btn.querySelector('.dl-label').textContent = 'Download Report'; }
+  }
+}
+
 function renderResult(data) {
+  _lastResult = data;
   const el = $('result');
   const tool = data.tool_used;
   const r = data.result;
   let html = `<div class="result-header">
     <span class="result-badge">${tool.replace(/_/g, ' ')}</span>
     <span class="result-query">${esc(data.query)}</span>
+    <button class="btn-download" onclick="downloadReport()" title="Download as shareable HTML report">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="dl-label">Download Report</span>
+    </button>
   </div>`;
   if (tool === 'keyword_research') html += renderKeywords(r);
   else if (tool === 'competitor_analysis') html += renderCompetitors(r);

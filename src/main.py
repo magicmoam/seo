@@ -15,6 +15,7 @@ from rich.text import Text
 from src.agent import run
 from src.config import config
 from src.models import (
+    AgentResponse,
     BacklinkStrategy,
     CompetitorAnalysisResult,
     ContentCalendar,
@@ -26,6 +27,7 @@ from src.models import (
     TechnicalSEOAudit,
     TopicalAuthorityMap,
 )
+from src.report_exporter import export_html, export_json
 
 console = Console()
 
@@ -559,6 +561,24 @@ DISPLAY_MAP = {
 }
 
 
+def _export_reports(response: AgentResponse) -> None:
+    """Auto-export HTML and JSON reports, show paths to user."""
+    try:
+        html_path = export_html(response)
+        json_path = export_json(response)
+        console.print(
+            Panel(
+                f"[bold green]Reports saved:[/bold green]\n"
+                f"  HTML: [cyan]{html_path}[/cyan]  (open in browser to share)\n"
+                f"  JSON: [dim]{json_path}[/dim]  (raw data)",
+                title="Export",
+                border_style="green",
+            )
+        )
+    except Exception as e:
+        console.print(f"[dim]Export warning: {e}[/dim]")
+
+
 async def interactive() -> None:
     console.print(
         Panel(
@@ -577,6 +597,7 @@ async def interactive() -> None:
             " 10. [bold green]Backlink Strategy[/bold green] - Link building plan with costs\n"
             " 11. [bold cyan]Full SEO Strategy[/bold cyan] - Deploy ALL agents for a comprehensive plan\n\n"
             "Just describe what you need in plain English.\n"
+            "Reports are auto-saved as HTML (shareable) and JSON.\n"
             'Type [bold]"quit"[/bold] to exit.',
             border_style="cyan",
         )
@@ -604,6 +625,9 @@ async def interactive() -> None:
                 display_fn(response.result)
             else:
                 console.print_json(response.result.model_dump_json(indent=2))
+
+            # Auto-export shareable reports
+            _export_reports(response)
 
         except json.JSONDecodeError as e:
             console.print(f"[red]Failed to parse LLM response as JSON: {e}[/red]")
