@@ -38,11 +38,15 @@ async def query(request: Request):
     from src.db import save_search, save_usage
     from src.models import AgentResponse
     from src.tools import (
+        backlink_strategy,
         competitor_analysis,
         content_gap,
         content_generator,
         keyword_research,
         serp_analysis,
+        strategy_orchestrator,
+        technical_seo,
+        topical_authority,
         website_analyzer,
     )
 
@@ -78,6 +82,20 @@ async def query(request: Request):
             result, tool_usage = await content_gap.run(q)
         elif tool_name == "website_analyzer":
             result, tool_usage = await website_analyzer.run(q)
+        elif tool_name == "topical_authority":
+            result, tool_usage = await topical_authority.run(
+                domain=q, niche=extras.get("niche", ""),
+            )
+        elif tool_name == "technical_seo":
+            result, tool_usage = await technical_seo.run(q)
+        elif tool_name == "backlink_strategy":
+            result, tool_usage = await backlink_strategy.run(
+                domain=q, niche=extras.get("niche", ""),
+            )
+        elif tool_name == "seo_strategy":
+            result, tool_usage = await strategy_orchestrator.run(
+                url=q, niche=extras.get("niche", ""),
+            )
         else:
             return JSONResponse({"error": f"Unknown tool: {tool_name}"}, status_code=400)
 

@@ -7,12 +7,16 @@ import json
 from src.models import AgentResponse
 from src.prompts.templates import AGENT_ROUTER_SYSTEM
 from src.tools import (
+    backlink_strategy,
     competitor_analysis,
     content_gap,
     content_generator,
     keyword_research,
     llm,
     serp_analysis,
+    strategy_orchestrator,
+    technical_seo,
+    topical_authority,
     website_analyzer,
 )
 
@@ -57,6 +61,23 @@ async def run(user_input: str) -> AgentResponse:
         )
     elif tool_name == "website_analyzer":
         result, _ = await website_analyzer.run(query)
+    elif tool_name == "topical_authority":
+        result, _ = await topical_authority.run(
+            domain=query,
+            niche=extras.get("niche", ""),
+        )
+    elif tool_name == "technical_seo":
+        result, _ = await technical_seo.run(query)
+    elif tool_name == "backlink_strategy":
+        result, _ = await backlink_strategy.run(
+            domain=query,
+            niche=extras.get("niche", ""),
+        )
+    elif tool_name == "seo_strategy":
+        result, _ = await strategy_orchestrator.run(
+            url=query,
+            niche=extras.get("niche", ""),
+        )
     elif tool_name in TOOLS:
         result, _ = await TOOLS[tool_name](query)
     else:

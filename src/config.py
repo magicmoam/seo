@@ -35,7 +35,9 @@ class Config:
     # Defaults
     max_search_results: int = 5
     max_competitors: int = 10
-    content_max_tokens: int = 4096
+    content_max_tokens: int = field(
+        default_factory=lambda: int(os.getenv("CONTENT_MAX_TOKENS", "8192"))
+    )
 
     def validate(self) -> list[str]:
         errors = []
