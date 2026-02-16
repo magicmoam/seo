@@ -614,7 +614,7 @@ async def interactive() -> None:
 
         try:
             with console.status("[bold green]Working...", spinner="dots"):
-                response = await run(user_input)
+                response, _trace = await run(user_input)
 
             console.print(
                 f"\n[dim]Tool: {response.tool_used} | Query: {response.query}[/dim]\n"

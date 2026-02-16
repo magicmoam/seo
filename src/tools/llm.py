@@ -14,6 +14,7 @@ class LLMResult:
     input_tokens: int
     output_tokens: int
     model: str
+    raw_text: str = ""
 
 
 def _strip_fences(text: str) -> str:
@@ -42,13 +43,15 @@ async def _openai(system: str, user: str, temperature: float) -> LLMResult:
             {"role": "user", "content": user},
         ],
     )
-    text = _strip_fences(resp.choices[0].message.content or "")
+    raw = resp.choices[0].message.content or ""
+    text = _strip_fences(raw)
     usage = resp.usage
     return LLMResult(
         text=text,
         input_tokens=usage.prompt_tokens if usage else 0,
         output_tokens=usage.completion_tokens if usage else 0,
         model=config.openai_model,
+        raw_text=raw,
     )
 
 
@@ -63,10 +66,12 @@ async def _anthropic(system: str, user: str, temperature: float) -> LLMResult:
         temperature=temperature,
         messages=[{"role": "user", "content": user}],
     )
-    text = _strip_fences(resp.content[0].text)
+    raw = resp.content[0].text
+    text = _strip_fences(raw)
     return LLMResult(
         text=text,
         input_tokens=resp.usage.input_tokens,
         output_tokens=resp.usage.output_tokens,
         model=config.anthropic_model,
+        raw_text=raw,
     )

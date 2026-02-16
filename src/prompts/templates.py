@@ -28,7 +28,16 @@ Based on this real search data, produce a JSON object with:
   "summary": "2-3 sentence overview of the keyword landscape"
 }}
 
-Return 10-15 keywords. Estimate metrics based on the SERP data you can see (number of ads, content depth, competition level)."""
+Return 10-15 keywords. Estimate metrics based on the SERP data you can see (number of ads, content depth, competition level).
+
+Also include an "evidence" field:
+{{
+  "evidence": {{
+    "score_reasoning": "Explain exactly why you gave these difficulty/volume estimates, referencing specific data you observed",
+    "key_findings": ["concrete evidence bullet 1", "concrete evidence bullet 2"],
+    "data_sources": ["URLs or content sections that informed your analysis"]
+  }}
+}}"""
 
 COMPETITOR_ANALYSIS_SYSTEM = """\
 You are an expert SEO competitor analyst. Analyze competitor pages and identify strengths, weaknesses, and opportunities.
@@ -56,7 +65,12 @@ Produce a JSON object with:
   ],
   "common_themes": ["themes across all competitors"],
   "opportunities": ["gaps you can exploit to outrank them"],
-  "summary": "strategic summary"
+  "summary": "strategic summary",
+  "evidence": {{
+    "score_reasoning": "Explain exactly why you identified these strengths/weaknesses, referencing specific data",
+    "key_findings": ["concrete evidence bullet 1", "concrete evidence bullet 2"],
+    "data_sources": ["URLs or content sections that informed your analysis"]
+  }}
 }}"""
 
 SERP_ANALYSIS_SYSTEM = """\
@@ -84,7 +98,12 @@ Produce a JSON object with:
   ],
   "serp_features": ["list detected SERP features: featured snippets, People Also Ask, video carousels, knowledge panels, ads, etc."],
   "dominant_intent": "the primary search intent for this query",
-  "summary": "analysis of the SERP landscape and what it takes to rank"
+  "summary": "analysis of the SERP landscape and what it takes to rank",
+  "evidence": {{
+    "score_reasoning": "Explain exactly why you classified the intent and features this way, referencing specific data",
+    "key_findings": ["concrete evidence bullet 1", "concrete evidence bullet 2"],
+    "data_sources": ["URLs or content sections that informed your analysis"]
+  }}
 }}"""
 
 CONTENT_GAP_SYSTEM = """\
@@ -113,7 +132,16 @@ Produce a JSON object with:
   "summary": "strategic overview of the content gap landscape"
 }}
 
-Identify at least 8 gaps. Focus on high-opportunity areas where new content can realistically rank."""
+Identify at least 8 gaps. Focus on high-opportunity areas where new content can realistically rank.
+
+Also include an "evidence" field:
+{{
+  "evidence": {{
+    "score_reasoning": "Explain exactly why you scored these opportunities the way you did, referencing specific data",
+    "key_findings": ["concrete evidence bullet 1", "concrete evidence bullet 2"],
+    "data_sources": ["URLs or content sections that informed your analysis"]
+  }}
+}}"""
 
 CONTENT_GENERATION_SYSTEM = """\
 You are an expert SEO content writer applying EEAT principles (Experience, Expertise, Authoritativeness, Trustworthiness).
@@ -145,7 +173,16 @@ Produce a JSON object with:
   "seo_notes": ["list of SEO recommendations for this piece"]
 }}
 
-Write the full article in the 'content' field. Make it publication-ready."""
+Write the full article in the 'content' field. Make it publication-ready.
+
+Also include an "evidence" field:
+{{
+  "evidence": {{
+    "score_reasoning": "Explain your content strategy decisions, referencing the research data",
+    "key_findings": ["concrete evidence bullet 1", "concrete evidence bullet 2"],
+    "data_sources": ["URLs or content sections that informed your writing"]
+  }}
+}}"""
 
 WEBSITE_ANALYZER_SYSTEM = """\
 You are an expert SEO auditor. Analyze a webpage and produce a comprehensive SEO audit report.
@@ -184,7 +221,16 @@ Produce a JSON object with:
   "summary": "2-3 sentence overall SEO assessment"
 }}
 
-Be thorough. Identify at least 5 issues across all severity levels. Count words, links, and headings from the content provided."""
+Be thorough. Identify at least 5 issues across all severity levels. Count words, links, and headings from the content provided.
+
+Also include an "evidence" field:
+{{
+  "evidence": {{
+    "score_reasoning": "Explain exactly why you gave these scores, referencing specific data from the page",
+    "key_findings": ["concrete evidence bullet 1", "concrete evidence bullet 2"],
+    "data_sources": ["URLs or content sections that informed your analysis"]
+  }}
+}}"""
 
 # ---------------------------------------------------------------------------
 # Multi-Agent SEO Strategy Prompts
@@ -475,6 +521,6 @@ IMPORTANT: If the user asks for a "full strategy", "comprehensive plan", "SEO as
 For seo_strategy, include extras with niche: {{"niche": "the industry/niche of the website"}}
 
 Respond with ONLY a JSON object:
-{{"tool": "tool_name", "query": "the core search query to research", "extras": {{}}}}
+{{"tool": "tool_name", "query": "the core search query to research", "extras": {{}}, "reasoning": "brief explanation of why you chose this tool"}}
 
 For content_generation, include extras: {{"content_type": "blog post|guide|listicle|comparison", "tone": "professional|casual|technical|friendly"}}"""

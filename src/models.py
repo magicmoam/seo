@@ -3,6 +3,27 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 
+class ScoreEvidence(BaseModel):
+    score_reasoning: str = ""
+    key_findings: list[str] = []
+    data_sources: list[str] = []
+
+
+class EvidenceTrace(BaseModel):
+    jina_raw_responses: list[dict] = []
+    system_prompt: str = ""
+    user_prompt: str = ""
+    llm_raw_response: str = ""
+    routing_prompt: str = ""
+    routing_raw_response: str = ""
+    routing_reasoning: str = ""
+    tool_used: str = ""
+    query: str = ""
+    model: str = ""
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+
+
 class KeywordMetric(BaseModel):
     keyword: str
     search_volume: str  # estimated from SERP context
@@ -17,6 +38,7 @@ class KeywordResearchResult(BaseModel):
     keywords: list[KeywordMetric]
     long_tail_suggestions: list[str]
     summary: str
+    evidence: ScoreEvidence | None = None
 
 
 class CompetitorPage(BaseModel):
@@ -34,6 +56,7 @@ class CompetitorAnalysisResult(BaseModel):
     common_themes: list[str]
     opportunities: list[str]
     summary: str
+    evidence: ScoreEvidence | None = None
 
 
 class SERPEntry(BaseModel):
@@ -50,6 +73,7 @@ class SERPAnalysisResult(BaseModel):
     serp_features: list[str]  # featured snippets, PAA, video, etc.
     dominant_intent: str
     summary: str
+    evidence: ScoreEvidence | None = None
 
 
 class ContentGap(BaseModel):
@@ -64,6 +88,7 @@ class ContentGapResult(BaseModel):
     gaps: list[ContentGap]
     underserved_subtopics: list[str]
     summary: str
+    evidence: ScoreEvidence | None = None
 
 
 class GeneratedContent(BaseModel):
@@ -75,6 +100,7 @@ class GeneratedContent(BaseModel):
     content: str
     word_count: int
     seo_notes: list[str]
+    evidence: ScoreEvidence | None = None
 
 
 class SEOIssue(BaseModel):
@@ -100,6 +126,7 @@ class WebsiteAnalysisResult(BaseModel):
     issues: list[SEOIssue]
     schema_markup: list[str]
     summary: str
+    evidence: ScoreEvidence | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -272,3 +299,4 @@ class AgentResponse(BaseModel):
         | SEOStrategy
     )
     raw_sources: list[str] = []
+    search_id: str | None = None

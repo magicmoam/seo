@@ -32,10 +32,19 @@ async def _authenticate(request: Request) -> dict | JSONResponse:
     return user
 
 
+def _unpack_tool_result(result_tuple, tool_name, query):
+    """Unpack tool result, handling both 2-tuple and 3-tuple returns."""
+    from src.models import EvidenceTrace
+
+    if len(result_tuple) == 3:
+        return result_tuple[0], result_tuple[1], result_tuple[2]
+    return result_tuple[0], result_tuple[1], EvidenceTrace(tool_used=tool_name, query=query)
+
+
 @app.post("/api/query")
 async def query(request: Request):
     from src.agent import route
-    from src.db import save_search, save_usage
+    from src.db import save_evidence, save_search, save_usage
     from src.models import AgentResponse
     from src.tools import (
         backlink_strategy,
@@ -67,37 +76,49 @@ async def query(request: Request):
         extras = routing.get("extras", {})
 
         if tool_name == "content_generation":
-            result, tool_usage = await content_generator.run(
+            result, tool_usage, trace = await content_generator.run(
                 keyword=q,
                 content_type=extras.get("content_type", "blog post"),
                 tone=extras.get("tone", "professional"),
             )
         elif tool_name == "keyword_research":
-            result, tool_usage = await keyword_research.run(q)
+            result, tool_usage, trace = await keyword_research.run(q)
         elif tool_name == "competitor_analysis":
-            result, tool_usage = await competitor_analysis.run(q)
+            result, tool_usage, trace = await competitor_analysis.run(q)
         elif tool_name == "serp_analysis":
-            result, tool_usage = await serp_analysis.run(q)
+            result, tool_usage, trace = await serp_analysis.run(q)
         elif tool_name == "content_gap":
-            result, tool_usage = await content_gap.run(q)
+            result, tool_usage, trace = await content_gap.run(q)
         elif tool_name == "website_analyzer":
-            result, tool_usage = await website_analyzer.run(q)
+            result, tool_usage, trace = await website_analyzer.run(q)
         elif tool_name == "topical_authority":
-            result, tool_usage = await topical_authority.run(
-                domain=q, niche=extras.get("niche", ""),
+            result, tool_usage, trace = _unpack_tool_result(
+                await topical_authority.run(domain=q, niche=extras.get("niche", "")),
+                tool_name, q,
             )
         elif tool_name == "technical_seo":
-            result, tool_usage = await technical_seo.run(q)
+            result, tool_usage, trace = _unpack_tool_result(
+                await technical_seo.run(q), tool_name, q,
+            )
         elif tool_name == "backlink_strategy":
-            result, tool_usage = await backlink_strategy.run(
-                domain=q, niche=extras.get("niche", ""),
+            result, tool_usage, trace = _unpack_tool_result(
+                await backlink_strategy.run(domain=q, niche=extras.get("niche", "")),
+                tool_name, q,
             )
         elif tool_name == "seo_strategy":
-            result, tool_usage = await strategy_orchestrator.run(
-                url=q, niche=extras.get("niche", ""),
+            result, tool_usage, trace = _unpack_tool_result(
+                await strategy_orchestrator.run(url=q, niche=extras.get("niche", "")),
+                tool_name, q,
             )
         else:
             return JSONResponse({"error": f"Unknown tool: {tool_name}"}, status_code=400)
+
+        # Attach routing evidence to trace
+        trace.routing_prompt = router_usage.get("routing_prompt", "")
+        trace.routing_raw_response = router_usage.get("routing_raw_response", "")
+        trace.routing_reasoning = router_usage.get("routing_reasoning", "")
+        trace.total_input_tokens += router_usage.get("input_tokens", 0)
+        trace.total_output_tokens += router_usage.get("output_tokens", 0)
 
         # Merge router + tool usage
         total_input = router_usage.get("input_tokens", 0) + tool_usage.get("input_tokens", 0)
@@ -106,8 +127,16 @@ async def query(request: Request):
         response = AgentResponse(tool_used=tool_name, query=q, result=result)
         response_data = json.loads(response.model_dump_json())
 
-        # Save to database
-        await save_search(user["email"], q, tool_name, response_data["result"])
+        # Save to database and get search_id
+        search_id = await save_search(user["email"], q, tool_name, response_data["result"])
+
+        # Save evidence trace
+        if search_id:
+            trace_dict = json.loads(trace.model_dump_json())
+            await save_evidence(user["email"], search_id, trace_dict)
+
+        # Add search_id to response
+        response_data["search_id"] = search_id
 
         # Save usage
         await save_usage(

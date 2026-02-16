@@ -4,6 +4,8 @@
     { "src": "api/history.py", "use": "@vercel/python" },
     { "src": "api/config.py", "use": "@vercel/python" },
     { "src": "api/usage.py", "use": "@vercel/python" },
+    { "src": "api/evidence.py", "use": "@vercel/python" },
+    { "src": "api/report.py", "use": "@vercel/python" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
@@ -12,6 +14,8 @@
     { "src": "/api/history", "dest": "/api/history.py" },
     { "src": "/api/config", "dest": "/api/config.py" },
     { "src": "/api/usage", "dest": "/api/usage.py" },
+    { "src": "/api/evidence/(.*)", "dest": "/api/evidence.py" },
+    { "src": "/api/report/(.*)", "dest": "/api/report.py" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }

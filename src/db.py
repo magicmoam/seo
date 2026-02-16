@@ -34,18 +34,80 @@ def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
     return round(cost, 6)
 
 
-async def save_search(user_email: str, query: str, tool_used: str, result: dict) -> None:
-    """Save a search result to the database."""
+async def save_search(user_email: str, query: str, tool_used: str, result: dict) -> str | None:
+    """Save a search result to the database. Returns the inserted row's id."""
     client = _get_client()
     if not client:
-        return
+        return None
 
-    client.table("search_history").insert({
+    resp = client.table("search_history").insert({
         "user_email": user_email,
         "query": query,
         "tool_used": tool_used,
         "result": result,
     }).execute()
+
+    if resp.data and len(resp.data) > 0:
+        return resp.data[0].get("id")
+    return None
+
+
+async def save_evidence(user_email: str, search_id: str | None, trace: dict) -> str | None:
+    """Save an evidence trace to the database. Returns the trace id."""
+    client = _get_client()
+    if not client:
+        return None
+
+    row = {
+        "user_email": user_email,
+        "tool_used": trace.get("tool_used", ""),
+        "query": trace.get("query", ""),
+    }
+    if search_id:
+        row["search_id"] = search_id
+    # Optional fields
+    for field in (
+        "jina_raw_responses", "system_prompt", "user_prompt",
+        "llm_raw_response", "routing_prompt", "routing_raw_response",
+        "routing_reasoning", "model", "total_input_tokens", "total_output_tokens",
+    ):
+        if field in trace:
+            val = trace[field]
+            if field == "jina_raw_responses" and isinstance(val, list):
+                row[field] = json.dumps(val) if not isinstance(val, str) else val
+            else:
+                row[field] = val
+
+    resp = client.table("evidence_traces").insert(row).execute()
+    if resp.data and len(resp.data) > 0:
+        return resp.data[0].get("id")
+    return None
+
+
+async def get_evidence(search_id: str, user_email: str) -> dict | None:
+    """Retrieve an evidence trace by search_id."""
+    client = _get_client()
+    if not client:
+        return None
+
+    resp = (
+        client.table("evidence_traces")
+        .select("*")
+        .eq("search_id", search_id)
+        .eq("user_email", user_email)
+        .limit(1)
+        .execute()
+    )
+    if resp.data and len(resp.data) > 0:
+        row = resp.data[0]
+        # Parse jina_raw_responses back from JSON string if needed
+        if isinstance(row.get("jina_raw_responses"), str):
+            try:
+                row["jina_raw_responses"] = json.loads(row["jina_raw_responses"])
+            except (json.JSONDecodeError, TypeError):
+                pass
+        return row
+    return None
 
 
 async def save_usage(

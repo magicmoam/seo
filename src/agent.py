@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from src.models import AgentResponse
+from src.models import AgentResponse, EvidenceTrace
 from src.prompts.templates import AGENT_ROUTER_SYSTEM
 from src.tools import (
     backlink_strategy,
@@ -30,6 +30,14 @@ TOOLS = {
 }
 
 
+def _unpack_tool_result(result_tuple, tool_name, query):
+    """Unpack tool result, handling both 2-tuple and 3-tuple returns."""
+    if len(result_tuple) == 3:
+        return result_tuple[0], result_tuple[1], result_tuple[2]
+    # Legacy 2-tuple tools: create a minimal evidence trace
+    return result_tuple[0], result_tuple[1], EvidenceTrace(tool_used=tool_name, query=query)
+
+
 async def route(user_input: str) -> tuple[dict, dict]:
     """Use the LLM to determine which tool to call and with what query."""
     result = await llm.complete(
@@ -42,45 +50,57 @@ async def route(user_input: str) -> tuple[dict, dict]:
         "input_tokens": result.input_tokens,
         "output_tokens": result.output_tokens,
         "model": result.model,
+        "routing_reasoning": routing.get("reasoning", ""),
+        "routing_raw_response": result.raw_text,
+        "routing_prompt": AGENT_ROUTER_SYSTEM,
     }
     return routing, usage
 
 
-async def run(user_input: str) -> AgentResponse:
+async def run(user_input: str) -> tuple[AgentResponse, EvidenceTrace]:
     """Process a user query end-to-end."""
-    routing, _ = await route(user_input)
+    routing, router_usage = await route(user_input)
     tool_name = routing["tool"]
     query = routing["query"]
     extras = routing.get("extras", {})
 
     if tool_name == "content_generation":
-        result, _ = await content_generator.run(
+        result, _, trace = await content_generator.run(
             keyword=query,
             content_type=extras.get("content_type", "blog post"),
             tone=extras.get("tone", "professional"),
         )
     elif tool_name == "website_analyzer":
-        result, _ = await website_analyzer.run(query)
+        result, _, trace = await website_analyzer.run(query)
     elif tool_name == "topical_authority":
-        result, _ = await topical_authority.run(
-            domain=query,
-            niche=extras.get("niche", ""),
+        result, _, trace = _unpack_tool_result(
+            await topical_authority.run(domain=query, niche=extras.get("niche", "")),
+            tool_name, query,
         )
     elif tool_name == "technical_seo":
-        result, _ = await technical_seo.run(query)
+        result, _, trace = _unpack_tool_result(
+            await technical_seo.run(query), tool_name, query,
+        )
     elif tool_name == "backlink_strategy":
-        result, _ = await backlink_strategy.run(
-            domain=query,
-            niche=extras.get("niche", ""),
+        result, _, trace = _unpack_tool_result(
+            await backlink_strategy.run(domain=query, niche=extras.get("niche", "")),
+            tool_name, query,
         )
     elif tool_name == "seo_strategy":
-        result, _ = await strategy_orchestrator.run(
-            url=query,
-            niche=extras.get("niche", ""),
+        result, _, trace = _unpack_tool_result(
+            await strategy_orchestrator.run(url=query, niche=extras.get("niche", "")),
+            tool_name, query,
         )
     elif tool_name in TOOLS:
-        result, _ = await TOOLS[tool_name](query)
+        result, _, trace = await TOOLS[tool_name](query)
     else:
         raise ValueError(f"Unknown tool: {tool_name}")
 
-    return AgentResponse(tool_used=tool_name, query=query, result=result)
+    # Attach routing evidence to trace
+    trace.routing_prompt = router_usage.get("routing_prompt", "")
+    trace.routing_raw_response = router_usage.get("routing_raw_response", "")
+    trace.routing_reasoning = router_usage.get("routing_reasoning", "")
+    trace.total_input_tokens += router_usage.get("input_tokens", 0)
+    trace.total_output_tokens += router_usage.get("output_tokens", 0)
+
+    return AgentResponse(tool_used=tool_name, query=query, result=result), trace

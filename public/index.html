@@ -861,6 +861,77 @@
       margin-bottom: 6px;
     }
 
+    /* ── Evidence Panel ── */
+    .evidence-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .btn-evidence, .btn-report {
+      padding: 8px 18px;
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      background: var(--c-bg-card);
+      color: var(--c-text-secondary);
+      font-size: 12px;
+      font-family: 'Space Mono', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-evidence:hover, .btn-report:hover {
+      border-color: rgba(212, 184, 149, 0.3);
+      color: var(--c-accent);
+      background: rgba(212, 184, 149, 0.05);
+    }
+    .btn-evidence:disabled, .btn-report:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .evidence-panel {
+      background: var(--c-bg-card);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .evidence-panel.show { display: block; animation: fadeIn 0.3s ease-out; }
+    .evidence-panel details {
+      margin-bottom: 8px;
+      border-left: 2px solid var(--c-glass-border);
+      padding-left: 12px;
+    }
+    .evidence-panel summary {
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--c-text-primary);
+      padding: 8px 0;
+      transition: color 0.15s;
+    }
+    .evidence-panel summary:hover { color: var(--c-accent); }
+    .evidence-panel pre {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      padding: 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--c-text-tertiary);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+    .evidence-panel .source-url {
+      font-size: 11px;
+      color: var(--c-text-tertiary);
+      word-break: break-all;
+      margin-bottom: 4px;
+    }
+
     /* ── Fallback pre ── */
     .result pre {
       background: var(--c-bg-card);
@@ -1124,6 +1195,7 @@ const $ = id => document.getElementById(id);
 let GOOGLE_CLIENT_ID = '';
 let idToken = null;
 let currentUser = null;
+let currentSearchId = null;
 
 async function fetchConfig() {
   const res = await fetch('/api/config');
@@ -1242,7 +1314,8 @@ function renderHistory(items) {
 
 function showHistoryItem(item) {
   closeSidebar();
-  renderResult({ tool_used: item.tool_used, query: item.query, result: item.result });
+  currentSearchId = item.id || null;
+  renderResult({ tool_used: item.tool_used, query: item.query, result: item.result }, currentSearchId);
 }
 
 function toggleSidebar() {
@@ -1304,7 +1377,9 @@ async function submitQuery() {
       $('error').classList.add('show');
       return;
     }
-    renderResult(data);
+    currentSearchId = data.search_id || null;
+    _lastResult = data;
+    renderResult(data, currentSearchId);
     $('query').value = '';
     $('query').style.height = 'auto';
     loadHistory();
@@ -1349,7 +1424,7 @@ async function downloadReport() {
   }
 }
 
-function renderResult(data) {
+function renderResult(data, searchId) {
   _lastResult = data;
   const el = $('result');
   const tool = data.tool_used;
@@ -1362,6 +1437,16 @@ function renderResult(data) {
       <span class="dl-label">Download Report</span>
     </button>
   </div>`;
+
+  // Evidence action buttons
+  if (searchId) {
+    html += `<div class="evidence-actions">
+      <button class="btn-evidence" onclick="toggleEvidence('${searchId}')">View Evidence Chain</button>
+      <button class="btn-report" onclick="downloadReport()">Download Report</button>
+    </div>
+    <div class="evidence-panel" id="evidence-panel"></div>`;
+  }
+
   if (tool === 'keyword_research') html += renderKeywords(r);
   else if (tool === 'competitor_analysis') html += renderCompetitors(r);
   else if (tool === 'serp_analysis') html += renderSERP(r);
@@ -1564,6 +1649,90 @@ function renderAnalyzer(r) {
   // Summary
   h += `<div class="result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
+}
+
+async function toggleEvidence(searchId) {
+  const panel = $('evidence-panel');
+  if (panel.classList.contains('show')) {
+    panel.classList.remove('show');
+    return;
+  }
+  panel.innerHTML = '<p style="color:var(--c-text-tertiary);font-size:13px">Loading evidence...</p>';
+  panel.classList.add('show');
+  try {
+    const res = await fetch(`/api/evidence/${searchId}`, { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { logout(); return; }
+    const ev = await res.json();
+    if (ev.error) {
+      panel.innerHTML = `<p style="color:var(--c-red);font-size:13px">${esc(ev.error)}</p>`;
+      return;
+    }
+    panel.innerHTML = renderEvidence(ev);
+  } catch (err) {
+    panel.innerHTML = `<p style="color:var(--c-red);font-size:13px">Failed to load evidence: ${esc(err.message)}</p>`;
+  }
+}
+
+function renderEvidence(ev) {
+  let h = '<div class="panel-label">Evidence Chain</div>';
+
+  // Routing
+  h += `<details>
+    <summary>Routing Decision</summary>
+    <p style="font-size:13px;color:var(--c-text-secondary)">
+      <strong>Tool:</strong> ${esc(ev.tool_used)}<br>
+      <strong>Reasoning:</strong> ${esc(ev.routing_reasoning || 'Not captured')}
+    </p>
+    ${ev.routing_raw_response ? `<pre>${esc(ev.routing_raw_response)}</pre>` : ''}
+  </details>`;
+
+  // Data sources
+  let sources = ev.jina_raw_responses || [];
+  if (typeof sources === 'string') {
+    try { sources = JSON.parse(sources); } catch(e) { sources = []; }
+  }
+  h += `<details>
+    <summary>Data Sources (${sources.length} sources)</summary>`;
+  for (const src of sources) {
+    const content = src.content || '';
+    const preview = content.substring(0, 500) + (content.length > 500 ? '...' : '');
+    h += `<details style="margin:4px 0;border-left:2px solid var(--c-glass-border);padding-left:8px">
+      <summary>${esc(src.title || 'Untitled')}</summary>
+      <p class="source-url">${esc(src.url || '')}</p>
+      <pre>${esc(preview)}</pre>
+    </details>`;
+  }
+  h += '</details>';
+
+  // Prompts
+  h += `<details>
+    <summary>System Prompt</summary>
+    <pre>${esc(ev.system_prompt || '')}</pre>
+  </details>`;
+  h += `<details>
+    <summary>User Prompt</summary>
+    <pre>${esc(ev.user_prompt || '')}</pre>
+  </details>`;
+
+  // Raw LLM response
+  h += `<details>
+    <summary>Raw LLM Response</summary>
+    <pre>${esc(ev.llm_raw_response || '')}</pre>
+  </details>`;
+
+  // Token usage
+  const inp = ev.total_input_tokens || 0;
+  const out = ev.total_output_tokens || 0;
+  h += `<p style="font-size:11px;color:var(--c-text-tertiary);margin-top:8px">
+    Tokens: ${formatNum(inp)} in + ${formatNum(out)} out = ${formatNum(inp + out)} total |
+    Model: ${esc(ev.model || '')}
+  </p>`;
+
+  return h;
+}
+
+function downloadReport(searchId) {
+  window.open(`/api/report/${searchId}?token=${encodeURIComponent(idToken)}`, '_blank');
 }
 
 function esc(s) {
