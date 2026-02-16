@@ -6,3 +6,5 @@ dist/
 *.egg-info/
 .ruff_cache/
 .vercel
+.DS_Store
+client_secret_*.json

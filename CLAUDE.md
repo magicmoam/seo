@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SEO Agent is a Python CLI tool that automates SEO workflows: keyword research, competitor analysis, SERP analysis, content gap detection, and content generation. It uses Jina AI for web search/scraping and an LLM (OpenAI or Anthropic) for analysis.
+Wongzo is an AI-powered SEO intelligence platform for keyword research, competitor analysis, and content generation. It uses Jina AI for web search/scraping, an LLM (OpenAI or Anthropic) for analysis, Google Auth for access control, and Supabase for search history persistence. Deployed on Vercel at wongzo.com.
 
 ## Commands
 
@@ -16,7 +16,7 @@ pip install -e .
 python -m src.main
 
 # Or via entry point (after install)
-seo-agent
+wongzo
 ```
 
 ## Architecture

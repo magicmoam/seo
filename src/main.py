@@ -1,4 +1,4 @@
-"""Interactive CLI for the SEO Agent."""
+"""Interactive CLI for Wongzo."""
 
 from __future__ import annotations
 
@@ -182,7 +182,7 @@ DISPLAY_MAP = {
 async def interactive() -> None:
     console.print(
         Panel(
-            "[bold cyan]SEO Agent[/bold cyan]\n\n"
+            "[bold cyan]Wongzo[/bold cyan]\n\n"
             "I can help you with:\n"
             "  1. [green]Keyword Research[/green] - Find high-value keywords\n"
             "  2. [green]Competitor Analysis[/green] - Analyze top-ranking pages\n"

@@ -1,4 +1,4 @@
-"""FastAPI web server for the SEO Agent."""
+"""FastAPI web server for Wongzo."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from src.tools import (
     serp_analysis,
 )
 
-app = FastAPI(title="SEO Agent")
+app = FastAPI(title="Wongzo")
 
 STATIC_DIR = Path(__file__).parent / "static"
 

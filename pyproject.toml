@@ -1,7 +1,7 @@
 [project]
-name = "seo-agent"
+name = "wongzo"
 version = "0.1.0"
-description = "AI-powered SEO agent for keyword research, competitor analysis, SERP analysis, content gap detection, and content generation"
+description = "AI-powered SEO intelligence platform for keyword research, competitor analysis, and content generation"
 requires-python = ">=3.11"
 dependencies = [
     "httpx>=0.27",
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-seo-agent = "src.main:main"
+wongzo = "src.main:main"
 
 [build-system]
 requires = ["setuptools>=68.0"]
