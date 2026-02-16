@@ -11,6 +11,8 @@ dependencies = [
     "pydantic-settings>=2.0",
     "rich>=13.0",
     "python-dotenv>=1.0",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
 ]
 
 [project.scripts]

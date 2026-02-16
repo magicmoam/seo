@@ -2,14 +2,23 @@
 
 from __future__ import annotations
 
+import re
+
 from src.config import config
+
+
+def _strip_fences(text: str) -> str:
+    """Strip markdown code fences (```json ... ```) from LLM output."""
+    return re.sub(r"^```(?:json)?\s*\n?", "", text.strip(), flags=re.MULTILINE).rstrip("`").strip()
 
 
 async def complete(system: str, user: str, temperature: float = 0.3) -> str:
     """Send a chat completion request to the configured LLM provider."""
     if config.llm_provider == "anthropic":
-        return await _anthropic(system, user, temperature)
-    return await _openai(system, user, temperature)
+        raw = await _anthropic(system, user, temperature)
+    else:
+        raw = await _openai(system, user, temperature)
+    return _strip_fences(raw)
 
 
 async def _openai(system: str, user: str, temperature: float) -> str:
