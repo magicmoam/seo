@@ -103,6 +103,22 @@ class GeneratedContent(BaseModel):
     evidence: ScoreEvidence | None = None
 
 
+class PathTo80Step(BaseModel):
+    action: str
+    category: str  # performance / seo / content / technical
+    estimated_points: int
+    effort: str  # quick_win / moderate / significant
+    explanation: str
+
+
+class PathTo80(BaseModel):
+    current_score: int
+    target_score: int  # always 80
+    steps: list[PathTo80Step]
+    projected_score: int
+    quick_wins_summary: str
+
+
 class SEOIssue(BaseModel):
     issue: str
     severity: str  # critical / warning / info
@@ -127,6 +143,7 @@ class WebsiteAnalysisResult(BaseModel):
     schema_markup: list[str]
     summary: str
     evidence: ScoreEvidence | None = None
+    path_to_80: PathTo80 | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -280,6 +297,7 @@ class SEOStrategy(BaseModel):
     expected_timeline_to_results: str
     roi_projection: str
     risk_factors: list[str]
+    path_to_80: PathTo80 | None = None
 
 
 class AgentResponse(BaseModel):

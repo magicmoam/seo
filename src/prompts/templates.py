@@ -230,7 +230,28 @@ Also include an "evidence" field:
     "key_findings": ["concrete evidence bullet 1", "concrete evidence bullet 2"],
     "data_sources": ["URLs or content sections that informed your analysis"]
   }}
-}}"""
+}}
+
+If overall_score is below 80, also include a "path_to_80" object:
+{{
+  "path_to_80": {{
+    "current_score": <the overall_score>,
+    "target_score": 80,
+    "steps": [
+      {{
+        "action": "specific improvement to make",
+        "category": "performance|seo|content|technical",
+        "estimated_points": 5,
+        "effort": "quick_win|moderate|significant",
+        "explanation": "why this improves the score"
+      }}
+    ],
+    "projected_score": <score after all steps>,
+    "quick_wins_summary": "1-2 sentences about the easiest gains"
+  }}
+}}
+
+Include 5-8 steps ordered by impact. Steps must sum to at least (80 - overall_score) points. Prioritize quick wins first. If overall_score >= 80, omit path_to_80."""
 
 # ---------------------------------------------------------------------------
 # Multi-Agent SEO Strategy Prompts
@@ -496,7 +517,28 @@ Synthesize all agent outputs into a master SEO strategy. Produce a JSON object w
 
 Create 15-25 priority actions ranked by impact and feasibility.
 Be realistic with timelines - SEO is a long-term investment.
-Cost estimates should reflect real-world pricing for content, technical work, and link building."""
+Cost estimates should reflect real-world pricing for content, technical work, and link building.
+
+If overall_health_score is below 80, also include a "path_to_80" object:
+{{
+  "path_to_80": {{
+    "current_score": <the overall_health_score>,
+    "target_score": 80,
+    "steps": [
+      {{
+        "action": "specific improvement to make",
+        "category": "performance|seo|content|technical",
+        "estimated_points": 5,
+        "effort": "quick_win|moderate|significant",
+        "explanation": "why this improves the score"
+      }}
+    ],
+    "projected_score": <score after all steps>,
+    "quick_wins_summary": "1-2 sentences about the easiest gains"
+  }}
+}}
+
+Include 5-8 steps ordered by impact. Steps must sum to at least (80 - overall_health_score) points. Prioritize quick wins first. If overall_health_score >= 80, omit path_to_80."""
 
 AGENT_ROUTER_SYSTEM = """\
 You are an SEO agent router. Given a user query, determine which SEO tool to use.

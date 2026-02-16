@@ -15,6 +15,7 @@ from src.models import (
     ContentGapResult,
     GeneratedContent,
     KeywordResearchResult,
+    PathTo80,
     SEOStrategy,
     SERPAnalysisResult,
     TechnicalSEOAudit,
@@ -219,12 +220,62 @@ def _html_content(r: GeneratedContent) -> str:
     """
 
 
+def _html_path_to_80(p: PathTo80) -> str:
+    """Render a Path to 80 score improvement roadmap."""
+    gap = p.target_score - p.current_score
+    running = p.current_score
+    step_rows = ""
+    for i, s in enumerate(p.steps, 1):
+        running += s.estimated_points
+        crossed = running >= 80
+        highlight = ' style="color:var(--green);font-weight:600"' if crossed else ""
+        effort_cls = {"quick_win": "easy", "moderate": "medium", "significant": "hard"}.get(s.effort, "medium")
+        step_rows += (
+            f"<tr><td>{i}</td>"
+            f"<td><span class='tag easy' style='min-width:50px;text-align:center'>+{s.estimated_points} pts</span></td>"
+            f"<td>{_esc(s.action)}</td>"
+            f"<td>{_tag(s.category)}</td>"
+            f"<td>{_tag(s.effort.replace('_', ' '))}</td>"
+            f"<td{highlight}>{running}</td>"
+            f"<td style='color:var(--dim);font-size:0.85rem'>{_esc(s.explanation)}</td></tr>\n"
+        )
+
+    # Progress bar segments
+    bar_pct_current = min(p.current_score, 100)
+    bar_pct_gain = min(p.projected_score - p.current_score, 100 - bar_pct_current)
+    bar_html = (
+        f'<div style="display:flex;align-items:center;gap:8px;margin:1rem 0">'
+        f'<span style="font-size:0.85rem;color:var(--dim)">{p.current_score}</span>'
+        f'<div style="flex:1;height:14px;background:rgba(255,255,255,0.05);border-radius:7px;overflow:hidden;position:relative">'
+        f'<div style="height:100%;width:{bar_pct_current}%;background:var(--yellow);border-radius:7px 0 0 7px"></div>'
+        f'<div style="height:100%;width:{bar_pct_gain}%;background:var(--green);position:absolute;top:0;left:{bar_pct_current}%;border-radius:0 7px 7px 0"></div>'
+        f'<div style="position:absolute;top:-2px;left:80%;width:2px;height:18px;background:var(--cyan)"></div>'
+        f'</div>'
+        f'<span style="font-size:0.85rem;color:var(--cyan);font-weight:600">80</span>'
+        f'</div>'
+    )
+
+    return f"""
+    <h2>Path to 80</h2>
+    <div class="card" style="border-left:3px solid var(--cyan)">
+        <p style="margin-bottom:0.5rem"><strong>Current score:</strong> {p.current_score} &rarr; <strong>Target:</strong> {p.target_score} &rarr; <strong>Projected:</strong> {p.projected_score}</p>
+        {bar_html}
+        <p style="color:var(--dim);font-size:0.9rem;margin-top:0.5rem">{_esc(p.quick_wins_summary)}</p>
+    </div>
+    <table>
+    <tr><th>#</th><th>Points</th><th>Action</th><th>Category</th><th>Effort</th><th>Running</th><th>Why</th></tr>
+    {step_rows}
+    </table>
+    """
+
+
 def _html_website_analysis(r: WebsiteAnalysisResult) -> str:
     issues_rows = ""
     for i in r.issues:
         issues_rows += f"<tr><td>{_tag(i.severity)}</td><td>{_esc(i.issue)}</td><td>{_esc(i.description)}</td><td>{_esc(i.recommendation)}</td></tr>\n"
     headings = "".join(f"<li>{_esc(h)}</li>" for h in r.heading_structure)
     schema = "".join(f"<li>{_esc(s)}</li>" for s in r.schema_markup)
+    path_section = _html_path_to_80(r.path_to_80) if r.path_to_80 else ""
     return f"""
     <h2>Website Analysis: {_esc(r.url)}</h2>
     <div class="card">
@@ -236,6 +287,7 @@ def _html_website_analysis(r: WebsiteAnalysisResult) -> str:
     <div><strong>Content:</strong> {_tag(r.content_score)} <strong>Technical:</strong> {_tag(r.technical_score)}</div>
     </div>
     <p>{r.word_count} words | {r.internal_links} internal links | {r.external_links} external links</p></div>
+    {path_section}
     <h3>Issues</h3>
     <table><tr><th>Severity</th><th>Issue</th><th>Description</th><th>Fix</th></tr>{issues_rows}</table>
     <h3>Headings</h3><ul>{headings}</ul>
@@ -360,6 +412,7 @@ def _html_seo_strategy(r: SEOStrategy) -> str:
         action_rows += f"<td>{_esc(a.expected_impact)}</td><td>${a.estimated_cost_usd:,.0f}</td></tr>\n"
 
     risks = "".join(f"<li>{_esc(rf)}</li>" for rf in r.risk_factors)
+    path_section = _html_path_to_80(r.path_to_80) if r.path_to_80 else ""
 
     sub_reports = (
         _html_topical_authority(r.topical_authority)
@@ -376,6 +429,7 @@ def _html_seo_strategy(r: SEOStrategy) -> str:
         <p><strong>Timeline:</strong> {_esc(r.expected_timeline_to_results)}</p>
         <p><strong>ROI:</strong> {_esc(r.roi_projection)}</p>
     </div>
+    {path_section}
 
     <h2>Investment Overview</h2>
     <div class="grid-2">
