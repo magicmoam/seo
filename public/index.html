@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEO Agent</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
       --bg: #0a0a0f;
@@ -30,29 +31,169 @@
       min-height: 100vh;
     }
 
-    .app {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 40px 24px;
+    /* Auth screen */
+    .auth-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 24px;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    header h1 {
-      font-size: 32px;
+    .auth-screen h1 {
+      font-size: 36px;
       font-weight: 700;
       background: linear-gradient(135deg, var(--accent), var(--cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
     }
 
-    header p {
+    .auth-screen p {
       color: var(--text-dim);
       font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    .auth-error {
+      color: var(--red);
+      font-size: 13px;
+      display: none;
+    }
+
+    .auth-error.show { display: block; }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .topbar-brand {
+      font-size: 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-user img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+    }
+
+    .topbar-user span {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .btn-logout {
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 53px);
+    }
+
+    .sidebar {
+      width: 280px;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      padding: 16px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-title .count {
+      background: var(--surface2);
+      padding: 1px 7px;
+      border-radius: 10px;
+      font-size: 10px;
+    }
+
+    .history-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .history-item:hover {
+      background: var(--surface2);
+    }
+
+    .history-item .hi-query {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item .hi-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex;
+      gap: 8px;
+    }
+
+    .history-item .hi-tool {
+      color: var(--accent-glow);
+    }
+
+    .history-empty {
+      color: var(--text-dim);
+      font-size: 13px;
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px;
     }
 
     .tools {
@@ -60,7 +201,7 @@
       gap: 8px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .tool-chip {
@@ -83,7 +224,7 @@
 
     .input-area {
       position: relative;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
 
     .input-area textarea {
@@ -102,13 +243,8 @@
       max-height: 120px;
     }
 
-    .input-area textarea:focus {
-      border-color: var(--accent);
-    }
-
-    .input-area textarea::placeholder {
-      color: var(--text-dim);
-    }
+    .input-area textarea:focus { border-color: var(--accent); }
+    .input-area textarea::placeholder { color: var(--text-dim); }
 
     .input-area button {
       position: absolute;
@@ -130,22 +266,13 @@
       transform: translateY(-1px);
     }
 
-    .input-area button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    .input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .loading {
-      text-align: center;
-      padding: 60px 0;
-      display: none;
-    }
-
+    .loading { text-align: center; padding: 60px 0; display: none; }
     .loading.show { display: block; }
 
     .spinner {
-      width: 40px;
-      height: 40px;
+      width: 40px; height: 40px;
       border: 3px solid var(--border);
       border-top-color: var(--accent);
       border-radius: 50%;
@@ -155,10 +282,7 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .loading p {
-      color: var(--text-dim);
-      font-size: 14px;
-    }
+    .loading p { color: var(--text-dim); font-size: 14px; }
 
     .error {
       background: rgba(255, 107, 107, 0.1);
@@ -172,7 +296,6 @@
 
     .error.show { display: block; }
 
-    /* Result sections */
     .result { display: none; }
     .result.show { display: block; }
 
@@ -196,49 +319,18 @@
       color: var(--accent-glow);
     }
 
-    .result-query {
-      color: var(--text-dim);
-      font-size: 14px;
-    }
+    .result-query { color: var(--text-dim); font-size: 14px; }
 
-    /* Tables */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 24px;
-      font-size: 13px;
-    }
-
+    .data-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px; }
     .data-table th {
-      text-align: left;
-      padding: 10px 12px;
-      background: var(--surface2);
-      border-bottom: 2px solid var(--border);
-      color: var(--text-dim);
-      font-weight: 600;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      text-align: left; padding: 10px 12px; background: var(--surface2);
+      border-bottom: 2px solid var(--border); color: var(--text-dim);
+      font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
     }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
 
-    .data-table td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: top;
-    }
-
-    .data-table tr:hover td {
-      background: rgba(255,255,255,0.02);
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
     .badge-low { background: rgba(0, 214, 143, 0.15); color: var(--green); }
     .badge-medium { background: rgba(240, 192, 64, 0.15); color: var(--yellow); }
     .badge-high { background: rgba(255, 107, 107, 0.15); color: var(--red); }
@@ -247,144 +339,49 @@
     .badge-trans { background: rgba(0, 214, 143, 0.15); color: var(--green); }
     .badge-nav { background: rgba(74, 158, 255, 0.15); color: var(--blue); }
 
-    /* Cards */
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; margin-bottom: 16px;
     }
+    .card h3 { font-size: 15px; margin-bottom: 4px; }
+    .card .url { color: var(--text-dim); font-size: 12px; margin-bottom: 12px; word-break: break-all; }
+    .card-meta { display: flex; gap: 12px; margin-bottom: 12px; font-size: 12px; color: var(--text-dim); }
 
-    .card h3 {
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-
-    .card .url {
-      color: var(--text-dim);
-      font-size: 12px;
-      margin-bottom: 12px;
-      word-break: break-all;
-    }
-
-    .card-meta {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-
-    .strengths, .weaknesses {
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
+    .strengths, .weaknesses { font-size: 13px; margin-bottom: 8px; }
     .strengths li { color: var(--green); }
     .weaknesses li { color: var(--red); }
-    .strengths li, .weaknesses li {
-      margin-bottom: 4px;
-      list-style: none;
-      padding-left: 16px;
-      position: relative;
-    }
+    .strengths li, .weaknesses li { margin-bottom: 4px; list-style: none; padding-left: 16px; position: relative; }
     .strengths li::before { content: "+"; position: absolute; left: 0; }
     .weaknesses li::before { content: "-"; position: absolute; left: 0; }
 
-    /* Summary panels */
     .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px 20px;
-      margin-bottom: 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 20px; margin-bottom: 16px;
     }
-
     .panel-title {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--accent-glow);
-      margin-bottom: 8px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--accent-glow); margin-bottom: 8px;
     }
+    .panel ul { list-style: none; padding: 0; }
+    .panel li { padding: 4px 0; font-size: 13px; color: var(--text); padding-left: 16px; position: relative; }
+    .panel li::before { content: ">"; position: absolute; left: 0; color: var(--text-dim); }
 
-    .panel ul {
-      list-style: none;
-      padding: 0;
-    }
+    .summary-text { font-size: 14px; line-height: 1.6; color: var(--text); }
 
-    .panel li {
-      padding: 4px 0;
-      font-size: 13px;
-      color: var(--text);
-      padding-left: 16px;
-      position: relative;
-    }
-
-    .panel li::before {
-      content: ">";
-      position: absolute;
-      left: 0;
-      color: var(--text-dim);
-    }
-
-    .summary-text {
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--text);
-    }
-
-    /* Content article */
     .article-meta {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 24px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; margin-bottom: 24px;
     }
-
-    .article-meta h2 {
-      font-size: 20px;
-      margin-bottom: 8px;
-    }
-
-    .article-meta .meta-desc {
-      color: var(--text-dim);
-      font-size: 14px;
-      margin-bottom: 16px;
-      font-style: italic;
-    }
-
-    .article-meta .keywords {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .article-meta .kw-tag {
-      padding: 3px 10px;
-      background: rgba(108, 92, 231, 0.12);
-      border-radius: 4px;
-      font-size: 12px;
-      color: var(--accent-glow);
-    }
+    .article-meta h2 { font-size: 20px; margin-bottom: 8px; }
+    .article-meta .meta-desc { color: var(--text-dim); font-size: 14px; margin-bottom: 16px; font-style: italic; }
+    .article-meta .keywords { display: flex; gap: 6px; flex-wrap: wrap; }
+    .article-meta .kw-tag { padding: 3px 10px; background: rgba(108, 92, 231, 0.12); border-radius: 4px; font-size: 12px; color: var(--accent-glow); }
 
     .article-content {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 32px;
-      font-size: 15px;
-      line-height: 1.8;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 32px; font-size: 15px; line-height: 1.8;
     }
-
-    .article-content h1, .article-content h2, .article-content h3 {
-      margin: 24px 0 12px;
-      color: var(--text);
-    }
-
+    .article-content h1, .article-content h2, .article-content h3 { margin: 24px 0 12px; color: var(--text); }
     .article-content h2 { font-size: 22px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
     .article-content h3 { font-size: 17px; color: var(--cyan); }
     .article-content p { margin-bottom: 12px; }
@@ -392,66 +389,209 @@
     .article-content li { margin-bottom: 6px; }
     .article-content strong { color: #fff; }
 
-    /* SERP positions */
     .serp-pos {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      background: var(--surface2);
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--accent-glow);
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 6px;
+      background: var(--surface2); font-size: 12px; font-weight: 700; color: var(--accent-glow);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>SEO Agent</h1>
-      <p>AI-powered keyword research, competitor analysis, and content generation</p>
-    </header>
 
-    <div class="tools">
-      <span class="tool-chip" data-q="Find keywords for ">Keywords</span>
-      <span class="tool-chip" data-q="Analyze competitors for ">Competitors</span>
-      <span class="tool-chip" data-q="Analyze SERP for ">SERP</span>
-      <span class="tool-chip" data-q="Find content gaps for ">Content Gaps</span>
-      <span class="tool-chip" data-q="Write a blog post about ">Generate Content</span>
-    </div>
+<!-- Auth Screen -->
+<div id="auth-screen" class="auth-screen">
+  <h1>SEO Agent</h1>
+  <p>Sign in to access your SEO research tools</p>
+  <div id="g_id_onload"></div>
+  <div id="google-btn"></div>
+  <p class="auth-error" id="auth-error"></p>
+</div>
 
-    <div class="input-area">
-      <textarea id="query" rows="2" placeholder="e.g. What keywords should I target for hard water shower filters?"></textarea>
-      <button id="submit" onclick="submitQuery()">Run</button>
+<!-- Main App (hidden until authed) -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <span class="topbar-brand">SEO Agent</span>
+    <div class="topbar-user">
+      <img id="user-pic" src="" alt="">
+      <span id="user-name"></span>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
     </div>
-
-    <div class="error" id="error"></div>
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <p id="loading-text">Researching with Jina AI and analyzing with LLM...</p>
-    </div>
-    <div class="result" id="result"></div>
   </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-title">
+        Search History
+        <span class="count" id="history-count">0</span>
+      </div>
+      <div id="history-list">
+        <div class="history-empty">No searches yet</div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="tools">
+        <span class="tool-chip" data-q="Find keywords for ">Keywords</span>
+        <span class="tool-chip" data-q="Analyze competitors for ">Competitors</span>
+        <span class="tool-chip" data-q="Analyze SERP for ">SERP</span>
+        <span class="tool-chip" data-q="Find content gaps for ">Content Gaps</span>
+        <span class="tool-chip" data-q="Write a blog post about ">Generate Content</span>
+      </div>
+
+      <div class="input-area">
+        <textarea id="query" rows="2" placeholder="e.g. What keywords should I target for hard water shower filters?"></textarea>
+        <button id="submit" onclick="submitQuery()">Run</button>
+      </div>
+
+      <div class="error" id="error"></div>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Researching with Jina AI and analyzing with LLM...</p>
+      </div>
+      <div class="result" id="result"></div>
+    </div>
+  </div>
+</div>
 
 <script>
 const $ = id => document.getElementById(id);
+let GOOGLE_CLIENT_ID = '';
 
-document.querySelectorAll('.tool-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    const q = $('query');
-    q.value = chip.dataset.q;
-    q.focus();
-    q.setSelectionRange(q.value.length, q.value.length);
-    document.querySelectorAll('.tool-chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
+let idToken = null;
+let currentUser = null;
+
+// ─── Google Auth ───
+
+async function fetchConfig() {
+  const res = await fetch('/api/config');
+  const data = await res.json();
+  GOOGLE_CLIENT_ID = data.google_client_id;
+}
+
+function initGoogleAuth() {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse,
+    auto_select: true,
+  });
+  google.accounts.id.renderButton($('google-btn'), {
+    theme: 'filled_black',
+    size: 'large',
+    shape: 'pill',
+    text: 'signin_with',
+  });
+  // Check for stored session
+  const stored = sessionStorage.getItem('seo_token');
+  if (stored) {
+    idToken = stored;
+    const payload = JSON.parse(atob(stored.split('.')[1]));
+    showApp({ email: payload.email, name: payload.name, picture: payload.picture });
+  }
+}
+
+function handleCredentialResponse(response) {
+  idToken = response.credential;
+  sessionStorage.setItem('seo_token', idToken);
+  const payload = JSON.parse(atob(idToken.split('.')[1]));
+  showApp({ email: payload.email, name: payload.name, picture: payload.picture });
+}
+
+function showApp(user) {
+  currentUser = user;
+  $('auth-screen').style.display = 'none';
+  $('app').style.display = 'block';
+  $('user-pic').src = user.picture || '';
+  $('user-name').textContent = user.email;
+  loadHistory();
+}
+
+function logout() {
+  idToken = null;
+  currentUser = null;
+  sessionStorage.removeItem('seo_token');
+  google.accounts.id.disableAutoSelect();
+  $('app').style.display = 'none';
+  $('auth-screen').style.display = 'flex';
+}
+
+// Wait for Google script + config to load
+window.addEventListener('load', async () => {
+  await fetchConfig();
+  const check = setInterval(() => {
+    if (typeof google !== 'undefined' && google.accounts) {
+      clearInterval(check);
+      initGoogleAuth();
+    }
+  }, 100);
+});
+
+// ─── API calls ───
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${idToken}`,
+  };
+}
+
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/history', { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { logout(); return; }
+    const data = await res.json();
+    renderHistory(data);
+  } catch (e) {
+    // history loading is best-effort
+  }
+}
+
+function renderHistory(items) {
+  const list = $('history-list');
+  $('history-count').textContent = items.length;
+  if (!items.length) {
+    list.innerHTML = '<div class="history-empty">No searches yet</div>';
+    return;
+  }
+  list.innerHTML = items.map(item => {
+    const date = new Date(item.created_at).toLocaleDateString();
+    return `<div class="history-item" onclick='showHistoryItem(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
+      <div class="hi-query">${esc(item.query)}</div>
+      <div class="hi-meta">
+        <span class="hi-tool">${item.tool_used.replace(/_/g, ' ')}</span>
+        <span>${date}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showHistoryItem(item) {
+  renderResult({ tool_used: item.tool_used, query: item.query, result: item.result });
+}
+
+// ─── Tool chips ───
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tool-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const q = $('query');
+      q.value = chip.dataset.q;
+      q.focus();
+      q.setSelectionRange(q.value.length, q.value.length);
+      document.querySelectorAll('.tool-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  $('query').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitQuery(); }
   });
 });
 
-$('query').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitQuery(); }
-});
+// ─── Submit ───
 
 async function submitQuery() {
   const query = $('query').value.trim();
@@ -465,9 +605,11 @@ async function submitQuery() {
   try {
     const res = await fetch('/api/query', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify({ query })
     });
+
+    if (res.status === 401 || res.status === 403) { logout(); return; }
 
     const data = await res.json();
 
@@ -478,6 +620,7 @@ async function submitQuery() {
     }
 
     renderResult(data);
+    loadHistory(); // refresh sidebar
   } catch (err) {
     $('error').textContent = 'Network error: ' + err.message;
     $('error').classList.add('show');
@@ -486,6 +629,8 @@ async function submitQuery() {
     $('submit').disabled = false;
   }
 }
+
+// ─── Render ───
 
 function renderResult(data) {
   const el = $('result');
@@ -510,13 +655,11 @@ function renderResult(data) {
 }
 
 function diffBadge(d) {
-  const l = d.toLowerCase();
-  return `<span class="badge badge-${l}">${d}</span>`;
+  return `<span class="badge badge-${d.toLowerCase()}">${d}</span>`;
 }
 
 function intentBadge(i) {
-  const l = i.toLowerCase();
-  const cls = { informational: 'info', commercial: 'comm', transactional: 'trans', navigational: 'nav' }[l] || 'info';
+  const cls = { informational:'info', commercial:'comm', transactional:'trans', navigational:'nav' }[i.toLowerCase()] || 'info';
   return `<span class="badge badge-${cls}">${i}</span>`;
 }
 
@@ -530,13 +673,11 @@ function renderKeywords(r) {
       <td>${esc(k.cpc_estimate)}</td><td style="color:var(--text-dim);font-size:12px">${esc(k.notes)}</td></tr>`;
   }
   h += `</tbody></table>`;
-
   if (r.long_tail_suggestions?.length) {
     h += `<div class="panel"><div class="panel-title">Long-tail Suggestions</div><ul>`;
     for (const s of r.long_tail_suggestions) h += `<li>${esc(s)}</li>`;
     h += `</ul></div>`;
   }
-
   h += `<div class="panel"><div class="panel-title">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
 }
@@ -546,16 +687,14 @@ function renderCompetitors(r) {
   for (const c of r.competitors) {
     h += `<div class="card"><h3>${esc(c.title)}</h3><div class="url">${esc(c.url)}</div>
       <div class="card-meta"><span>${esc(c.content_type)}</span><span>~${esc(c.estimated_word_count)} words</span></div>
-      <ul class="strengths">${c.strengths.map(s => `<li>${esc(s)}</li>`).join('')}</ul>
-      <ul class="weaknesses">${c.weaknesses.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>`;
+      <ul class="strengths">${c.strengths.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+      <ul class="weaknesses">${c.weaknesses.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></div>`;
   }
-
   if (r.opportunities?.length) {
     h += `<div class="panel"><div class="panel-title">Opportunities</div><ul>`;
     for (const o of r.opportunities) h += `<li>${esc(o)}</li>`;
     h += `</ul></div>`;
   }
-
   h += `<div class="panel"><div class="panel-title">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
 }
@@ -571,11 +710,9 @@ function renderSERP(r) {
       <td style="font-size:12px;color:var(--text-dim);word-break:break-all">${esc(e.url)}</td></tr>`;
   }
   h += `</tbody></table>`;
-
   h += `<div class="panel"><div class="panel-title">SERP Features</div><ul>`;
   for (const f of r.serp_features) h += `<li>${esc(f)}</li>`;
   h += `</ul></div>`;
-
   h += `<div class="panel"><div class="panel-title">Dominant Intent: ${esc(r.dominant_intent)}</div>
     <p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
@@ -590,13 +727,11 @@ function renderGaps(r) {
       <td>${diffBadge(g.opportunity_score)}</td><td style="font-size:13px">${esc(g.suggested_angle)}</td></tr>`;
   }
   h += `</tbody></table>`;
-
   if (r.underserved_subtopics?.length) {
     h += `<div class="panel"><div class="panel-title">Underserved Subtopics</div><ul>`;
     for (const s of r.underserved_subtopics) h += `<li>${esc(s)}</li>`;
     h += `</ul></div>`;
   }
-
   h += `<div class="panel"><div class="panel-title">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
   return h;
 }
@@ -607,14 +742,11 @@ function renderContent(r) {
     <div class="keywords"><span class="kw-tag">${esc(r.target_keyword)}</span>`;
   for (const k of r.secondary_keywords) h += `<span class="kw-tag">${esc(k)}</span>`;
   h += `</div><p style="margin-top:12px;font-size:13px;color:var(--text-dim)">${r.word_count} words</p></div>`;
-
   if (r.outline?.length) {
     h += `<div class="panel"><div class="panel-title">Outline</div><ul>`;
     for (const o of r.outline) h += `<li>${esc(o)}</li>`;
     h += `</ul></div>`;
   }
-
-  // Render markdown content (basic)
   let content = esc(r.content)
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
@@ -625,7 +757,6 @@ function renderContent(r) {
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>');
   h += `<div class="article-content"><p>${content}</p></div>`;
-
   if (r.seo_notes?.length) {
     h += `<div class="panel" style="margin-top:16px"><div class="panel-title">SEO Notes</div><ul>`;
     for (const n of r.seo_notes) h += `<li>${esc(n)}</li>`;

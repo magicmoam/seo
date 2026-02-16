@@ -20,6 +20,18 @@ class Config:
     # Jina
     jina_api_key: str = field(default_factory=lambda: os.getenv("JINA_API_KEY", ""))
 
+    # Google Auth
+    google_client_id: str = field(default_factory=lambda: os.getenv("GOOGLE_CLIENT_ID", ""))
+    allowed_emails: list[str] = field(
+        default_factory=lambda: [
+            e.strip() for e in os.getenv("ALLOWED_EMAILS", "").split(",") if e.strip()
+        ]
+    )
+
+    # Supabase
+    supabase_url: str = field(default_factory=lambda: os.getenv("SUPABASE_URL", ""))
+    supabase_key: str = field(default_factory=lambda: os.getenv("SUPABASE_KEY", ""))
+
     # Defaults
     max_search_results: int = 5
     max_competitors: int = 10
