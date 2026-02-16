@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Wongzo</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -808,6 +808,84 @@
       .input-area textarea { padding: 14px 100px 14px 14px; }
       .result-panel { padding: 16px; }
       .data-table th, .data-table td { padding: 8px 8px; }
+    }
+
+    /* ── iPhone 16 Pro Max (430x932) + safe areas ── */
+    @supports (padding: env(safe-area-inset-top)) {
+      .topbar {
+        padding-top: env(safe-area-inset-top);
+        height: calc(52px + env(safe-area-inset-top));
+      }
+      .layout {
+        padding-top: calc(52px + env(safe-area-inset-top));
+      }
+      .sidebar {
+        top: calc(52px + env(safe-area-inset-top));
+        height: calc(100vh - 52px - env(safe-area-inset-top));
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .main {
+        padding-bottom: calc(80px + env(safe-area-inset-bottom));
+      }
+      .auth-screen {
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+    }
+
+    @media (max-width: 430px) {
+      .main { padding: 20px 14px 60px; }
+      .hero { margin-bottom: 36px; }
+      .hero h2 { font-size: 32px; line-height: 1.15; }
+      .hero p { font-size: 13px; }
+      .tools-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      .tool-card { padding: 12px 10px; }
+      .tool-card .tool-num { font-size: 9px; margin-bottom: 4px; }
+      .tool-card .tool-name { font-size: 11px; }
+      .tool-card .tool-desc { font-size: 9px; }
+      .dashboard { gap: 6px; }
+      .dash-cell { padding: 10px 12px; }
+      .dash-cell .dash-label { font-size: 8px; }
+      .dash-cell .dash-value { font-size: 16px; }
+      .input-area textarea {
+        padding: 14px 90px 14px 14px;
+        font-size: 16px; /* prevents iOS zoom on focus */
+        min-height: 52px;
+      }
+      .input-area button {
+        padding: 7px 18px;
+        font-size: 11px;
+        right: 8px; bottom: 8px;
+      }
+      .result-panel { padding: 14px; margin-bottom: 8px; }
+      .result-header { margin-bottom: 16px; padding-bottom: 12px; }
+      .result-badge { font-size: 9px; padding: 3px 10px; }
+      .result-query { font-size: 12px; }
+      .data-table { font-size: 11px; }
+      .data-table th { font-size: 9px; padding: 8px 6px; }
+      .data-table td { padding: 8px 6px; }
+      .cell-dim { font-size: 10px; }
+      .badge { font-size: 9px; padding: 2px 6px; }
+      .panel-label { font-size: 9px; }
+      .panel-list li { font-size: 12px; padding-left: 14px; }
+      .summary-text { font-size: 13px; }
+      .analyzer-overview { gap: 6px; }
+      .analyzer-stat { padding: 10px; }
+      .analyzer-stat .stat-label { font-size: 8px; }
+      .analyzer-stat .stat-value { font-size: 16px; }
+      .score-grid { gap: 6px; }
+      .score-cell { padding: 10px; }
+      .competitor-card h3 { font-size: 14px; }
+      .article-meta h2 { font-size: 18px; }
+      .article-content { font-size: 13px; }
+      .article-content h2 { font-size: 16px; }
+      .article-content h3 { font-size: 14px; }
+      .kw-tag { font-size: 10px; padding: 2px 8px; }
+      .topbar { padding: 0 14px; }
+      .topbar-brand { font-size: 15px; }
+      .btn-logout { font-size: 10px; padding: 3px 10px; }
     }
   </style>
 </head>
