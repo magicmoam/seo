@@ -861,6 +861,119 @@
       margin-bottom: 6px;
     }
 
+    /* ── Rubric Breakdown ── */
+    .rubric-breakdown {
+      margin-bottom: 12px;
+    }
+    .rubric-category {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .rubric-category-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .rubric-category-header:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .rubric-cat-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--c-text-primary);
+      flex: 1;
+    }
+    .rubric-cat-score {
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .rubric-cat-count {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--c-text-tertiary);
+    }
+    .rubric-score-bar {
+      height: 3px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 2px;
+      overflow: hidden;
+      width: 60px;
+    }
+    .rubric-score-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    .rubric-cat-chevron {
+      color: var(--c-text-tertiary);
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+    .rubric-category.open .rubric-cat-chevron {
+      transform: rotate(90deg);
+    }
+    .rubric-criteria-list {
+      display: none;
+      padding: 0 16px 12px;
+    }
+    .rubric-category.open .rubric-criteria-list {
+      display: block;
+    }
+    .criterion-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 12px;
+    }
+    .criterion-item:last-child { border-bottom: none; }
+    .criterion-status {
+      font-size: 12px;
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+    }
+    .criterion-pass .criterion-status { color: var(--c-green); }
+    .criterion-fail .criterion-status { color: var(--c-red); }
+    .criterion-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .criterion-name {
+      font-weight: 500;
+      color: var(--c-text-primary);
+      margin-bottom: 2px;
+    }
+    .criterion-finding {
+      font-size: 11px;
+      color: var(--c-text-tertiary);
+      line-height: 1.4;
+    }
+    .criterion-recommendation {
+      font-size: 11px;
+      color: var(--c-yellow);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .criterion-score-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--c-text-tertiary);
+      flex-shrink: 0;
+      min-width: 32px;
+      text-align: right;
+    }
+
     /* ── Path to 80 ── */
     .path-to-80 {
       margin-bottom: 12px;
@@ -1723,6 +1836,38 @@ function renderPathTo80(p) {
   </div>`;
 }
 
+function renderRubricBreakdown(rubric) {
+  let h = '<div class="rubric-breakdown">';
+  for (const cat of rubric.categories) {
+    const barColor = cat.score >= 70 ? 'var(--c-green)' : cat.score >= 40 ? 'var(--c-yellow)' : 'var(--c-red)';
+    h += `<div class="rubric-category" onclick="this.classList.toggle('open')">
+      <div class="rubric-category-header">
+        <span class="rubric-cat-chevron">&#9656;</span>
+        <span class="rubric-cat-name">${esc(cat.category)}</span>
+        <div class="rubric-score-bar"><div class="rubric-score-bar-fill" style="width:${cat.score}%;background:${barColor}"></div></div>
+        <span class="rubric-cat-score" style="color:${barColor}">${cat.score}</span>
+        <span class="rubric-cat-count">${cat.passed_count}/${cat.total_count}</span>
+      </div>
+      <div class="rubric-criteria-list">`;
+    for (const cr of cat.criteria) {
+      const cls = cr.passed ? 'criterion-pass' : 'criterion-fail';
+      const icon = cr.passed ? '&#10003;' : '&#10007;';
+      h += `<div class="criterion-item ${cls}">
+        <span class="criterion-status">${icon}</span>
+        <div class="criterion-info">
+          <div class="criterion-name">${esc(cr.criterion_name)}</div>
+          <div class="criterion-finding">${esc(cr.finding)}</div>
+          ${cr.recommendation && !cr.passed ? `<div class="criterion-recommendation">${esc(cr.recommendation)}</div>` : ''}
+        </div>
+        <span class="criterion-score-val">${cr.score}</span>
+      </div>`;
+    }
+    h += `</div></div>`;
+  }
+  h += '</div>';
+  return h;
+}
+
 function renderAnalyzer(r) {
   let h = '';
 
@@ -1746,13 +1891,35 @@ function renderAnalyzer(r) {
     </div>
   </div>`;
 
-  // Score breakdown
-  h += `<div class="score-grid">
-    <div class="score-cell"><div class="score-label">Performance</div>${diffBadge(r.performance_score)}</div>
-    <div class="score-cell"><div class="score-label">SEO</div>${diffBadge(r.seo_score)}</div>
-    <div class="score-cell"><div class="score-label">Content</div>${diffBadge(r.content_score)}</div>
-    <div class="score-cell"><div class="score-label">Technical</div>${diffBadge(r.technical_score)}</div>
-  </div>`;
+  // Score breakdown - show numeric scores if rubric available, else text badges
+  if (r.rubric) {
+    const catMap = {};
+    for (const cat of r.rubric.categories) catMap[cat.category] = cat;
+    h += `<div class="score-grid">`;
+    for (const catName of ['performance', 'seo', 'content', 'technical']) {
+      const cat = catMap[catName];
+      if (cat) {
+        const barColor = cat.score >= 70 ? 'var(--c-green)' : cat.score >= 40 ? 'var(--c-yellow)' : 'var(--c-red)';
+        h += `<div class="score-cell">
+          <div class="score-label">${catName}</div>
+          <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${barColor}">${cat.score}/100</div>
+          <div style="font-size:10px;color:var(--c-text-tertiary);margin-top:2px">${cat.passed_count}/${cat.total_count} passed</div>
+          <div class="rubric-score-bar" style="margin-top:4px;width:100%"><div class="rubric-score-bar-fill" style="width:${cat.score}%;background:${barColor}"></div></div>
+        </div>`;
+      }
+    }
+    h += `</div>`;
+  } else {
+    h += `<div class="score-grid">
+      <div class="score-cell"><div class="score-label">Performance</div>${diffBadge(r.performance_score)}</div>
+      <div class="score-cell"><div class="score-label">SEO</div>${diffBadge(r.seo_score)}</div>
+      <div class="score-cell"><div class="score-label">Content</div>${diffBadge(r.content_score)}</div>
+      <div class="score-cell"><div class="score-label">Technical</div>${diffBadge(r.technical_score)}</div>
+    </div>`;
+  }
+
+  // Rubric breakdown (collapsible per-category criteria)
+  if (r.rubric) h += renderRubricBreakdown(r.rubric);
 
   // Path to 80
   if (r.path_to_80) h += renderPathTo80(r.path_to_80);

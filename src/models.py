@@ -103,6 +103,31 @@ class GeneratedContent(BaseModel):
     evidence: ScoreEvidence | None = None
 
 
+class CriterionResult(BaseModel):
+    criterion_id: str
+    criterion_name: str
+    category: str
+    score: int  # 0-100 (pass/fail: 0 or 100)
+    passed: bool  # True if score >= 70 (scored) or == 100 (pass/fail)
+    finding: str  # what the LLM observed
+    recommendation: str = ""
+
+
+class CategoryBreakdown(BaseModel):
+    category: str
+    score: int  # 0-100, computed from weighted criteria
+    weight: float  # 0.25
+    criteria: list[CriterionResult]
+    passed_count: int
+    total_count: int
+
+
+class ScoringRubricResult(BaseModel):
+    categories: list[CategoryBreakdown]
+    overall_score: int
+    rubric_version: str = "1.0"
+
+
 class PathTo80Step(BaseModel):
     action: str
     category: str  # performance / seo / content / technical
@@ -144,6 +169,7 @@ class WebsiteAnalysisResult(BaseModel):
     summary: str
     evidence: ScoreEvidence | None = None
     path_to_80: PathTo80 | None = None
+    rubric: ScoringRubricResult | None = None
 
 
 # ---------------------------------------------------------------------------

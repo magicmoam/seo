@@ -16,6 +16,7 @@ from src.models import (
     GeneratedContent,
     KeywordResearchResult,
     PathTo80,
+    ScoringRubricResult,
     SEOStrategy,
     SERPAnalysisResult,
     TechnicalSEOAudit,
@@ -269,6 +270,33 @@ def _html_path_to_80(p: PathTo80) -> str:
     """
 
 
+def _html_rubric_breakdown(rubric: ScoringRubricResult) -> str:
+    """Render per-category rubric breakdown with per-criterion details."""
+    html = '<h3>Scoring Rubric Breakdown</h3>'
+    html += f'<p style="color:var(--dim);font-size:0.85rem">Rubric version {_esc(rubric.rubric_version)} &mdash; {rubric.overall_score}/100 overall</p>'
+
+    for cat in rubric.categories:
+        score_color = "green" if cat.score >= 70 else ("yellow" if cat.score >= 40 else "red")
+        html += f"""<div class="card" style="border-left:3px solid var(--{score_color})">
+            <h3 style="display:flex;justify-content:space-between;align-items:center">
+                <span>{_esc(cat.category.title())}</span>
+                <span style="color:var(--{score_color})">{cat.score}/100 ({cat.passed_count}/{cat.total_count} passed)</span>
+            </h3>
+            <table><tr><th>Status</th><th>Criterion</th><th>Score</th><th>Finding</th><th>Recommendation</th></tr>"""
+        for cr in cat.criteria:
+            status = "&#10003;" if cr.passed else "&#10007;"
+            status_color = "green" if cr.passed else "red"
+            html += f"""<tr>
+                <td style="color:var(--{status_color});text-align:center">{status}</td>
+                <td>{_esc(cr.criterion_name)}</td>
+                <td style="text-align:center">{cr.score}</td>
+                <td style="color:var(--dim)">{_esc(cr.finding)}</td>
+                <td style="color:var(--dim)">{_esc(cr.recommendation)}</td>
+            </tr>"""
+        html += "</table></div>"
+    return html
+
+
 def _html_website_analysis(r: WebsiteAnalysisResult) -> str:
     issues_rows = ""
     for i in r.issues:
@@ -276,6 +304,7 @@ def _html_website_analysis(r: WebsiteAnalysisResult) -> str:
     headings = "".join(f"<li>{_esc(h)}</li>" for h in r.heading_structure)
     schema = "".join(f"<li>{_esc(s)}</li>" for s in r.schema_markup)
     path_section = _html_path_to_80(r.path_to_80) if r.path_to_80 else ""
+    rubric_section = _html_rubric_breakdown(r.rubric) if r.rubric else ""
     return f"""
     <h2>Website Analysis: {_esc(r.url)}</h2>
     <div class="card">
@@ -287,6 +316,7 @@ def _html_website_analysis(r: WebsiteAnalysisResult) -> str:
     <div><strong>Content:</strong> {_tag(r.content_score)} <strong>Technical:</strong> {_tag(r.technical_score)}</div>
     </div>
     <p>{r.word_count} words | {r.internal_links} internal links | {r.external_links} external links</p></div>
+    {rubric_section}
     {path_section}
     <h3>Issues</h3>
     <table><tr><th>Severity</th><th>Issue</th><th>Description</th><th>Fix</th></tr>{issues_rows}</table>

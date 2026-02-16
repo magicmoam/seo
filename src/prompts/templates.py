@@ -185,73 +185,52 @@ Also include an "evidence" field:
 }}"""
 
 WEBSITE_ANALYZER_SYSTEM = """\
-You are an expert SEO auditor. Analyze a webpage and produce a comprehensive SEO audit report.
-Evaluate the page across four dimensions: performance, SEO, content quality, and technical health.
-Score each dimension as "poor", "fair", "good", or "excellent".
+You are an expert SEO auditor. You evaluate webpages against a structured scoring rubric with specific, measurable criteria.
+You do NOT invent your own scoring methodology. Instead, you evaluate each criterion in the provided rubric and report your findings.
 Always respond with valid JSON matching the schema exactly. No markdown fences."""
 
 WEBSITE_ANALYZER_USER = """\
-Analyze this webpage for SEO:
+Analyze this webpage for SEO using the structured rubric below.
 
 {page_data}
+
+{rubric}
+
+For each criterion in the rubric above, evaluate the page and provide a score.
+- For "pass_fail" criteria: score must be exactly 0 (fail) or 100 (pass).
+- For "scored" criteria: score 0-100 following the threshold guidance.
 
 Produce a JSON object with:
 {{
   "url": "{url}",
   "page_title": "the page's title tag",
   "meta_description": "the page's meta description",
-  "overall_score": 75,
-  "performance_score": "poor|fair|good|excellent",
-  "seo_score": "poor|fair|good|excellent",
-  "content_score": "poor|fair|good|excellent",
-  "technical_score": "poor|fair|good|excellent",
   "word_count": 0,
   "internal_links": 0,
   "external_links": 0,
   "heading_structure": ["H1: Main heading", "H2: Subheading", ...],
-  "issues": [
+  "schema_markup": ["list any structured data / schema.org types found, or empty if none"],
+  "summary": "2-3 sentence overall SEO assessment",
+  "criteria_evaluations": [
     {{
-      "issue": "short name of the issue",
-      "severity": "critical|warning|info",
-      "description": "what the problem is",
-      "recommendation": "how to fix it"
+      "criterion_id": "perf_render_blocking",
+      "score": 75,
+      "finding": "what you specifically observed on the page for this criterion",
+      "recommendation": "what to improve (omit if score is 100)"
     }}
   ],
-  "schema_markup": ["list any structured data / schema.org types found, or empty if none"],
-  "summary": "2-3 sentence overall SEO assessment"
-}}
-
-Be thorough. Identify at least 5 issues across all severity levels. Count words, links, and headings from the content provided.
-
-Also include an "evidence" field:
-{{
   "evidence": {{
-    "score_reasoning": "Explain exactly why you gave these scores, referencing specific data from the page",
+    "score_reasoning": "Explain your evaluation approach referencing specific data from the page",
     "key_findings": ["concrete evidence bullet 1", "concrete evidence bullet 2"],
     "data_sources": ["URLs or content sections that informed your analysis"]
   }}
 }}
 
-If overall_score is below 80, also include a "path_to_80" object:
-{{
-  "path_to_80": {{
-    "current_score": <the overall_score>,
-    "target_score": 80,
-    "steps": [
-      {{
-        "action": "specific improvement to make",
-        "category": "performance|seo|content|technical",
-        "estimated_points": 5,
-        "effort": "quick_win|moderate|significant",
-        "explanation": "why this improves the score"
-      }}
-    ],
-    "projected_score": <score after all steps>,
-    "quick_wins_summary": "1-2 sentences about the easiest gains"
-  }}
-}}
-
-Include 5-8 steps ordered by impact. Steps must sum to at least (80 - overall_score) points. Prioritize quick wins first. If overall_score >= 80, omit path_to_80."""
+IMPORTANT:
+- You MUST include an evaluation for EVERY criterion_id in the rubric. Do not skip any.
+- Count words, links, and headings from the content provided.
+- Be specific in findings - reference actual elements you observed on the page.
+- Do NOT include overall_score, performance_score, seo_score, content_score, or technical_score - those are computed from your criterion scores."""
 
 # ---------------------------------------------------------------------------
 # Multi-Agent SEO Strategy Prompts
