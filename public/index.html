@@ -1296,17 +1296,528 @@
       .topbar-brand { font-size: 15px; }
       .btn-logout { font-size: 10px; padding: 3px 10px; }
     }
+    /* ════════════════════════════════════════
+       LANDING PAGE
+       ════════════════════════════════════════ */
+    html { scroll-behavior: smooth; }
+    .landing {
+      min-height: 100vh;
+      animation: fadeIn 0.8s ease-out;
+    }
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 52px;
+      background: rgba(10, 13, 16, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--c-glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .landing-brand {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--c-text-primary);
+    }
+    .landing-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .landing-nav-links a {
+      color: var(--c-text-secondary);
+      font-size: 13px;
+      text-decoration: none;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+    .landing-nav-links a:hover {
+      color: var(--c-text-primary);
+    }
+    .btn-signin-nav {
+      padding: 6px 18px;
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      background: rgba(212, 184, 149, 0.08);
+      color: var(--c-accent);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-signin-nav:hover {
+      background: rgba(212, 184, 149, 0.15);
+      border-color: rgba(212, 184, 149, 0.3);
+    }
+    .landing-hero {
+      text-align: center;
+      padding: 80px 32px 48px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .landing-hero h1 {
+      font-size: 48px;
+      font-weight: 300;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      background: linear-gradient(180deg, #ffffff 30%, var(--c-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      animation: fadeIn 1s ease-out;
+    }
+    .landing-hero > p {
+      color: var(--c-text-secondary);
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 32px;
+      animation: fadeIn 1s ease-out 0.2s both;
+    }
+    .audit-input-group {
+      display: flex;
+      gap: 8px;
+      max-width: 520px;
+      margin: 0 auto;
+      animation: fadeIn 1s ease-out 0.4s both;
+    }
+    .audit-input-group input {
+      flex: 1;
+      padding: 14px 18px;
+      background: var(--c-bg-card);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      color: var(--c-text-primary);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .audit-input-group input:focus {
+      border-color: rgba(212, 184, 149, 0.3);
+    }
+    .audit-input-group input::placeholder {
+      color: var(--c-text-tertiary);
+    }
+    .btn-audit {
+      padding: 14px 28px;
+      border: 1px solid rgba(212, 184, 149, 0.3);
+      border-radius: var(--radius);
+      background: rgba(212, 184, 149, 0.12);
+      color: var(--c-accent);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-audit:hover {
+      background: rgba(212, 184, 149, 0.2);
+      border-color: rgba(212, 184, 149, 0.5);
+    }
+    .btn-audit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .audit-loading {
+      text-align: center;
+      padding: 24px 0;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .audit-loading p {
+      color: var(--c-text-tertiary);
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    .audit-error {
+      color: var(--c-red);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 12px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .landing-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 32px;
+      border-top: 1px solid var(--c-glass-border);
+      border-bottom: 1px solid var(--c-glass-border);
+      animation: fadeIn 1s ease-out 0.6s both;
+    }
+    .landing-stat-item { text-align: center; }
+    .landing-stat-item .stat-num {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--c-accent);
+    }
+    .landing-stat-item .stat-txt {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--c-text-tertiary);
+    }
+    .landing-features {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 64px 32px;
+    }
+    .landing-features h2,
+    .landing-how h2 {
+      font-size: 32px;
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      text-align: center;
+      margin-bottom: 40px;
+      color: var(--c-text-primary);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .feature-card {
+      padding: 24px;
+      background: var(--c-bg-card);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      transition: all 0.2s;
+    }
+    .feature-card:hover {
+      border-color: var(--c-glass-border-hover);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .feature-card .feature-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--c-text-tertiary);
+      margin-bottom: 8px;
+    }
+    .feature-card h3 {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--c-text-primary);
+      margin-bottom: 6px;
+    }
+    .feature-card p {
+      font-size: 12px;
+      color: var(--c-text-tertiary);
+      line-height: 1.5;
+    }
+    .landing-how {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 32px 64px;
+    }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .how-step {
+      text-align: center;
+      padding: 24px;
+    }
+    .how-step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--c-accent-dim);
+      border: 1px solid rgba(212, 184, 149, 0.2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--c-accent);
+      margin-bottom: 16px;
+    }
+    .how-step h3 {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--c-text-primary);
+      margin-bottom: 8px;
+    }
+    .how-step p {
+      font-size: 13px;
+      color: var(--c-text-tertiary);
+      line-height: 1.5;
+    }
+    .landing-cta {
+      text-align: center;
+      padding: 64px 32px;
+      border-top: 1px solid var(--c-glass-border);
+    }
+    .landing-cta h2 {
+      font-size: 28px;
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      color: var(--c-text-primary);
+      margin-bottom: 12px;
+    }
+    .landing-cta p {
+      color: var(--c-text-secondary);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .landing-cta #google-btn-landing {
+      display: flex;
+      justify-content: center;
+    }
+    .landing-footer {
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid var(--c-glass-border);
+      font-size: 12px;
+      color: var(--c-text-tertiary);
+    }
+    .footer-sep { margin: 0 8px; }
+
+    /* ════════════════════════════════════════
+       PREVIEW (BLUR WALL)
+       ════════════════════════════════════════ */
+    .preview-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 52px;
+      background: rgba(10, 13, 16, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--c-glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .btn-unlock {
+      padding: 6px 18px;
+      border: 1px solid rgba(212, 184, 149, 0.3);
+      border-radius: var(--radius);
+      background: rgba(212, 184, 149, 0.12);
+      color: var(--c-accent);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-unlock:hover {
+      background: rgba(212, 184, 149, 0.2);
+      border-color: rgba(212, 184, 149, 0.5);
+    }
+    .preview-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 36px 200px;
+    }
+    .blurred-section {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .blur-overlay {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: linear-gradient(to bottom, transparent, rgba(10, 13, 16, 0.85) 30%, rgba(10, 13, 16, 0.98));
+      padding: 80px 32px 40px;
+      display: flex;
+      justify-content: center;
+    }
+    .blur-overlay-card {
+      background: var(--c-bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--c-glass-border);
+      border-radius: var(--radius);
+      padding: 32px 40px;
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+    .blur-overlay-card h3 {
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: var(--c-text-primary);
+      margin-bottom: 8px;
+    }
+    .blur-overlay-card p {
+      color: var(--c-text-secondary);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+    .blur-overlay-card #google-btn-preview {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── Landing/Preview Responsive ── */
+    @media (max-width: 768px) {
+      .landing-hero { padding: 48px 20px 32px; }
+      .landing-hero h1 { font-size: 32px; }
+      .landing-nav { padding: 0 16px; }
+      .landing-nav-links { gap: 16px; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-steps { grid-template-columns: 1fr; gap: 16px; }
+      .landing-stats { gap: 24px; }
+      .landing-features, .landing-how { padding-left: 20px; padding-right: 20px; }
+      .preview-content { padding: 24px 16px 200px; }
+      .blur-overlay { padding: 60px 16px 32px; }
+      .blur-overlay-card { padding: 24px; }
+      .preview-topbar { padding: 0 16px; }
+    }
+    @media (max-width: 430px) {
+      .landing-hero h1 { font-size: 28px; }
+      .landing-hero > p { font-size: 14px; }
+      .audit-input-group { flex-direction: column; }
+      .btn-audit { width: 100%; }
+      .features-grid { grid-template-columns: 1fr; }
+      .landing-stats { flex-wrap: wrap; gap: 16px; }
+      .landing-cta h2 { font-size: 22px; }
+      .landing-cta { padding: 40px 20px; }
+      .landing-nav-links a { display: none; }
+    }
   </style>
 </head>
 <body>
 
-<!-- Auth Screen -->
-<div id="auth-screen" class="auth-screen">
-  <div class="auth-card">
-    <h1>Wongzo</h1>
-    <p>Sign in to access your SEO research tools</p>
-    <div id="google-btn"></div>
-    <p class="auth-error" id="auth-error"></p>
+<!-- Landing Page -->
+<div id="landing" class="landing">
+  <nav class="landing-nav">
+    <span class="landing-brand">Wongzo</span>
+    <div class="landing-nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <button class="btn-signin-nav" onclick="showSignIn()">Sign In</button>
+    </div>
+  </nav>
+
+  <section class="landing-hero">
+    <h1>Know exactly what's holding your site back.</h1>
+    <p>Get a free SEO audit in seconds. See your score across 31 criteria, 4 categories, with a clear path to improvement.</p>
+    <div class="audit-input-group" id="audit-input-group">
+      <input type="url" id="audit-url" placeholder="Enter your website URL..." />
+      <button class="btn-audit" id="btn-audit" onclick="runFreeAudit()">Analyze Free</button>
+    </div>
+    <div class="audit-loading" id="audit-loading" style="display:none">
+      <div class="spinner"></div>
+      <p>Analyzing your website...</p>
+    </div>
+    <div class="audit-error" id="audit-error" style="display:none"></div>
+  </section>
+
+  <div class="landing-stats">
+    <div class="landing-stat-item"><span class="stat-num">31</span><span class="stat-txt">Criteria</span></div>
+    <div class="landing-stat-item"><span class="stat-num">4</span><span class="stat-txt">Categories</span></div>
+    <div class="landing-stat-item"><span class="stat-num">10</span><span class="stat-txt">Tools</span></div>
+    <div class="landing-stat-item"><span class="stat-num">0-100</span><span class="stat-txt">Scoring</span></div>
+  </div>
+
+  <section class="landing-features" id="features">
+    <h2>Everything you need to dominate search.</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-num">01</div>
+        <h3>Website Analyzer</h3>
+        <p>31-criterion audit with scoring rubric, category breakdowns, and a path to 80.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">02</div>
+        <h3>Keyword Research</h3>
+        <p>Volume, difficulty, intent, CPC estimates and long-tail suggestions from live SERP data.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">03</div>
+        <h3>Competitor Analysis</h3>
+        <p>Reverse-engineer top-ranking pages: strengths, weaknesses, and content gaps.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">04</div>
+        <h3>SERP Analysis</h3>
+        <p>Features, intent signals, content types, and position tracking for any query.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">05</div>
+        <h3>Content Generator</h3>
+        <p>SEO-optimized articles with outlines, keyword targeting, and meta descriptions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">06</div>
+        <h3>SEO Strategy</h3>
+        <p>Multi-agent analysis combining all tools into a comprehensive action plan.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-how" id="how-it-works">
+    <h2>How it works</h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <h3>Enter Your URL</h3>
+        <p>Paste any website URL and our AI scrapes and analyzes the page in real time.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <h3>Get Your Score</h3>
+        <p>See your overall score, category breakdowns, and pass/fail for each criterion.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <h3>Unlock Recommendations</h3>
+        <p>Sign in to access detailed findings, actionable fixes, and your path to 80.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-cta">
+    <h2>Ready to improve your SEO?</h2>
+    <p>Sign in with Google to unlock all 10 tools and get detailed, actionable recommendations.</p>
+    <div id="google-btn-landing"></div>
+  </section>
+
+  <footer class="landing-footer">
+    <span>Wongzo</span>
+    <span class="footer-sep">&middot;</span>
+    <span>AI-Powered SEO Intelligence</span>
+  </footer>
+</div>
+
+<!-- Preview (Blur Wall) -->
+<div id="preview" style="display:none">
+  <div class="preview-topbar">
+    <span class="topbar-brand" style="cursor:pointer" onclick="backToLanding()">Wongzo</span>
+    <button class="btn-unlock" onclick="showSignIn()">Sign in to unlock</button>
+  </div>
+  <div class="preview-content">
+    <div id="preview-result"></div>
+  </div>
+  <div class="blur-overlay">
+    <div class="blur-overlay-card">
+      <h3>Unlock Full Report</h3>
+      <p>Sign in to see detailed findings, recommendations, and your path to 80.</p>
+      <div id="google-btn-preview"></div>
+    </div>
   </div>
 </div>
 
@@ -1422,6 +1933,9 @@ let GOOGLE_CLIENT_ID = '';
 let idToken = null;
 let currentUser = null;
 let currentSearchId = null;
+let freeAuditResult = null;
+let freeAuditUrl = '';
+let postAuthAction = null;
 
 async function fetchConfig() {
   const res = await fetch('/api/config');
@@ -1435,12 +1949,15 @@ function initGoogleAuth() {
     callback: handleCredentialResponse,
     auto_select: true,
   });
-  google.accounts.id.renderButton($('google-btn'), {
-    theme: 'filled_black',
-    size: 'large',
-    shape: 'rectangular',
-    text: 'signin_with',
-  });
+  // Render Google sign-in buttons in all locations
+  const btnConfigs = [
+    { id: 'google-btn-landing', opts: { theme: 'filled_black', size: 'large', shape: 'rectangular', text: 'signin_with' } },
+    { id: 'google-btn-preview', opts: { theme: 'filled_black', size: 'large', shape: 'rectangular', text: 'signin_with' } },
+  ];
+  for (const cfg of btnConfigs) {
+    const el = $(cfg.id);
+    if (el) google.accounts.id.renderButton(el, cfg.opts);
+  }
   const stored = sessionStorage.getItem('seo_token');
   if (stored) {
     idToken = stored;
@@ -1458,12 +1975,22 @@ function handleCredentialResponse(response) {
 
 function showApp(user) {
   currentUser = user;
-  $('auth-screen').style.display = 'none';
+  $('landing').style.display = 'none';
+  $('preview').style.display = 'none';
   $('app').style.display = 'block';
   $('user-pic').src = user.picture || '';
   $('user-name').textContent = user.email;
   loadHistory();
   loadUsage();
+  // Handle post-auth unlock: auto-submit the audited URL
+  if (postAuthAction === 'unlock_audit' && freeAuditUrl) {
+    const q = $('query');
+    q.value = 'Analyze the website ' + freeAuditUrl;
+    postAuthAction = null;
+    freeAuditUrl = '';
+    freeAuditResult = null;
+    submitQuery();
+  }
 }
 
 function logout() {
@@ -1472,7 +1999,8 @@ function logout() {
   sessionStorage.removeItem('seo_token');
   google.accounts.id.disableAutoSelect();
   $('app').style.display = 'none';
-  $('auth-screen').style.display = 'flex';
+  $('preview').style.display = 'none';
+  $('landing').style.display = 'block';
 }
 
 window.addEventListener('load', async () => {
@@ -1581,7 +2109,210 @@ document.addEventListener('DOMContentLoaded', () => {
   $('query').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitQuery(); }
   });
+  $('audit-url').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); runFreeAudit(); }
+  });
 });
+
+function showLanding() {
+  $('landing').style.display = 'block';
+  $('preview').style.display = 'none';
+  $('app').style.display = 'none';
+}
+
+function showPreview() {
+  $('landing').style.display = 'none';
+  $('preview').style.display = 'block';
+  $('app').style.display = 'none';
+}
+
+function backToLanding() {
+  freeAuditResult = null;
+  showLanding();
+}
+
+function showSignIn() {
+  postAuthAction = 'unlock_audit';
+  google.accounts.id.prompt();
+}
+
+async function runFreeAudit() {
+  const urlInput = $('audit-url');
+  const url = urlInput.value.trim();
+  if (!url) return;
+
+  $('audit-error').style.display = 'none';
+  $('audit-input-group').style.display = 'none';
+  $('audit-loading').style.display = 'block';
+  $('btn-audit').disabled = true;
+
+  try {
+    const res = await fetch('/api/free-audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      $('audit-error').textContent = data.error;
+      $('audit-error').style.display = 'block';
+      $('audit-input-group').style.display = 'flex';
+      return;
+    }
+    freeAuditResult = data;
+    freeAuditUrl = data.url || url;
+    renderPreviewResult(data);
+    showPreview();
+  } catch (err) {
+    $('audit-error').textContent = 'Network error: ' + err.message;
+    $('audit-error').style.display = 'block';
+    $('audit-input-group').style.display = 'flex';
+  } finally {
+    $('audit-loading').style.display = 'none';
+    $('btn-audit').disabled = false;
+  }
+}
+
+function renderPreviewResult(data) {
+  const el = $('preview-result');
+  let h = '';
+
+  // Header
+  h += `<div class="result-header">
+    <span class="result-badge">website analyzer</span>
+    <span class="result-query">${esc(data.url)}</span>
+  </div>`;
+
+  // Overall score + stats (visible)
+  h += `<div class="analyzer-overview">
+    <div class="analyzer-stat">
+      <div class="stat-label">Overall Score</div>
+      <div class="stat-value">${data.overall_score}/100</div>
+    </div>
+    <div class="analyzer-stat">
+      <div class="stat-label">Word Count</div>
+      <div class="stat-value">${formatNum(data.word_count)}</div>
+    </div>
+    <div class="analyzer-stat">
+      <div class="stat-label">Internal Links</div>
+      <div class="stat-value">${data.internal_links}</div>
+    </div>
+    <div class="analyzer-stat">
+      <div class="stat-label">External Links</div>
+      <div class="stat-value">${data.external_links}</div>
+    </div>
+  </div>`;
+
+  // Category scores (visible)
+  if (data.rubric) {
+    h += '<div class="score-grid">';
+    for (const cat of data.rubric.categories) {
+      const barColor = cat.score >= 70 ? 'var(--c-green)' : cat.score >= 40 ? 'var(--c-yellow)' : 'var(--c-red)';
+      h += `<div class="score-cell">
+        <div class="score-label">${cat.category}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${barColor}">${cat.score}/100</div>
+        <div style="font-size:10px;color:var(--c-text-tertiary);margin-top:2px">${cat.passed_count}/${cat.total_count} passed</div>
+        <div class="rubric-score-bar" style="margin-top:4px;width:100%"><div class="rubric-score-bar-fill" style="width:${cat.score}%;background:${barColor}"></div></div>
+      </div>`;
+    }
+    h += '</div>';
+
+    // Rubric breakdown: names + pass/fail visible, findings blurred
+    h += '<div class="rubric-breakdown">';
+    for (const cat of data.rubric.categories) {
+      const barColor = cat.score >= 70 ? 'var(--c-green)' : cat.score >= 40 ? 'var(--c-yellow)' : 'var(--c-red)';
+      h += `<div class="rubric-category" onclick="this.classList.toggle('open')">
+        <div class="rubric-category-header">
+          <span class="rubric-cat-chevron">&#9656;</span>
+          <span class="rubric-cat-name">${esc(cat.category)}</span>
+          <div class="rubric-score-bar"><div class="rubric-score-bar-fill" style="width:${cat.score}%;background:${barColor}"></div></div>
+          <span class="rubric-cat-score" style="color:${barColor}">${cat.score}</span>
+          <span class="rubric-cat-count">${cat.passed_count}/${cat.total_count}</span>
+        </div>
+        <div class="rubric-criteria-list">`;
+      for (const cr of cat.criteria) {
+        const cls = cr.passed ? 'criterion-pass' : 'criterion-fail';
+        const icon = cr.passed ? '&#10003;' : '&#10007;';
+        h += `<div class="criterion-item ${cls}">
+          <span class="criterion-status">${icon}</span>
+          <div class="criterion-info">
+            <div class="criterion-name">${esc(cr.criterion_name)}</div>
+            <div class="criterion-finding blurred-section">Sign in to see detailed findings</div>
+          </div>
+          <span class="criterion-score-val">${cr.score}</span>
+        </div>`;
+      }
+      h += '</div></div>';
+    }
+    h += '</div>';
+  }
+
+  // Path to 80 preview
+  if (data.path_to_80) {
+    const p = data.path_to_80;
+    const currentPct = Math.min(p.current_score, 100);
+    const gainPct = Math.min(p.projected_score - p.current_score, 100 - currentPct);
+    h += `<div class="path-to-80">
+      <div class="path-header">Path to 80</div>
+      <div class="path-progress-bar">
+        <span class="bar-label">${p.current_score}</span>
+        <div class="bar-track">
+          <div class="bar-current" style="width:${currentPct}%"></div>
+          <div class="bar-gain" style="left:${currentPct}%;width:${gainPct}%"></div>
+          <div class="bar-target" style="left:80%"></div>
+        </div>
+        <span class="bar-label bar-label-target">80</span>
+      </div>
+      <p style="font-size:13px;color:var(--c-text-secondary)">${p.step_count} steps to reach ${p.projected_score} points</p>
+      <div class="blurred-section" style="margin-top:8px">
+        <p style="font-size:13px">${esc(p.first_step_action)}</p>
+        <p style="font-size:13px">Additional recommendations available after sign in...</p>
+      </div>
+    </div>`;
+  }
+
+  // Issues summary (visible: severity counts, blurred: details)
+  if (data.issues_summary) {
+    const iss = data.issues_summary;
+    const hasSome = iss.critical || iss.warning || iss.info;
+    if (hasSome) {
+      h += `<div class="result-panel">
+        <div class="panel-label">Issues Found</div>
+        <div style="display:flex;gap:12px;margin-bottom:12px">
+          ${iss.critical ? '<span class="badge badge-critical">' + iss.critical + ' Critical</span>' : ''}
+          ${iss.warning ? '<span class="badge badge-warning">' + iss.warning + ' Warnings</span>' : ''}
+          ${iss.info ? '<span class="badge badge-info">' + iss.info + ' Info</span>' : ''}
+        </div>
+        <div class="blurred-section">
+          <table class="data-table"><thead><tr><th>Severity</th><th>Issue</th><th>Recommendation</th></tr></thead>
+          <tbody>
+            <tr><td>Critical</td><td>Details hidden</td><td>Sign in to view</td></tr>
+            <tr><td>Warning</td><td>Details hidden</td><td>Sign in to view</td></tr>
+          </tbody></table>
+        </div>
+      </div>`;
+    }
+  }
+
+  // Meta info (visible)
+  h += `<div class="result-panel">
+    <div class="panel-label">Page Meta</div>
+    <p style="font-size:14px;font-weight:500;color:var(--c-text-primary);margin-bottom:4px">${esc(data.page_title)}</p>
+    <p style="font-size:12px;color:var(--c-text-tertiary);margin-bottom:8px;word-break:break-all">${esc(data.url)}</p>
+    <p class="summary-text" style="font-style:italic">${esc(data.meta_description)}</p>
+  </div>`;
+
+  // Summary teaser (visible teaser, blurred full)
+  h += `<div class="result-panel">
+    <div class="panel-label">Summary</div>
+    <p class="summary-text">${esc(data.summary_teaser)}</p>
+    <div class="blurred-section" style="margin-top:8px">
+      <p class="summary-text">Full analysis with detailed recommendations, heading structure analysis, schema markup review, and actionable next steps available after sign in.</p>
+    </div>
+  </div>`;
+
+  el.innerHTML = h;
+}
 
 async function submitQuery() {
   const query = $('query').value.trim();

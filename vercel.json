@@ -6,6 +6,7 @@
     { "src": "api/usage.py", "use": "@vercel/python" },
     { "src": "api/evidence.py", "use": "@vercel/python" },
     { "src": "api/report.py", "use": "@vercel/python" },
+    { "src": "api/free_audit.py", "use": "@vercel/python" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
@@ -17,6 +18,7 @@
     { "src": "/api/usage", "dest": "/api/usage.py" },
     { "src": "/api/evidence/(.*)", "dest": "/api/evidence.py" },
     { "src": "/api/report/(.*)", "dest": "/api/report.py" },
+    { "src": "/api/free-audit", "dest": "/api/free_audit.py" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
