@@ -16,4 +16,7 @@ app = FastAPI()
 @app.get("/api/config")
 async def get_config():
     from src.config import config
-    return JSONResponse({"google_client_id": config.google_client_id})
+    return JSONResponse({
+        "google_client_id": config.google_client_id,
+        "ga4_oauth_enabled": bool(config.google_client_secret),
+    })

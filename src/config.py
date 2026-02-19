@@ -34,6 +34,8 @@ class Config:
 
     # GA4
     ga4_credentials_json: str = field(default_factory=lambda: os.getenv("GA4_CREDENTIALS_JSON", ""))
+    google_client_secret: str = field(default_factory=lambda: os.getenv("GOOGLE_CLIENT_SECRET", ""))
+    ga4_token_encryption_key: str = field(default_factory=lambda: os.getenv("GA4_TOKEN_ENCRYPTION_KEY", ""))
 
     # Cron secret (for Vercel cron authentication)
     cron_secret: str = field(default_factory=lambda: os.getenv("CRON_SECRET", ""))

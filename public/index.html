@@ -1719,6 +1719,37 @@
       .ga4-channels { grid-template-columns: 1fr; }
     }
 
+    /* GA4 OAuth Connection */
+    .ga4-connect-section { margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--c-glass-border); border-radius: var(--radius); }
+    .ga4-connect-status { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .ga4-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .ga4-status-dot.connected { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.4); }
+    .ga4-status-dot.disconnected { background: var(--c-text-tertiary); }
+    .ga4-status-label { font-size: 12px; color: var(--c-text-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ga4-status-property { font-size: 11px; color: var(--c-text-tertiary); margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-ga4-connect { width: 100%; background: none; border: 1px solid var(--c-accent); color: var(--c-accent); padding: 8px 12px; border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .btn-ga4-connect:hover { background: var(--c-accent); color: #0a0d10; }
+    .ga4-connect-actions { display: flex; gap: 6px; }
+    .ga4-connect-actions button { flex: 1; background: none; border: 1px solid var(--c-glass-border); color: var(--c-text-secondary); padding: 5px 8px; border-radius: var(--radius); font-size: 11px; cursor: pointer; font-family: inherit; }
+    .ga4-connect-actions button:hover { border-color: var(--c-accent); color: var(--c-accent); }
+    .ga4-connect-actions button.btn-disconnect:hover { border-color: #ef4444; color: #ef4444; }
+
+    /* GA4 Property Selector Modal */
+    .ga4-property-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
+    .ga4-property-modal.show { display: flex; }
+    .ga4-property-modal-content { background: var(--c-bg-deep); border: 1px solid var(--c-glass-border); border-radius: var(--radius); padding: 24px; max-width: 480px; width: 90%; max-height: 70vh; overflow-y: auto; }
+    .ga4-property-modal-close { background: none; border: none; color: var(--c-text-tertiary); font-size: 20px; cursor: pointer; float: right; }
+    .ga4-property-modal-close:hover { color: var(--c-text-primary); }
+    .ga4-property-modal h3 { font-size: 16px; font-weight: 600; color: var(--c-text-primary); margin-bottom: 4px; }
+    .ga4-property-modal p { font-size: 13px; color: var(--c-text-tertiary); margin-bottom: 16px; }
+    .ga4-property-list { display: flex; flex-direction: column; gap: 6px; }
+    .ga4-property-item { display: flex; flex-direction: column; padding: 10px 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--c-glass-border); border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
+    .ga4-property-item:hover { border-color: var(--c-accent); background: var(--c-accent-dim); }
+    .ga4-property-name { font-size: 13px; color: var(--c-text-primary); font-weight: 500; }
+    .ga4-property-account { font-size: 11px; color: var(--c-text-tertiary); margin-top: 2px; }
+    .ga4-property-id { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--c-text-tertiary); margin-top: 2px; }
+    .ga4-property-loading { text-align: center; padding: 24px; color: var(--c-text-tertiary); font-size: 13px; }
+
     /* Tracking & Score Trends */
     .tracking-section { margin-top: 24px; padding: 20px; background: var(--c-bg-card); border: 1px solid var(--c-glass-border); border-radius: var(--radius); }
     .tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -1914,6 +1945,16 @@
       <div id="tracked-list">
         <div class="history-empty">No tracked URLs</div>
       </div>
+      <div id="ga4-connect-container" style="display:none">
+        <div class="sidebar-label" style="margin-top:20px">
+          <span class="sidebar-label-text">Google Analytics</span>
+        </div>
+        <div class="ga4-connect-section" id="ga4-connect-section">
+          <div id="ga4-status-content">
+            <button class="btn-ga4-connect" onclick="connectGA4()">Connect Google Analytics</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="main">
@@ -1991,6 +2032,17 @@
       <div class="result" id="result"></div>
     </div>
   </div>
+  <!-- GA4 Property Selector Modal -->
+  <div class="ga4-property-modal" id="ga4-property-modal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="ga4-property-modal-content">
+      <button class="ga4-property-modal-close" onclick="$('ga4-property-modal').classList.remove('show')">&times;</button>
+      <h3>Select a GA4 Property</h3>
+      <p>Choose which property to use for analytics data.</p>
+      <div id="ga4-property-list">
+        <div class="ga4-property-loading">Loading properties...</div>
+      </div>
+    </div>
+  </div>
   <!-- Trend Modal -->
   <div class="trend-modal" id="trend-modal" onclick="if(event.target===this)this.classList.remove('show')">
     <div class="trend-modal-content">
@@ -2003,6 +2055,7 @@
 <script>
 const $ = id => document.getElementById(id);
 let GOOGLE_CLIENT_ID = '';
+let GA4_OAUTH_ENABLED = false;
 let idToken = null;
 let currentUser = null;
 let currentSearchId = null;
@@ -2014,6 +2067,7 @@ async function fetchConfig() {
   const res = await fetch('/api/config');
   const data = await res.json();
   GOOGLE_CLIENT_ID = data.google_client_id;
+  GA4_OAUTH_ENABLED = data.ga4_oauth_enabled || false;
 }
 
 function initGoogleAuth() {
@@ -2056,6 +2110,7 @@ function showApp(user) {
   loadHistory();
   loadUsage();
   loadTrackedUrls();
+  loadGA4Status();
   // Handle post-auth unlock: auto-submit the audited URL
   if (postAuthAction === 'unlock_audit' && freeAuditUrl) {
     const q = $('query');
@@ -3131,6 +3186,117 @@ async function showTrend(url) {
     body.innerHTML = h;
   } catch (e) {
     body.innerHTML = `<p style="color:var(--c-red)">Failed to load trends: ${esc(e.message)}</p>`;
+  }
+}
+
+// --- GA4 OAuth Connection ---
+async function loadGA4Status() {
+  const container = $('ga4-connect-container');
+  if (!GA4_OAUTH_ENABLED) { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+  try {
+    const res = await fetch('/api/ga4/status', { headers: authHeaders() });
+    const data = await res.json();
+    renderGA4Status(data);
+  } catch (e) {
+    renderGA4Status({ connected: false });
+  }
+}
+
+function renderGA4Status(data) {
+  const el = $('ga4-status-content');
+  if (data.connected) {
+    const propName = data.selected_property_name || 'No property selected';
+    const propId = data.selected_property_id || '';
+    el.innerHTML = `
+      <div class="ga4-connect-status">
+        <span class="ga4-status-dot connected"></span>
+        <span class="ga4-status-label">${esc(propName)}</span>
+      </div>
+      ${propId ? `<div class="ga4-status-property">${esc(propId)}</div>` : ''}
+      <div class="ga4-connect-actions">
+        <button onclick="openPropertySelector()">Change Property</button>
+        <button class="btn-disconnect" onclick="disconnectGA4()">Disconnect</button>
+      </div>`;
+  } else {
+    el.innerHTML = '<button class="btn-ga4-connect" onclick="connectGA4()">Connect Google Analytics</button>';
+  }
+}
+
+function connectGA4() {
+  const client = google.accounts.oauth2.initCodeClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/analytics.readonly',
+    ux_mode: 'popup',
+    callback: async (response) => {
+      if (response.error) return;
+      try {
+        const res = await fetch('/api/ga4/connect', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ code: response.code }),
+        });
+        const data = await res.json();
+        if (data.error) { alert(data.error); return; }
+        openPropertySelector();
+      } catch (e) {
+        alert('Failed to connect: ' + e.message);
+      }
+    },
+  });
+  client.requestCode();
+}
+
+async function openPropertySelector() {
+  const modal = $('ga4-property-modal');
+  const list = $('ga4-property-list');
+  list.innerHTML = '<div class="ga4-property-loading">Loading properties...</div>';
+  modal.classList.add('show');
+
+  try {
+    const res = await fetch('/api/ga4/properties', { headers: authHeaders() });
+    const data = await res.json();
+    if (data.error) { list.innerHTML = `<div class="ga4-property-loading" style="color:var(--c-red)">${esc(data.error)}</div>`; return; }
+    if (!data.properties?.length) { list.innerHTML = '<div class="ga4-property-loading">No GA4 properties found.</div>'; return; }
+
+    let h = '<div class="ga4-property-list">';
+    for (const p of data.properties) {
+      h += `<div class="ga4-property-item" onclick="selectGA4Property('${esc(p.property_id)}','${esc(p.display_name)}')">
+        <span class="ga4-property-name">${esc(p.display_name)}</span>
+        <span class="ga4-property-account">${esc(p.account_name)}</span>
+        <span class="ga4-property-id">${esc(p.property_id)}</span>
+      </div>`;
+    }
+    h += '</div>';
+    list.innerHTML = h;
+  } catch (e) {
+    list.innerHTML = `<div class="ga4-property-loading" style="color:var(--c-red)">Failed to load properties: ${esc(e.message)}</div>`;
+  }
+}
+
+async function selectGA4Property(propertyId, propertyName) {
+  try {
+    const res = await fetch('/api/ga4/select-property', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ property_id: propertyId, property_name: propertyName }),
+    });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    $('ga4-property-modal').classList.remove('show');
+    loadGA4Status();
+  } catch (e) {
+    alert('Failed to select property: ' + e.message);
+  }
+}
+
+async function disconnectGA4() {
+  if (!confirm('Disconnect Google Analytics? Your stored tokens will be removed.')) return;
+  try {
+    await fetch('/api/ga4/disconnect', { method: 'DELETE', headers: authHeaders() });
+    loadGA4Status();
+  } catch (e) {
+    alert('Failed to disconnect: ' + e.message);
   }
 }
 

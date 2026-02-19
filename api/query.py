@@ -115,6 +115,7 @@ async def query(request: Request):
             result, tool_usage, trace = await ga4.run(
                 property_id=q,
                 date_range=extras.get("date_range", "last_30_days"),
+                user_email=user["email"],
             )
         else:
             return JSONResponse({"error": f"Unknown tool: {tool_name}"}, status_code=400)

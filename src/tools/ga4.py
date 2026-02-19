@@ -16,7 +16,7 @@ from src.models import (
 )
 
 
-def _get_ga4_client():
+def _get_ga4_client_service_account():
     """Create GA4 BetaAnalyticsData client using service account credentials."""
     from google.analytics.data_v1beta import BetaAnalyticsDataClient
     from google.oauth2 import service_account
@@ -38,17 +38,50 @@ def _get_ga4_client():
     return BetaAnalyticsDataClient(credentials=credentials)
 
 
+async def _get_ga4_client_oauth(user_email: str):
+    """Create GA4 BetaAnalyticsData client using OAuth2 user credentials.
+
+    Returns (client, property_id) or (None, None) if no OAuth connection.
+    """
+    from src.db import get_ga4_connection, refresh_ga4_access_token
+
+    connection = await get_ga4_connection(user_email)
+    if not connection:
+        return None, None
+
+    access_token = await refresh_ga4_access_token(user_email, connection)
+
+    from google.analytics.data_v1beta import BetaAnalyticsDataClient
+    from google.oauth2.credentials import Credentials
+
+    credentials = Credentials(token=access_token)
+    client = BetaAnalyticsDataClient(credentials=credentials)
+    selected_property = connection.get("selected_property_id", "")
+
+    return client, selected_property
+
+
+def _get_ga4_client():
+    """Fallback: service account client (original behavior)."""
+    return _get_ga4_client_service_account()
+
+
 def _format_duration(seconds: float) -> str:
     m, s = divmod(int(seconds), 60)
     return f"{m}m {s}s" if m else f"{s}s"
 
 
-async def run(property_id: str, date_range: str = "last_30_days") -> tuple[GA4Report, dict, EvidenceTrace]:
+async def run(
+    property_id: str = "",
+    date_range: str = "last_30_days",
+    user_email: str = "",
+) -> tuple[GA4Report, dict, EvidenceTrace]:
     """Fetch GA4 analytics data for a property.
 
     Args:
         property_id: GA4 property ID (e.g. "properties/123456789")
         date_range: "last_7_days", "last_30_days", or "last_90_days"
+        user_email: If provided, tries OAuth connection first, falls back to service account
     """
     from google.analytics.data_v1beta.types import (
         DateRange,
@@ -57,7 +90,19 @@ async def run(property_id: str, date_range: str = "last_30_days") -> tuple[GA4Re
         RunReportRequest,
     )
 
-    client = _get_ga4_client()
+    # Try OAuth first if user_email provided
+    client = None
+    if user_email:
+        client, oauth_property = await _get_ga4_client_oauth(user_email)
+        if client and not property_id:
+            property_id = oauth_property
+
+    # Fall back to service account
+    if client is None:
+        client = _get_ga4_client()
+
+    if not property_id:
+        raise ValueError("No GA4 property_id specified and no property selected in OAuth connection")
 
     # Normalize property_id
     if not property_id.startswith("properties/"):

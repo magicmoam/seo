@@ -10,6 +10,7 @@
     { "src": "api/analytics.py", "use": "@vercel/python" },
     { "src": "api/tracking.py", "use": "@vercel/python" },
     { "src": "api/cron_audit.py", "use": "@vercel/python" },
+    { "src": "api/ga4_connect.py", "use": "@vercel/python" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
@@ -27,6 +28,11 @@
     { "src": "/api/tracking/snapshot", "dest": "/api/tracking.py" },
     { "src": "/api/tracking", "dest": "/api/tracking.py" },
     { "src": "/api/cron/audit", "dest": "/api/cron_audit.py" },
+    { "src": "/api/ga4/connect", "dest": "/api/ga4_connect.py" },
+    { "src": "/api/ga4/properties", "dest": "/api/ga4_connect.py" },
+    { "src": "/api/ga4/select-property", "dest": "/api/ga4_connect.py" },
+    { "src": "/api/ga4/disconnect", "dest": "/api/ga4_connect.py" },
+    { "src": "/api/ga4/status", "dest": "/api/ga4_connect.py" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ],
   "crons": [

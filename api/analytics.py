@@ -50,7 +50,7 @@ async def get_analytics(request: Request):
         return JSONResponse({"error": "Invalid date_range"}, status_code=400)
 
     try:
-        report, usage, trace = await ga4.run(property_id, date_range)
+        report, usage, trace = await ga4.run(property_id, date_range, user_email=auth_result["email"])
         return JSONResponse(json.loads(report.model_dump_json()))
     except ValueError as e:
         return JSONResponse({"error": str(e)}, status_code=400)
