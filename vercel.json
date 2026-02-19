@@ -7,6 +7,9 @@
     { "src": "api/evidence.py", "use": "@vercel/python" },
     { "src": "api/report.py", "use": "@vercel/python" },
     { "src": "api/free_audit.py", "use": "@vercel/python" },
+    { "src": "api/analytics.py", "use": "@vercel/python" },
+    { "src": "api/tracking.py", "use": "@vercel/python" },
+    { "src": "api/cron_audit.py", "use": "@vercel/python" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
@@ -19,6 +22,17 @@
     { "src": "/api/evidence/(.*)", "dest": "/api/evidence.py" },
     { "src": "/api/report/(.*)", "dest": "/api/report.py" },
     { "src": "/api/free-audit", "dest": "/api/free_audit.py" },
+    { "src": "/api/analytics", "dest": "/api/analytics.py" },
+    { "src": "/api/tracking/snapshots", "dest": "/api/tracking.py" },
+    { "src": "/api/tracking/snapshot", "dest": "/api/tracking.py" },
+    { "src": "/api/tracking", "dest": "/api/tracking.py" },
+    { "src": "/api/cron/audit", "dest": "/api/cron_audit.py" },
     { "src": "/(.*)", "dest": "/public/$1" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/audit",
+      "schedule": "0 6 * * 1"
+    }
   ]
 }

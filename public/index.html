@@ -1697,6 +1697,65 @@
       .landing-cta { padding: 40px 20px; }
       .landing-nav-links a { display: none; }
     }
+
+    /* GA4 Analytics */
+    .ga4-overview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .ga4-stat { background: var(--c-bg-card); border: 1px solid var(--c-glass-border); border-radius: var(--radius); padding: 16px; text-align: center; }
+    .ga4-stat-value { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--c-accent); }
+    .ga4-stat-label { font-size: 11px; color: var(--c-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+    .ga4-channels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .ga4-channel { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--c-bg-card); border: 1px solid var(--c-glass-border); border-radius: var(--radius); }
+    .ga4-channel-name { font-size: 13px; color: var(--c-text-primary); }
+    .ga4-channel-bar { flex: 1; margin: 0 12px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+    .ga4-channel-bar-fill { height: 100%; background: var(--c-accent); border-radius: 2px; }
+    .ga4-channel-pct { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--c-text-secondary); min-width: 40px; text-align: right; }
+    .ga4-chart { margin: 16px 0; height: 120px; display: flex; align-items: flex-end; gap: 2px; }
+    .ga4-chart-bar { flex: 1; background: var(--c-accent); opacity: 0.6; border-radius: 2px 2px 0 0; min-width: 3px; transition: opacity 0.2s; }
+    .ga4-chart-bar:hover { opacity: 1; }
+    .ga4-insights { margin-top: 12px; }
+    .ga4-insight { padding: 8px 12px; margin-bottom: 6px; background: var(--c-accent-dim); border-left: 2px solid var(--c-accent); border-radius: 0 var(--radius) var(--radius) 0; font-size: 13px; color: var(--c-text-secondary); }
+    @media (max-width: 768px) {
+      .ga4-overview { grid-template-columns: repeat(2, 1fr); }
+      .ga4-channels { grid-template-columns: 1fr; }
+    }
+
+    /* Tracking & Score Trends */
+    .tracking-section { margin-top: 24px; padding: 20px; background: var(--c-bg-card); border: 1px solid var(--c-glass-border); border-radius: var(--radius); }
+    .tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .tracking-header h3 { font-size: 14px; font-weight: 500; color: var(--c-text-primary); }
+    .btn-track { background: var(--c-accent); color: #0a0d10; border: none; padding: 6px 14px; border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-track:hover { opacity: 0.9; }
+    .tracked-url-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-bottom: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--c-glass-border); border-radius: var(--radius); }
+    .tracked-url-info { flex: 1; }
+    .tracked-url-name { font-size: 13px; color: var(--c-text-primary); word-break: break-all; }
+    .tracked-url-score { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; margin-right: 12px; }
+    .tracked-url-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-trend { background: none; border: 1px solid var(--c-glass-border); color: var(--c-text-secondary); padding: 4px 10px; border-radius: var(--radius); font-size: 11px; cursor: pointer; font-family: inherit; }
+    .btn-trend:hover { border-color: var(--c-accent); color: var(--c-accent); }
+    .btn-untrack { background: none; border: none; color: var(--c-text-tertiary); cursor: pointer; font-size: 14px; padding: 4px; }
+    .btn-untrack:hover { color: var(--c-red); }
+    .trend-chart { display: flex; align-items: flex-end; gap: 3px; height: 40px; margin-top: 6px; }
+    .trend-bar { flex: 1; background: var(--c-accent); border-radius: 2px 2px 0 0; min-width: 6px; max-width: 14px; opacity: 0.7; }
+    .trend-bar:last-child { opacity: 1; }
+    .trend-badge { font-size: 11px; padding: 2px 6px; border-radius: 2px; font-weight: 600; }
+    .trend-up { color: var(--c-green); }
+    .trend-down { color: var(--c-red); }
+    .trend-stable { color: var(--c-text-tertiary); }
+    .score-color-green { color: var(--c-green); }
+    .score-color-yellow { color: var(--c-yellow); }
+    .score-color-red { color: var(--c-red); }
+    .trend-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
+    .trend-modal.show { display: flex; }
+    .trend-modal-content { background: var(--c-bg-deep); border: 1px solid var(--c-glass-border); border-radius: var(--radius); padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .trend-modal-close { background: none; border: none; color: var(--c-text-tertiary); font-size: 20px; cursor: pointer; float: right; }
+    .trend-modal-close:hover { color: var(--c-text-primary); }
+    .trend-detail-chart { height: 150px; display: flex; align-items: flex-end; gap: 4px; margin: 16px 0; }
+    .trend-detail-bar { flex: 1; background: var(--c-accent); border-radius: 2px 2px 0 0; position: relative; }
+    .trend-detail-bar .bar-tooltip { display: none; position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--c-text-primary); background: rgba(0,0,0,0.8); padding: 2px 6px; border-radius: 2px; white-space: nowrap; }
+    .trend-detail-bar:hover .bar-tooltip { display: block; }
+    .trend-snapshot-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .trend-snapshot-table th, .trend-snapshot-table td { text-align: left; padding: 6px 8px; font-size: 12px; border-bottom: 1px solid var(--c-glass-border); }
+    .trend-snapshot-table th { color: var(--c-text-tertiary); font-weight: 500; }
   </style>
 </head>
 <body>
@@ -1848,6 +1907,13 @@
       <div id="history-list">
         <div class="history-empty">No searches yet</div>
       </div>
+      <div class="sidebar-label" style="margin-top:20px">
+        <span class="sidebar-label-text">Tracked URLs</span>
+        <span class="count" id="tracked-count">0</span>
+      </div>
+      <div id="tracked-list">
+        <div class="history-empty">No tracked URLs</div>
+      </div>
     </div>
 
     <div class="main">
@@ -1925,6 +1991,13 @@
       <div class="result" id="result"></div>
     </div>
   </div>
+  <!-- Trend Modal -->
+  <div class="trend-modal" id="trend-modal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="trend-modal-content">
+      <button class="trend-modal-close" onclick="$('trend-modal').classList.remove('show')">&times;</button>
+      <div id="trend-modal-body"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1982,6 +2055,7 @@ function showApp(user) {
   $('user-name').textContent = user.email;
   loadHistory();
   loadUsage();
+  loadTrackedUrls();
   // Handle post-auth unlock: auto-submit the audited URL
   if (postAuthAction === 'unlock_audit' && freeAuditUrl) {
     const q = $('query');
@@ -2443,6 +2517,7 @@ function renderResult(data, searchId) {
   else if (tool === 'content_gap') html += renderGaps(r);
   else if (tool === 'content_generation') html += renderContent(r);
   else if (tool === 'website_analyzer') html += renderAnalyzer(r);
+  else if (tool === 'ga4_analytics') html += renderGA4(r);
   else html += `<pre>${JSON.stringify(r, null, 2)}</pre>`;
   el.innerHTML = html;
   el.classList.add('show');
@@ -2729,6 +2804,12 @@ function renderAnalyzer(r) {
 
   // Summary
   h += `<div class="result-panel"><div class="panel-label">Summary</div><p class="summary-text">${esc(r.summary)}</p></div>`;
+
+  // Track URL button
+  h += `<div class="result-panel" style="text-align:center">
+    <button class="btn-track" onclick="trackUrl('${esc(r.url)}')">Track This URL for Score Trends</button>
+    <p style="font-size:11px;color:var(--c-text-tertiary);margin-top:6px">Get weekly automated audits and track score changes over time</p>
+  </div>`;
   return h;
 }
 
@@ -2810,6 +2891,247 @@ function renderEvidence(ev) {
   </p>`;
 
   return h;
+}
+
+// --- GA4 Analytics Rendering ---
+function renderGA4(r) {
+  const o = r.overview || {};
+  let h = '';
+
+  // Overview stats
+  h += `<div class="ga4-overview">
+    <div class="ga4-stat"><div class="ga4-stat-value">${formatNum(o.total_users || 0)}</div><div class="ga4-stat-label">Total Users</div></div>
+    <div class="ga4-stat"><div class="ga4-stat-value">${formatNum(o.new_users || 0)}</div><div class="ga4-stat-label">New Users</div></div>
+    <div class="ga4-stat"><div class="ga4-stat-value">${formatNum(o.sessions || 0)}</div><div class="ga4-stat-label">Sessions</div></div>
+    <div class="ga4-stat"><div class="ga4-stat-value">${formatNum(o.pageviews || 0)}</div><div class="ga4-stat-label">Pageviews</div></div>
+    <div class="ga4-stat"><div class="ga4-stat-value">${esc(o.avg_session_duration || '0s')}</div><div class="ga4-stat-label">Avg Duration</div></div>
+    <div class="ga4-stat"><div class="ga4-stat-value">${esc(o.bounce_rate || '0%')}</div><div class="ga4-stat-label">Bounce Rate</div></div>
+  </div>`;
+
+  // Daily users chart
+  if (r.daily_users?.length) {
+    const maxUsers = Math.max(...r.daily_users.map(d => d.users), 1);
+    h += `<div class="result-panel"><div class="panel-label">Daily Users (${esc(o.period || 'last 30 days')})</div>
+      <div class="ga4-chart">`;
+    for (const d of r.daily_users) {
+      const pct = (d.users / maxUsers * 100).toFixed(1);
+      h += `<div class="ga4-chart-bar" style="height:${pct}%" title="${d.date}: ${d.users} users"></div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  // Channels
+  if (r.channels?.length) {
+    h += `<div class="result-panel"><div class="panel-label">Traffic Channels</div><div class="ga4-channels">`;
+    for (const c of r.channels) {
+      h += `<div class="ga4-channel">
+        <span class="ga4-channel-name">${esc(c.channel)}</span>
+        <div class="ga4-channel-bar"><div class="ga4-channel-bar-fill" style="width:${c.percentage}%"></div></div>
+        <span class="ga4-channel-pct">${c.percentage}%</span>
+      </div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  // Top pages
+  if (r.top_pages?.length) {
+    h += `<div class="result-panel"><div class="panel-label">Top Pages</div>
+      <table class="data-table"><thead><tr>
+        <th>Page</th><th>Views</th><th>Avg Time</th><th>Bounce</th>
+      </tr></thead><tbody>`;
+    for (const p of r.top_pages.slice(0, 15)) {
+      h += `<tr>
+        <td style="word-break:break-all"><strong>${esc(p.page_title || p.page_path)}</strong><br><span class="cell-dim">${esc(p.page_path)}</span></td>
+        <td>${formatNum(p.pageviews)}</td>
+        <td>${esc(p.avg_time_on_page)}</td>
+        <td>${esc(p.bounce_rate)}</td>
+      </tr>`;
+    }
+    h += `</tbody></table></div>`;
+  }
+
+  // Countries
+  if (r.countries?.length) {
+    h += `<div class="result-panel"><div class="panel-label">Top Countries</div>
+      <table class="data-table"><thead><tr>
+        <th>Country</th><th>Users</th><th>Sessions</th>
+      </tr></thead><tbody>`;
+    for (const c of r.countries.slice(0, 10)) {
+      h += `<tr><td>${esc(c.country)}</td><td>${formatNum(c.users)}</td><td>${formatNum(c.sessions)}</td></tr>`;
+    }
+    h += `</tbody></table></div>`;
+  }
+
+  // Insights
+  if (r.insights?.length) {
+    h += `<div class="result-panel"><div class="panel-label">Key Insights</div><div class="ga4-insights">`;
+    for (const insight of r.insights) {
+      h += `<div class="ga4-insight">${esc(insight)}</div>`;
+    }
+    h += `</div></div>`;
+  }
+
+  return h;
+}
+
+// --- URL Tracking & Score Trends ---
+async function loadTrackedUrls() {
+  try {
+    const res = await fetch('/api/tracking', { headers: authHeaders() });
+    if (!res.ok) return;
+    const urls = await res.json();
+    renderTrackedUrls(urls);
+  } catch (e) {}
+}
+
+function renderTrackedUrls(urls) {
+  const list = $('tracked-list');
+  const count = $('tracked-count');
+  count.textContent = urls.length;
+  if (!urls.length) {
+    list.innerHTML = '<div class="history-empty">No tracked URLs</div>';
+    return;
+  }
+  let h = '';
+  for (const t of urls) {
+    const domain = (t.url || '').replace(/https?:\/\//, '').split('/')[0];
+    h += `<div class="tracked-url-item">
+      <div class="tracked-url-info">
+        <div class="tracked-url-name">${esc(domain)}</div>
+      </div>
+      <div class="tracked-url-actions">
+        <button class="btn-trend" onclick="showTrend('${esc(t.url)}')">Trends</button>
+        <button class="btn-trend" onclick="runSnapshot('${esc(t.url)}')">Audit Now</button>
+        <button class="btn-untrack" onclick="untrackUrl('${t.id}')" title="Stop tracking">&times;</button>
+      </div>
+    </div>`;
+  }
+  list.innerHTML = h;
+}
+
+async function trackUrl(url) {
+  try {
+    const res = await fetch('/api/tracking', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ url })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Failed to track URL');
+      return;
+    }
+    // Also run an initial snapshot
+    await runSnapshot(url);
+    loadTrackedUrls();
+  } catch (e) {
+    alert('Failed to track URL: ' + e.message);
+  }
+}
+
+async function untrackUrl(id) {
+  try {
+    await fetch('/api/tracking', {
+      method: 'DELETE',
+      headers: authHeaders(),
+      body: JSON.stringify({ id })
+    });
+    loadTrackedUrls();
+  } catch (e) {}
+}
+
+async function runSnapshot(url) {
+  try {
+    const btn = event?.target;
+    if (btn) { btn.textContent = 'Running...'; btn.disabled = true; }
+    const res = await fetch('/api/tracking/snapshot', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+    if (btn) { btn.textContent = 'Audit Now'; btn.disabled = false; }
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+    loadTrackedUrls();
+  } catch (e) {
+    alert('Snapshot failed: ' + e.message);
+  }
+}
+
+function scoreColor(score) {
+  if (score >= 70) return 'score-color-green';
+  if (score >= 40) return 'score-color-yellow';
+  return 'score-color-red';
+}
+
+async function showTrend(url) {
+  const modal = $('trend-modal');
+  const body = $('trend-modal-body');
+  body.innerHTML = '<p style="color:var(--c-text-tertiary)">Loading trend data...</p>';
+  modal.classList.add('show');
+
+  try {
+    const res = await fetch(`/api/tracking/snapshots?url=${encodeURIComponent(url)}`, { headers: authHeaders() });
+    const data = await res.json();
+
+    if (!data.snapshots?.length) {
+      body.innerHTML = `<h3 style="font-size:14px;margin-bottom:12px">Score Trend</h3>
+        <p style="color:var(--c-text-tertiary)">No audit snapshots yet. Click "Audit Now" to create the first one.</p>`;
+      return;
+    }
+
+    const domain = url.replace(/https?:\/\//, '').split('/')[0];
+    const snapshots = data.snapshots;
+    const latest = snapshots[snapshots.length - 1];
+    const maxScore = Math.max(...snapshots.map(s => s.overall_score), 1);
+    const arrow = data.trend_direction === 'up' ? '&#9650;' : data.trend_direction === 'down' ? '&#9660;' : '&#8212;';
+    const trendCls = 'trend-' + data.trend_direction;
+
+    let h = `<h3 style="font-size:14px;margin-bottom:4px">${esc(domain)}</h3>
+      <p style="font-size:12px;color:var(--c-text-tertiary);margin-bottom:16px">${snapshots.length} snapshots &middot;
+        Latest: <strong class="${scoreColor(latest.overall_score)}">${latest.overall_score}/100</strong>
+        &middot; <span class="${trendCls}">${arrow} ${data.score_change > 0 ? '+' : ''}${data.score_change} pts</span>
+      </p>`;
+
+    // Chart
+    h += '<div class="trend-detail-chart">';
+    for (const s of snapshots) {
+      const pct = (s.overall_score / 100 * 100).toFixed(1);
+      const date = (s.created_at || '').substring(0, 10);
+      const color = s.overall_score >= 70 ? 'var(--c-green)' : s.overall_score >= 40 ? 'var(--c-yellow)' : 'var(--c-red)';
+      h += `<div class="trend-detail-bar" style="height:${pct}%;background:${color}">
+        <span class="bar-tooltip">${date}: ${s.overall_score}</span>
+      </div>`;
+    }
+    h += '</div>';
+
+    // Table
+    h += `<table class="trend-snapshot-table"><thead><tr>
+      <th>Date</th><th>Score</th><th>Performance</th><th>SEO</th><th>Content</th><th>Technical</th><th>Issues</th>
+    </tr></thead><tbody>`;
+    for (const s of [...snapshots].reverse()) {
+      const cats = s.category_scores || {};
+      const iss = s.issues_summary || {};
+      const date = (s.created_at || '').substring(0, 10);
+      h += `<tr>
+        <td>${date}</td>
+        <td><strong class="${scoreColor(s.overall_score)}">${s.overall_score}</strong></td>
+        <td>${esc(cats.performance || '-')}</td>
+        <td>${esc(cats.seo || '-')}</td>
+        <td>${esc(cats.content || '-')}</td>
+        <td>${esc(cats.technical || '-')}</td>
+        <td style="color:var(--c-red)">${iss.critical || 0}C</td>
+      </tr>`;
+    }
+    h += '</tbody></table>';
+
+    body.innerHTML = h;
+  } catch (e) {
+    body.innerHTML = `<p style="color:var(--c-red)">Failed to load trends: ${esc(e.message)}</p>`;
+  }
 }
 
 function esc(s) {

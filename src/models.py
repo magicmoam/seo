@@ -326,6 +326,76 @@ class SEOStrategy(BaseModel):
     path_to_80: PathTo80 | None = None
 
 
+# ---------------------------------------------------------------------------
+# GA4 Analytics Models
+# ---------------------------------------------------------------------------
+
+
+class GA4TrafficOverview(BaseModel):
+    total_users: int = 0
+    new_users: int = 0
+    sessions: int = 0
+    pageviews: int = 0
+    avg_session_duration: str = "0s"
+    bounce_rate: str = "0%"
+    period: str = "last_30_days"
+
+
+class GA4ChannelData(BaseModel):
+    channel: str
+    users: int = 0
+    sessions: int = 0
+    percentage: float = 0.0
+
+
+class GA4TopPage(BaseModel):
+    page_path: str
+    page_title: str = ""
+    pageviews: int = 0
+    avg_time_on_page: str = "0s"
+    bounce_rate: str = "0%"
+
+
+class GA4CountryData(BaseModel):
+    country: str
+    users: int = 0
+    sessions: int = 0
+
+
+class GA4Report(BaseModel):
+    property_id: str
+    date_range: str = "last_30_days"
+    overview: GA4TrafficOverview = GA4TrafficOverview()
+    channels: list[GA4ChannelData] = []
+    top_pages: list[GA4TopPage] = []
+    countries: list[GA4CountryData] = []
+    daily_users: list[dict] = []  # [{date: "2026-01-15", users: 123}, ...]
+    insights: list[str] = []
+
+
+# ---------------------------------------------------------------------------
+# Audit Tracking / Score Trend Models
+# ---------------------------------------------------------------------------
+
+
+class AuditSnapshot(BaseModel):
+    url: str
+    overall_score: int = 0
+    performance_score: str = ""
+    seo_score: str = ""
+    content_score: str = ""
+    technical_score: str = ""
+    issues_count: dict = {}  # {critical: N, warning: N, info: N}
+    timestamp: str = ""
+
+
+class ScoreTrend(BaseModel):
+    url: str
+    snapshots: list[AuditSnapshot] = []
+    score_change: int = 0
+    trend_direction: str = "stable"  # up, down, stable
+
+
 class AgentResponse(BaseModel):
     tool_used: str
     query: str
@@ -341,6 +411,7 @@ class AgentResponse(BaseModel):
         | TechnicalSEOAudit
         | BacklinkStrategy
         | SEOStrategy
+        | GA4Report
     )
     raw_sources: list[str] = []
     search_id: str | None = None

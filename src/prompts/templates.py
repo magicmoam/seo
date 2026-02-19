@@ -534,12 +534,17 @@ Available tools:
 9. technical_seo - Deep technical SEO audit with Core Web Vitals, schema markup, and implementation guides
 10. backlink_strategy - Develop a link building and off-page SEO strategy with cost estimates
 11. seo_strategy - FULL multi-agent SEO strategy: deploys ALL agents (site audit, keywords, competitors, content gaps, topical authority, content calendar, technical SEO, backlinks) and synthesizes into a comprehensive plan with costs and ROI projections
+12. ga4_analytics - Fetch Google Analytics 4 traffic data (users, sessions, channels, top pages, countries, daily trends). Requires a GA4 property ID.
 
 IMPORTANT: If the user provides a URL (starts with http://, https://, or www.) and asks to analyze, audit, or review it, use website_analyzer. The query should be the full URL.
 
 IMPORTANT: If the user asks for a "full strategy", "comprehensive plan", "SEO assessment", "optimize my site", "improve rankings", or wants to deploy multiple agents, use seo_strategy. The query should be the domain or URL.
 
+IMPORTANT: If the user asks about "analytics", "traffic", "GA4", "Google Analytics", "visitors", "sessions", "pageviews", use ga4_analytics. The query should be the GA4 property ID. If the user provides a property ID (numeric), use it. Include extras with date_range if specified.
+
 For seo_strategy, include extras with niche: {{"niche": "the industry/niche of the website"}}
+
+For ga4_analytics, include extras: {{"date_range": "last_7_days|last_30_days|last_90_days"}}
 
 Respond with ONLY a JSON object:
 {{"tool": "tool_name", "query": "the core search query to research", "extras": {{}}, "reasoning": "brief explanation of why you chose this tool"}}

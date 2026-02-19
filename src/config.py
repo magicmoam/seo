@@ -32,6 +32,12 @@ class Config:
     supabase_url: str = field(default_factory=lambda: os.getenv("SUPABASE_URL", ""))
     supabase_key: str = field(default_factory=lambda: os.getenv("SUPABASE_KEY", ""))
 
+    # GA4
+    ga4_credentials_json: str = field(default_factory=lambda: os.getenv("GA4_CREDENTIALS_JSON", ""))
+
+    # Cron secret (for Vercel cron authentication)
+    cron_secret: str = field(default_factory=lambda: os.getenv("CRON_SECRET", ""))
+
     # Defaults
     max_search_results: int = 5
     max_competitors: int = 10

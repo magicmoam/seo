@@ -11,6 +11,7 @@ from src.tools import (
     competitor_analysis,
     content_gap,
     content_generator,
+    ga4,
     keyword_research,
     llm,
     serp_analysis,
@@ -90,6 +91,11 @@ async def run(user_input: str) -> tuple[AgentResponse, EvidenceTrace]:
         result, _, trace = _unpack_tool_result(
             await strategy_orchestrator.run(url=query, niche=extras.get("niche", "")),
             tool_name, query,
+        )
+    elif tool_name == "ga4_analytics":
+        result, _, trace = await ga4.run(
+            property_id=query,
+            date_range=extras.get("date_range", "last_30_days"),
         )
     elif tool_name in TOOLS:
         result, _, trace = await TOOLS[tool_name](query)

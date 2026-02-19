@@ -51,6 +51,7 @@ async def query(request: Request):
         competitor_analysis,
         content_gap,
         content_generator,
+        ga4,
         keyword_research,
         serp_analysis,
         strategy_orchestrator,
@@ -109,6 +110,11 @@ async def query(request: Request):
             result, tool_usage, trace = _unpack_tool_result(
                 await strategy_orchestrator.run(url=q, niche=extras.get("niche", "")),
                 tool_name, q,
+            )
+        elif tool_name == "ga4_analytics":
+            result, tool_usage, trace = await ga4.run(
+                property_id=q,
+                date_range=extras.get("date_range", "last_30_days"),
             )
         else:
             return JSONResponse({"error": f"Unknown tool: {tool_name}"}, status_code=400)
