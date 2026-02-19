@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>trySEO.ai | Features — Ten Tools, One Intelligence</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Inter:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,500;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'alabaster': '#F0F0EB',
+                        'obsidian': '#0F0F0F',
+                        'burnished-gold': '#B89E5F',
+                        'soft-gray': '#A0A09C',
+                    },
+                    fontFamily: {
+                        serif: ['"Bodoni Moda"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                        display: ['"Cormorant Garamond"', 'serif'],
+                    },
+                    backgroundImage: {
+                        'noise': "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\" opacity=\"0.08\"/%3E%3C/svg%3E')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #F0F0EB;
+            color: #0F0F0F;
+            cursor: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F0F0EB;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #B89E5F40;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B89E5F80;
+        }
+
+        /* Custom cursor */
+        .cursor-dot,
+        .cursor-circle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #0F0F0F;
+            transition: background-color 0.3s;
+        }
+
+        .cursor-circle {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(15, 15, 15, 0.5);
+            transition: width 0.3s, height 0.3s, background-color 0.3s, border-color 0.3s;
+        }
+
+        body:hover .cursor-circle.hovered {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(184, 158, 95, 0.1);
+            border-color: #B89E5F;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Dark section cursor inversion */
+        .cursor-dot.inverted {
+            background-color: #F0F0EB;
+        }
+
+        .cursor-circle.inverted {
+            border-color: rgba(240, 240, 235, 0.5);
+        }
+
+        body:hover .cursor-circle.hovered.inverted {
+            background-color: rgba(184, 158, 95, 0.15);
+            border-color: #B89E5F;
+        }
+
+        /* Animations */
+        @keyframes fadeInMove {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            opacity: 0;
+            animation: fadeInMove 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes growLine {
+            0% { height: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { height: 80px; opacity: 1; }
+        }
+
+        .line-grow {
+            animation: growLine 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-delay: 1.2s;
+            opacity: 0;
+        }
+
+        @keyframes expandLine {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+
+        .expand-line {
+            animation: expandLine 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes subtlePulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(60px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Ambient breathing bg */
+        .ambient-bg {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(184, 158, 95, 0.04) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.6) 0%, rgba(240, 240, 235, 0) 50%);
+            z-index: -1;
+            animation: breathe 12s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+            50% { transform: scale(1.05) rotate(0.5deg); opacity: 0.8; }
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered reveal children */
+        .reveal-stagger .reveal-child {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal-stagger.visible .reveal-child {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Side indicator */
+        .side-indicator {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        /* Glass morphism nav pill */
+        .nav-pill {
+            background: rgba(240, 240, 235, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: background 0.4s, border-color 0.4s;
+        }
+
+        .nav-pill.scrolled {
+            background: rgba(240, 240, 235, 0.85);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Tool cards - catalog style */
+        .tool-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(184, 158, 95, 0.4);
+            box-shadow: 0 30px 80px rgba(184, 158, 95, 0.08), 0 10px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        .tool-card .card-gradient {
+            transition: transform 8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .tool-card:hover .card-gradient {
+            transform: scale(1.08);
+        }
+
+        .tool-card:hover .tool-number {
+            color: #B89E5F;
+        }
+
+        .tool-card .explore-btn {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .tool-card:hover .explore-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tool-card .card-arrow {
+            opacity: 0;
+            transform: translate(-4px, 4px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .tool-card:hover .card-arrow {
+            opacity: 1;
+            transform: translate(0, 0);
+        }
+
+        /* Filter buttons */
+        .filter-btn {
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .filter-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background-color: #B89E5F;
+            transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .filter-btn.active {
+            color: #0F0F0F;
+        }
+
+        .filter-btn.active::after {
+            width: 100%;
+        }
+
+        .filter-btn:hover {
+            color: #0F0F0F;
+        }
+
+        /* Phase cards in horizontal scroll */
+        .phase-card {
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.5s;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Orchestrator section glow */
+        @keyframes subtleGlow {
+            0%, 100% { box-shadow: 0 0 40px rgba(184, 158, 95, 0.03); }
+            50% { box-shadow: 0 0 80px rgba(184, 158, 95, 0.08); }
+        }
+
+        /* Horizontal scroll section */
+        .horizontal-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Pull quote */
+        .pull-quote {
+            position: relative;
+        }
+
+        .pull-quote::before {
+            content: '\201C';
+            position: absolute;
+            top: -40px;
+            left: -20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 120px;
+            line-height: 1;
+            color: rgba(184, 158, 95, 0.12);
+            pointer-events: none;
+        }
+
+        /* Grayscale to color on hover */
+        .grayscale-hover {
+            filter: grayscale(100%);
+            transition: filter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .grayscale-hover:hover {
+            filter: grayscale(0%);
+        }
+
+        /* Perspective parallax wrapper */
+        .parallax-wrap {
+            perspective: 1000px;
+        }
+
+        /* Mobile menu */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* Card gradient backgrounds */
+        .gradient-1 { background: linear-gradient(135deg, rgba(184,158,95,0.12) 0%, rgba(240,240,235,0.6) 50%, rgba(255,255,255,0.8) 100%); }
+        .gradient-2 { background: linear-gradient(135deg, rgba(160,160,156,0.10) 0%, rgba(245,245,240,0.6) 50%, rgba(255,255,255,0.8) 100%); }
+        .gradient-3 { background: linear-gradient(135deg, rgba(184,158,95,0.08) 0%, rgba(200,195,185,0.3) 50%, rgba(255,255,255,0.8) 100%); }
+        .gradient-4 { background: linear-gradient(135deg, rgba(120,130,140,0.10) 0%, rgba(240,240,235,0.5) 50%, rgba(255,255,255,0.8) 100%); }
+        .gradient-5 { background: linear-gradient(135deg, rgba(184,158,95,0.06) 0%, rgba(230,225,215,0.4) 50%, rgba(255,255,255,0.8) 100%); }
+        .gradient-6 { background: linear-gradient(135deg, rgba(160,160,156,0.08) 0%, rgba(250,248,243,0.5) 50%, rgba(255,255,255,0.8) 100%); }
+        .gradient-7 { background: linear-gradient(135deg, rgba(184,158,95,0.10) 0%, rgba(235,230,220,0.4) 50%, rgba(255,255,255,0.8) 100%); }
+        .gradient-8 { background: linear-gradient(135deg, rgba(100,110,120,0.10) 0%, rgba(240,240,235,0.5) 50%, rgba(255,255,255,0.8) 100%); }
+        .gradient-9 { background: linear-gradient(135deg, rgba(184,158,95,0.07) 0%, rgba(245,240,230,0.5) 50%, rgba(255,255,255,0.8) 100%); }
+
+        /* Connection line between phases */
+        .phase-connector {
+            position: relative;
+        }
+
+        .phase-connector::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -24px;
+            width: 48px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(184,158,95,0.4), rgba(184,158,95,0.1));
+        }
+
+        .phase-connector:last-child::after {
+            display: none;
+        }
+
+        /* Architecture visual */
+        .arch-visual {
+            background:
+                linear-gradient(135deg, rgba(184,158,95,0.05) 0%, transparent 50%),
+                linear-gradient(225deg, rgba(15,15,15,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 30% 70%, rgba(184,158,95,0.08) 0%, transparent 50%);
+        }
+
+        /* Floating particles in hero */
+        .hero-particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        /* Scroll progress bar */
+        .scroll-progress {
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.1s linear;
+        }
+    </style>
+</head>
+<body class="relative font-sans selection:bg-burnished-gold selection:text-white">
+
+    <!-- Ambient background -->
+    <div class="ambient-bg"></div>
+    <!-- Noise overlay -->
+    <div class="fixed inset-0 z-10 pointer-events-none opacity-40 bg-noise mix-blend-overlay"></div>
+
+    <!-- Scroll progress -->
+    <div class="fixed top-0 left-0 w-full h-[2px] z-[60]">
+        <div class="scroll-progress h-full bg-burnished-gold/60 w-full"></div>
+    </div>
+
+    <!-- Custom cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-circle"></div>
+
+    <!-- Side indicator - fixed -->
+    <div class="fixed left-8 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col items-center gap-6">
+        <div class="w-px h-12 bg-gradient-to-b from-transparent via-obsidian/20 to-transparent"></div>
+        <span class="side-indicator font-sans text-[9px] uppercase tracking-[0.3em] text-soft-gray/60">Features 2026</span>
+        <div class="w-px h-12 bg-gradient-to-b from-transparent via-obsidian/20 to-transparent"></div>
+    </div>
+
+    <!-- Mobile menu overlay -->
+    <div id="mobile-menu" class="mobile-menu fixed inset-0 z-50 bg-alabaster/95 backdrop-blur-lg flex flex-col items-center justify-center gap-8">
+        <button id="close-menu" class="nav-link absolute top-6 right-6 font-sans text-[10px] tracking-widest uppercase cursor-none">Close</button>
+        <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Home</a>
+        <a href="features.html" class="nav-link font-display text-3xl italic text-obsidian transition-colors">Features</a>
+        <a href="pricing.html" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Pricing</a>
+        <a href="about.html" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">About</a>
+    </div>
+
+    <!-- Main content wrapper -->
+    <div class="relative z-20">
+
+        <!-- Header with glass morphism nav pill -->
+        <header class="fixed top-0 left-0 right-0 z-40 p-4 md:p-6">
+            <div class="max-w-7xl mx-auto flex justify-between items-center nav-pill px-6 md:px-8 py-4 rounded-full">
+                <div class="flex items-center gap-4 animate-in" style="animation-delay: 0.1s;">
+                    <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="group relative nav-link">
+                        <span class="font-serif text-2xl md:text-3xl font-semibold tracking-tighter">trySEO<span class="text-burnished-gold">.ai</span></span>
+                    </a>
+                    <span class="hidden md:inline-block h-px w-6 bg-obsidian/15"></span>
+                    <span class="hidden md:inline-block font-sans text-[9px] tracking-[0.2em] uppercase text-soft-gray">SEO Intelligence</span>
+                </div>
+
+                <nav class="hidden md:flex items-center gap-10 animate-in" style="animation-delay: 0.2s;">
+                    <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="nav-link font-display text-base italic text-obsidian/50 hover:text-obsidian transition-colors">Home</a>
+                    <a href="features.html" class="nav-link font-display text-base italic text-obsidian transition-colors relative">
+                        Features
+                        <span class="absolute -bottom-1 left-0 w-full h-px bg-burnished-gold"></span>
+                    </a>
+                    <a href="pricing.html" class="nav-link font-display text-base italic text-obsidian/50 hover:text-obsidian transition-colors">Pricing</a>
+                    <a href="about.html" class="nav-link font-display text-base italic text-obsidian/50 hover:text-obsidian transition-colors">About</a>
+                </nav>
+
+                <button id="hamburger" class="nav-link group flex flex-col items-end gap-1.5 animate-in md:hidden" style="animation-delay: 0.3s;">
+                    <span class="font-sans text-[10px] tracking-widest uppercase mb-1">Menu</span>
+                    <span class="w-8 h-px bg-obsidian group-hover:w-12 transition-all duration-300"></span>
+                    <span class="w-5 h-px bg-obsidian group-hover:w-8 transition-all duration-300 delay-75"></span>
+                </button>
+
+                <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="hidden md:inline-flex nav-link items-center gap-2 px-5 py-2.5 bg-obsidian text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans hover:bg-obsidian/85 transition-colors animate-in" style="animation-delay: 0.3s;">
+                    Free Audit
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
+            </div>
+        </header>
+
+        <!-- ==================== HERO SECTION ==================== -->
+        <section class="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-10 overflow-hidden">
+            <!-- Hero background pattern -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <!-- Abstract gradient orbs -->
+                <div class="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-burnished-gold/[0.04] to-transparent blur-3xl" data-parallax data-speed="0.02"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-tl from-soft-gray/[0.06] to-transparent blur-3xl" data-parallax data-speed="0.03"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-to-r from-burnished-gold/[0.02] via-transparent to-soft-gray/[0.02] blur-3xl" data-parallax data-speed="0.01"></div>
+                <!-- Floating particles -->
+                <div id="hero-particles"></div>
+            </div>
+
+            <div class="text-center max-w-5xl mx-auto relative z-10 pt-32 pb-20">
+                <div class="animate-in" style="animation-delay: 0.4s;">
+                    <span class="inline-block font-sans text-[10px] tracking-[0.3em] uppercase text-burnished-gold border border-burnished-gold/30 rounded-full px-5 py-2">The Complete Toolkit</span>
+                </div>
+
+                <h1 class="mt-10 md:mt-14 font-display italic text-5xl md:text-7xl lg:text-[110px] leading-[0.95] tracking-tight text-obsidian animate-in" style="animation-delay: 0.6s;">
+                    Ten tools.<br>One intelligence.
+                </h1>
+
+                <p class="mt-8 md:mt-10 font-sans text-base md:text-lg text-obsidian/45 leading-relaxed max-w-2xl mx-auto animate-in" style="animation-delay: 0.8s;">
+                    Every dimension of search performance, analyzed by a single AI engine.<br class="hidden md:block"> From technical crawls to content strategy, each tool feeds into a unified<br class="hidden md:block"> understanding of your digital presence.
+                </p>
+
+                <div class="mt-10 animate-in" style="animation-delay: 1s;">
+                    <a href="#tools" class="nav-link inline-flex items-center gap-3 px-7 py-3.5 border border-obsidian/15 hover:border-obsidian/40 hover:bg-white/50 backdrop-blur-sm transition-all duration-500 rounded-full group">
+                        <span class="font-sans text-[10px] uppercase tracking-[0.25em]">Explore Tools</span>
+                        <svg class="w-3 h-3 transform group-hover:translate-y-1 transition-transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                </div>
+
+                <!-- Line growth animation -->
+                <div class="mt-14 flex justify-center">
+                    <div class="w-px bg-gradient-to-b from-burnished-gold/50 to-transparent line-grow"></div>
+                </div>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-in" style="animation-delay: 1.4s;">
+                <span class="font-sans text-[9px] uppercase tracking-[0.3em] text-soft-gray/60">Scroll</span>
+                <div class="w-px h-10 bg-gradient-to-b from-obsidian/20 to-transparent"></div>
+            </div>
+        </section>
+
+        <!-- ==================== FILTER + TOOLS GRID ==================== -->
+        <section id="tools" class="px-6 md:px-10 lg:px-20 pb-32 pt-10">
+            <!-- Section label -->
+            <div class="max-w-7xl mx-auto mb-12 reveal">
+                <div class="flex items-center gap-6">
+                    <span class="font-sans text-[10px] tracking-[0.2em] uppercase text-soft-gray">01 / Core Tools</span>
+                    <div class="flex-1 h-px bg-obsidian/10"></div>
+                    <span class="font-sans text-[10px] tracking-[0.15em] text-soft-gray/50">10 tools</span>
+                </div>
+            </div>
+
+            <!-- Filter buttons -->
+            <div class="max-w-7xl mx-auto mb-16 reveal">
+                <div class="flex flex-wrap gap-6 md:gap-10">
+                    <button class="filter-btn active font-sans text-[11px] tracking-[0.15em] uppercase text-obsidian pb-1 cursor-none" data-filter="all">All</button>
+                    <button class="filter-btn font-sans text-[11px] tracking-[0.15em] uppercase text-soft-gray pb-1 cursor-none" data-filter="analysis">Analysis</button>
+                    <button class="filter-btn font-sans text-[11px] tracking-[0.15em] uppercase text-soft-gray pb-1 cursor-none" data-filter="content">Content</button>
+                    <button class="filter-btn font-sans text-[11px] tracking-[0.15em] uppercase text-soft-gray pb-1 cursor-none" data-filter="technical">Technical</button>
+                    <button class="filter-btn font-sans text-[11px] tracking-[0.15em] uppercase text-soft-gray pb-1 cursor-none" data-filter="strategy">Strategy</button>
+                </div>
+            </div>
+
+            <!-- Tools grid - catalog style with aspect ratio cards -->
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 reveal-stagger" id="tools-grid">
+
+                <!-- Tool 1: Website Analyzer -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="analysis" style="transition-delay: 0s;">
+                    <!-- Gradient image area -->
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-1" data-parallax-card data-speed="0.03"></div>
+                        <!-- Tool number -->
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">01</span>
+                        </div>
+                        <!-- Category badge -->
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Analysis</span>
+                        </div>
+                        <!-- Content overlay at bottom -->
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">Website Analyzer</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">Full site audit with a 30-criteria scoring rubric across performance, SEO, content & technical dimensions.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Performance</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">30 Criteria</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <!-- Explore button on hover -->
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 2: Keyword Research -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="analysis" style="transition-delay: 0.06s;">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-2" data-parallax-card data-speed="0.04"></div>
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">02</span>
+                        </div>
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Analysis</span>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">Keyword Research</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">AI-powered keyword discovery with search volume, difficulty scoring, and intent analysis for precision targeting.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Volume</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Intent</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 3: Competitor Analysis -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="analysis" style="transition-delay: 0.12s;">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-3" data-parallax-card data-speed="0.025"></div>
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">03</span>
+                        </div>
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Analysis</span>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">Competitor Analysis</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">Deep competitor intelligence with gap identification, strength mapping, and actionable strategy insights.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Intelligence</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Gaps</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 4: SERP Analysis -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="analysis" style="transition-delay: 0.18s;">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-4" data-parallax-card data-speed="0.035"></div>
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">04</span>
+                        </div>
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Analysis</span>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">SERP Analysis</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">Search results page analysis with ranking factor breakdown, SERP feature detection, and opportunity scoring.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Rankings</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Features</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 5: Content Gap -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="content" style="transition-delay: 0.24s;">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-5" data-parallax-card data-speed="0.03"></div>
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">05</span>
+                        </div>
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Content</span>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">Content Gap</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">Find missing content opportunities that your competitors are ranking for. Uncover the topics you should own.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Opportunities</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Topics</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 6: Content Generation -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="content" style="transition-delay: 0.3s;">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-6" data-parallax-card data-speed="0.045"></div>
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">06</span>
+                        </div>
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Content</span>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">Content Generation</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">AI-generated SEO-optimized content calendars, briefs, and editorial plans tailored to your domain.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Calendars</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Briefs</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 7: Topical Authority -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="strategy" style="transition-delay: 0.36s;">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-7" data-parallax-card data-speed="0.028"></div>
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">07</span>
+                        </div>
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Strategy</span>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">Topical Authority</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">Map and build topical authority clusters. Establish domain expertise through strategic content architecture.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Clusters</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Authority</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 8: Technical SEO -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="technical" style="transition-delay: 0.42s;">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-8" data-parallax-card data-speed="0.038"></div>
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">08</span>
+                        </div>
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Technical</span>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">Technical SEO</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">Crawl and diagnose technical issues affecting search performance. Schema, crawlability, Core Web Vitals, and more.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Diagnostics</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Vitals</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 9: Backlink Strategy -->
+                <div class="tool-card bg-white/30 backdrop-blur-md border border-white/50 rounded-lg overflow-hidden cursor-pointer group reveal-child" data-category="technical" style="transition-delay: 0.48s;">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <div class="card-gradient absolute inset-0 gradient-9" data-parallax-card data-speed="0.032"></div>
+                        <div class="absolute top-5 left-6">
+                            <span class="tool-number font-serif text-5xl font-semibold text-obsidian/[0.07] transition-colors duration-600">09</span>
+                        </div>
+                        <div class="absolute top-5 right-5">
+                            <span class="font-sans text-[8px] tracking-[0.2em] uppercase text-burnished-gold/80 bg-white/60 backdrop-blur-sm border border-burnished-gold/15 rounded-full px-3 py-1">Technical</span>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/80 via-white/40 to-transparent pt-20">
+                            <h3 class="font-serif italic text-2xl mb-2 tracking-tight">Backlink Strategy</h3>
+                            <p class="font-sans text-xs text-obsidian/45 leading-relaxed line-clamp-2">Identify link building opportunities, analyze backlink profiles, and develop authority-building outreach strategies.</p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex gap-2">
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Links</span>
+                                    <span class="font-sans text-[8px] tracking-wider uppercase text-soft-gray border border-obsidian/8 rounded-full px-2.5 py-0.5">Outreach</span>
+                                </div>
+                                <span class="card-arrow text-burnished-gold text-sm">&#8599;</span>
+                            </div>
+                        </div>
+                        <div class="explore-btn absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <span class="inline-flex items-center gap-2 px-6 py-3 bg-obsidian/90 text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans backdrop-blur-sm">
+                                Explore
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==================== STRATEGY ORCHESTRATOR SPOTLIGHT (Dark Section) ==================== -->
+        <section class="relative bg-obsidian text-alabaster py-32 md:py-40 overflow-hidden" id="orchestrator">
+            <!-- Dark section background textures -->
+            <div class="absolute inset-0 opacity-30 bg-noise mix-blend-overlay pointer-events-none"></div>
+            <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-burnished-gold/20 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-burnished-gold/20 to-transparent"></div>
+            <!-- Subtle glow -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-to-r from-burnished-gold/[0.03] to-transparent blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 px-6 md:px-10 lg:px-20">
+                <!-- Section label -->
+                <div class="max-w-7xl mx-auto mb-16 reveal">
+                    <div class="flex items-center gap-6">
+                        <span class="font-sans text-[10px] tracking-[0.2em] uppercase text-burnished-gold">02 / The Master Tool</span>
+                        <div class="flex-1 h-px bg-alabaster/10"></div>
+                        <span class="font-sans text-[10px] tracking-[0.15em] text-alabaster/20">Tool 10</span>
+                    </div>
+                </div>
+
+                <!-- Title area -->
+                <div class="max-w-7xl mx-auto mb-20 reveal">
+                    <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-end">
+                        <div>
+                            <h2 class="font-display italic text-4xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight text-alabaster">
+                                The Orchestrator
+                            </h2>
+                        </div>
+                        <div>
+                            <p class="font-sans text-sm md:text-base text-alabaster/40 leading-relaxed">
+                                One command triggers all nine tools in intelligent phases. The strategy orchestrator gathers, analyzes, synthesizes, and delivers a unified SEO roadmap. No manual coordination. Pure signal.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal scrollable gallery - 4 phases with staggered offsets -->
+                <div class="max-w-7xl mx-auto mb-20">
+                    <div class="horizontal-scroll flex gap-6 md:gap-8 overflow-x-auto pb-8 -mx-6 px-6 md:-mx-10 md:px-10 lg:-mx-20 lg:px-20">
+
+                        <!-- Phase 1 -->
+                        <div class="phase-card phase-connector flex-shrink-0 w-[300px] md:w-[340px] border border-alabaster/10 rounded-lg p-8 md:p-10 backdrop-blur-sm reveal" style="margin-top: 0;">
+                            <div class="flex items-center justify-between mb-8">
+                                <span class="font-serif text-6xl text-burnished-gold/20">01</span>
+                                <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-burnished-gold">Gather</span>
+                            </div>
+                            <h3 class="font-serif text-xl text-alabaster mb-4">Discovery</h3>
+                            <div class="w-8 h-px bg-burnished-gold/30 mb-4"></div>
+                            <p class="font-sans text-xs text-alabaster/35 leading-relaxed mb-6">Parallel execution of four foundational tools to establish the complete picture.</p>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Website Analyzer</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Keyword Research</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Competitor Analysis</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Content Gap</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phase 2 - staggered offset -->
+                        <div class="phase-card phase-connector flex-shrink-0 w-[300px] md:w-[340px] border border-alabaster/10 rounded-lg p-8 md:p-10 backdrop-blur-sm reveal" style="margin-top: 48px;">
+                            <div class="flex items-center justify-between mb-8">
+                                <span class="font-serif text-6xl text-burnished-gold/20">02</span>
+                                <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-burnished-gold">Analyze</span>
+                            </div>
+                            <h3 class="font-serif text-xl text-alabaster mb-4">Deep Dive</h3>
+                            <div class="w-8 h-px bg-burnished-gold/30 mb-4"></div>
+                            <p class="font-sans text-xs text-alabaster/35 leading-relaxed mb-6">Specialized tools probe deeper into authority, technical health, and link profiles.</p>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Topical Authority</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Technical SEO</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Backlink Strategy</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phase 3 -->
+                        <div class="phase-card phase-connector flex-shrink-0 w-[300px] md:w-[340px] border border-alabaster/10 rounded-lg p-8 md:p-10 backdrop-blur-sm reveal" style="margin-top: 16px;">
+                            <div class="flex items-center justify-between mb-8">
+                                <span class="font-serif text-6xl text-burnished-gold/20">03</span>
+                                <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-burnished-gold">Synthesize</span>
+                            </div>
+                            <h3 class="font-serif text-xl text-alabaster mb-4">Content Plan</h3>
+                            <div class="w-8 h-px bg-burnished-gold/30 mb-4"></div>
+                            <p class="font-sans text-xs text-alabaster/35 leading-relaxed mb-6">All insights converge into a data-driven content calendar and editorial roadmap.</p>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Content Calendar</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">SERP Analysis</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-1 h-1 rounded-full bg-burnished-gold/50"></span>
+                                    <span class="font-sans text-[10px] text-alabaster/50">Content Generation</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phase 4 - staggered offset, gold accent -->
+                        <div class="phase-card flex-shrink-0 w-[300px] md:w-[340px] border border-burnished-gold/25 bg-burnished-gold/[0.04] rounded-lg p-8 md:p-10 backdrop-blur-sm reveal" style="margin-top: 64px;">
+                            <div class="flex items-center justify-between mb-8">
+                                <span class="font-serif text-6xl text-burnished-gold/30">04</span>
+                                <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-burnished-gold">Deliver</span>
+                            </div>
+                            <h3 class="font-serif text-xl text-alabaster mb-4">Unified Roadmap</h3>
+                            <div class="w-8 h-px bg-burnished-gold/50 mb-4"></div>
+                            <p class="font-sans text-xs text-alabaster/40 leading-relaxed mb-6">AI synthesis produces a single, prioritized strategy with clear actions, timelines, and expected impact.</p>
+                            <div class="mt-6 pt-4 border-t border-burnished-gold/15">
+                                <span class="font-sans text-[10px] tracking-[0.15em] uppercase text-burnished-gold/70">Output: Complete SEO Strategy</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Scroll hint for horizontal section -->
+                    <div class="flex justify-end mt-4">
+                        <span class="font-sans text-[9px] tracking-wider uppercase text-alabaster/20">Scroll horizontally &rarr;</span>
+                    </div>
+                </div>
+
+                <!-- Execution note -->
+                <div class="max-w-7xl mx-auto reveal">
+                    <div class="flex items-center gap-6 pt-8 border-t border-alabaster/8">
+                        <div class="w-2 h-2 rounded-full bg-burnished-gold/40 animate-pulse"></div>
+                        <span class="font-sans text-[10px] tracking-[0.15em] uppercase text-alabaster/30">Parallel execution where possible &mdash; Sequential where necessary</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== ARCHITECTURE SECTION (Editorial Two-Column) ==================== -->
+        <section class="px-6 md:px-10 lg:px-20 py-32 md:py-40">
+            <div class="max-w-7xl mx-auto">
+                <!-- Section label -->
+                <div class="mb-20 reveal">
+                    <div class="flex items-center gap-6">
+                        <span class="font-sans text-[10px] tracking-[0.2em] uppercase text-soft-gray">03 / Architecture</span>
+                        <div class="flex-1 h-px bg-obsidian/10"></div>
+                    </div>
+                </div>
+
+                <!-- Two-column editorial layout -->
+                <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+                    <!-- Visual side -->
+                    <div class="reveal parallax-wrap">
+                        <div class="arch-visual rounded-lg aspect-[4/5] relative overflow-hidden border border-obsidian/5" data-parallax data-speed="0.02">
+                            <!-- Abstract representation of the architecture -->
+                            <div class="absolute inset-0 flex flex-col justify-between p-8 md:p-12">
+                                <!-- Flow visualization -->
+                                <div>
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-soft-gray/60">System Flow</span>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <!-- Step 01 -->
+                                    <div class="flex items-start gap-4">
+                                        <span class="font-serif text-3xl text-obsidian/[0.06] leading-none mt-0.5">01.</span>
+                                        <div>
+                                            <h4 class="font-sans text-xs font-medium tracking-wide uppercase text-obsidian/70 mb-1">Query</h4>
+                                            <p class="font-sans text-[11px] text-obsidian/30 leading-relaxed">Natural language input classified by AI agent into tool + intent</p>
+                                        </div>
+                                    </div>
+                                    <div class="ml-6 w-px h-6 bg-gradient-to-b from-burnished-gold/20 to-transparent"></div>
+                                    <!-- Step 02 -->
+                                    <div class="flex items-start gap-4">
+                                        <span class="font-serif text-3xl text-obsidian/[0.06] leading-none mt-0.5">02.</span>
+                                        <div>
+                                            <h4 class="font-sans text-xs font-medium tracking-wide uppercase text-obsidian/70 mb-1">Gather</h4>
+                                            <p class="font-sans text-[11px] text-obsidian/30 leading-relaxed">Jina AI searches and scrapes live web data in real time</p>
+                                        </div>
+                                    </div>
+                                    <div class="ml-6 w-px h-6 bg-gradient-to-b from-burnished-gold/20 to-transparent"></div>
+                                    <!-- Step 03 -->
+                                    <div class="flex items-start gap-4">
+                                        <span class="font-serif text-3xl text-obsidian/[0.06] leading-none mt-0.5">03.</span>
+                                        <div>
+                                            <h4 class="font-sans text-xs font-medium tracking-wide uppercase text-obsidian/70 mb-1">Analyze</h4>
+                                            <p class="font-sans text-[11px] text-obsidian/30 leading-relaxed">LLM processes data through structured Pydantic schemas</p>
+                                        </div>
+                                    </div>
+                                    <div class="ml-6 w-px h-6 bg-gradient-to-b from-burnished-gold/20 to-transparent"></div>
+                                    <!-- Step 04 -->
+                                    <div class="flex items-start gap-4">
+                                        <span class="font-serif text-3xl text-obsidian/[0.06] leading-none mt-0.5">04.</span>
+                                        <div>
+                                            <h4 class="font-sans text-xs font-medium tracking-wide uppercase text-obsidian/70 mb-1">Deliver</h4>
+                                            <p class="font-sans text-[11px] text-obsidian/30 leading-relaxed">Scored, evidenced, actionable insights with full trace</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-green-500/40 animate-pulse"></div>
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-soft-gray/40">Live Architecture</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text side -->
+                    <div class="reveal">
+                        <div class="pull-quote mb-12">
+                            <p class="font-display italic text-3xl md:text-4xl leading-snug text-obsidian/80 tracking-tight">
+                                We don't just analyze &mdash; we orchestrate.
+                            </p>
+                        </div>
+
+                        <div class="space-y-6">
+                            <p class="font-sans text-sm text-obsidian/45 leading-relaxed">
+                                Each query enters a single AI agent that classifies intent and routes to the right tool. The tool gathers live web data through Jina AI, never relying on stale databases or cached results.
+                            </p>
+                            <p class="font-sans text-sm text-obsidian/45 leading-relaxed">
+                                A large language model processes raw data through structured evaluation frameworks, producing scored assessments with full evidence traces. Every recommendation is grounded in data, every score is deterministic.
+                            </p>
+                            <p class="font-sans text-sm text-obsidian/45 leading-relaxed">
+                                The strategy orchestrator takes this further &mdash; running all tools in intelligent phases, synthesizing their outputs, and producing a unified roadmap. One command. Complete intelligence.
+                            </p>
+                        </div>
+
+                        <div class="mt-10 flex items-center gap-8">
+                            <div>
+                                <span class="font-serif text-4xl text-obsidian">30</span>
+                                <p class="font-sans text-[10px] tracking-[0.15em] uppercase text-soft-gray mt-1">Scoring criteria</p>
+                            </div>
+                            <div class="w-px h-12 bg-obsidian/10"></div>
+                            <div>
+                                <span class="font-serif text-4xl text-obsidian">4</span>
+                                <p class="font-sans text-[10px] tracking-[0.15em] uppercase text-soft-gray mt-1">Category weights</p>
+                            </div>
+                            <div class="w-px h-12 bg-obsidian/10"></div>
+                            <div>
+                                <span class="font-serif text-4xl text-obsidian">10</span>
+                                <p class="font-sans text-[10px] tracking-[0.15em] uppercase text-soft-gray mt-1">Specialized tools</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== CTA SECTION ==================== -->
+        <section class="px-6 md:px-10 lg:px-20 pb-32">
+            <div class="max-w-7xl mx-auto">
+                <div class="h-px bg-obsidian/10 mb-20 reveal expand-line-trigger"></div>
+
+                <div class="max-w-4xl mx-auto text-center reveal">
+                    <h2 class="font-display italic text-4xl md:text-5xl lg:text-6xl leading-[1.05] text-obsidian">
+                        Ready to see it<br>in action?
+                    </h2>
+                    <p class="mt-6 font-sans text-base text-obsidian/35 max-w-lg mx-auto leading-relaxed">
+                        Start with a free site audit. No sign-up required. See what ten tools working as one can reveal about your site.
+                    </p>
+                    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="nav-link inline-flex items-center gap-3 px-8 py-4 bg-obsidian text-alabaster hover:bg-obsidian/85 transition-all duration-500 rounded-full group">
+                            <span class="font-sans text-[10px] uppercase tracking-[0.25em]">Start Free Audit</span>
+                            <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                        <a href="pricing.html" class="nav-link inline-flex items-center gap-3 px-8 py-4 border border-obsidian/15 hover:border-obsidian/40 hover:bg-white/50 backdrop-blur-sm transition-all duration-500 rounded-full group">
+                            <span class="font-sans text-[10px] uppercase tracking-[0.25em]">View Pricing</span>
+                            <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== FOOTER ==================== -->
+        <footer class="px-6 md:px-10 lg:px-20 pb-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="h-px bg-obsidian/10 mb-10"></div>
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-3 font-sans text-[10px] uppercase tracking-widest text-soft-gray">
+                        <span class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse"></span>
+                        <span>AI Engine Online</span>
+                    </div>
+
+                    <div class="flex items-center gap-8">
+                        <a href="features.html" class="nav-link font-sans text-[10px] uppercase tracking-widest text-obsidian/60 hover:text-obsidian transition-colors">Features</a>
+                        <a href="pricing.html" class="nav-link font-sans text-[10px] uppercase tracking-widest text-obsidian/40 hover:text-obsidian transition-colors">Pricing</a>
+                        <a href="about.html" class="nav-link font-sans text-[10px] uppercase tracking-widest text-obsidian/40 hover:text-obsidian transition-colors">About</a>
+                    </div>
+
+                    <div class="font-sans text-[10px] uppercase tracking-widest text-soft-gray">
+                        &copy; 2026 trySEO.ai
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // ========== CUSTOM CURSOR ==========
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorCircle = document.querySelector('.cursor-circle');
+        let cursorX = 0, cursorY = 0;
+        let circleX = 0, circleY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+            cursorDot.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
+
+            // Check if cursor is over dark section
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            const darkSection = el && el.closest('#orchestrator');
+            if (darkSection) {
+                cursorDot.classList.add('inverted');
+                cursorCircle.classList.add('inverted');
+            } else {
+                cursorDot.classList.remove('inverted');
+                cursorCircle.classList.remove('inverted');
+            }
+        });
+
+        // Smooth circle follow
+        function animateCursor() {
+            circleX += (cursorX - circleX) * 0.12;
+            circleY += (cursorY - circleY) * 0.12;
+            cursorCircle.style.transform = `translate(${circleX}px, ${circleY}px) translate(-50%, -50%)`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Hover states for cursor
+        function bindCursorHover() {
+            document.querySelectorAll('a, button, .nav-link, .tool-card, .filter-btn, .phase-card').forEach(el => {
+                el.addEventListener('mouseenter', () => cursorCircle.classList.add('hovered'));
+                el.addEventListener('mouseleave', () => cursorCircle.classList.remove('hovered'));
+            });
+        }
+        bindCursorHover();
+
+        // ========== SCROLL PROGRESS ==========
+        const scrollProgress = document.querySelector('.scroll-progress');
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+            scrollProgress.style.transform = `scaleX(${progress})`;
+        });
+
+        // ========== NAV PILL SCROLL STATE ==========
+        const navPill = document.querySelector('.nav-pill');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navPill.classList.add('scrolled');
+            } else {
+                navPill.classList.remove('scrolled');
+            }
+        });
+
+        // ========== SCROLL REVEAL (IntersectionObserver) ==========
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealStaggerElements = document.querySelectorAll('.reveal-stagger');
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+
+                    // Stagger children
+                    const children = entry.target.querySelectorAll('.reveal-child');
+                    children.forEach((child, i) => {
+                        child.style.transitionDelay = `${i * 0.08}s`;
+                    });
+                }
+            });
+        }, {
+            threshold: 0.08,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+        revealStaggerElements.forEach(el => revealObserver.observe(el));
+
+        // ========== PARALLAX ON SCROLL ==========
+        const parallaxElements = document.querySelectorAll('[data-parallax]');
+        const parallaxCards = document.querySelectorAll('[data-parallax-card]');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+
+            parallaxElements.forEach(el => {
+                const speed = parseFloat(el.dataset.speed) || 0.02;
+                const rect = el.getBoundingClientRect();
+                const offset = (rect.top + scrollY - window.innerHeight / 2) * speed;
+                el.style.transform = `translateY(${offset}px)`;
+            });
+
+            parallaxCards.forEach(el => {
+                const speed = parseFloat(el.dataset.speed) || 0.03;
+                const rect = el.parentElement.getBoundingClientRect();
+                const offset = (rect.top) * speed;
+                el.style.transform = `translateY(${offset}px) scale(1.05)`;
+            });
+        });
+
+        // ========== FILTER BUTTONS ==========
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const toolCards = document.querySelectorAll('.tool-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active state
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.dataset.filter;
+
+                toolCards.forEach((card, i) => {
+                    const category = card.dataset.category;
+                    if (filter === 'all' || category === filter) {
+                        card.style.display = '';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            card.style.transition = 'opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, i * 50);
+                    } else {
+                        card.style.transition = 'opacity 0.3s, transform 0.3s';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(10px)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+        });
+
+        // ========== MOBILE MENU ==========
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenu = document.getElementById('close-menu');
+
+        if (hamburger) {
+            hamburger.addEventListener('click', () => mobileMenu.classList.add('open'));
+        }
+        if (closeMenu) {
+            closeMenu.addEventListener('click', () => mobileMenu.classList.remove('open'));
+        }
+
+        // ========== HERO PARTICLES ==========
+        const particleContainer = document.getElementById('hero-particles');
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('hero-particle');
+            const size = Math.random() * 3 + 1;
+            const x = Math.random() * 100;
+            const duration = Math.random() * 10 + 12;
+            const delay = Math.random() * 8;
+
+            particle.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}%;
+                bottom: -10px;
+                background: rgba(184, 158, 95, ${Math.random() * 0.2 + 0.05});
+                animation-duration: ${duration}s;
+                animation-delay: ${delay}s;
+            `;
+            particleContainer.appendChild(particle);
+        }
+
+        for (let i = 0; i < 20; i++) {
+            createParticle();
+        }
+
+        // ========== SIDE INDICATOR PARALLAX ==========
+        const sideIndicator = document.querySelector('.side-indicator');
+        if (sideIndicator) {
+            window.addEventListener('scroll', () => {
+                const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+                sideIndicator.parentElement.style.opacity = Math.max(0.3, 1 - scrollPercent * 1.5);
+            });
+        }
+
+        // ========== RE-BIND CURSOR ON VISIBILITY CHANGE ==========
+        const mutationObserver = new MutationObserver(() => {
+            bindCursorHover();
+        });
+        mutationObserver.observe(document.body, { childList: true, subtree: true, attributes: true });
+    </script>
+
+</body>
+</html>

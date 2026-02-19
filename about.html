@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>trySEO.ai | About — The Story Behind the Intelligence</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Inter:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,500;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'alabaster': '#F0F0EB',
+                        'obsidian': '#0F0F0F',
+                        'burnished-gold': '#B89E5F',
+                        'soft-gray': '#A0A09C',
+                    },
+                    fontFamily: {
+                        serif: ['"Bodoni Moda"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                        display: ['"Cormorant Garamond"', 'serif'],
+                    },
+                    backgroundImage: {
+                        'noise': "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\" opacity=\"0.08\"/%3E%3C/svg%3E')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #F0F0EB;
+            color: #0F0F0F;
+            cursor: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F0F0EB;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #B89E5F40;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B89E5F80;
+        }
+
+        /* Custom cursor */
+        .cursor-dot,
+        .cursor-circle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #0F0F0F;
+            transition: background-color 0.3s;
+        }
+
+        .cursor-circle {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(15, 15, 15, 0.5);
+            transition: width 0.3s, height 0.3s, background-color 0.3s, border-color 0.3s;
+        }
+
+        body:hover .cursor-circle.hovered {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(184, 158, 95, 0.1);
+            border-color: #B89E5F;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Dark section cursor inversion */
+        .cursor-dot.inverted {
+            background-color: #F0F0EB;
+        }
+
+        .cursor-circle.inverted {
+            border-color: rgba(240, 240, 235, 0.5);
+        }
+
+        body:hover .cursor-circle.hovered.inverted {
+            background-color: rgba(184, 158, 95, 0.15);
+            border-color: #B89E5F;
+        }
+
+        /* Animations */
+        @keyframes fadeInMove {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            opacity: 0;
+            animation: fadeInMove 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes growLine {
+            0% { height: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { height: 80px; opacity: 1; }
+        }
+
+        .line-grow {
+            animation: growLine 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-delay: 1.2s;
+            opacity: 0;
+        }
+
+        @keyframes expandLine {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+
+        .expand-line {
+            animation: expandLine 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes subtlePulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(60px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Ambient breathing bg */
+        .ambient-bg {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(184, 158, 95, 0.04) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.6) 0%, rgba(240, 240, 235, 0) 50%);
+            z-index: -1;
+            animation: breathe 12s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+            50% { transform: scale(1.05) rotate(0.5deg); opacity: 0.8; }
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered reveal children */
+        .reveal-stagger .reveal-child {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal-stagger.visible .reveal-child {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Side indicator */
+        .side-indicator {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        /* Glass morphism nav pill */
+        .nav-pill {
+            background: rgba(240, 240, 235, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: background 0.4s, border-color 0.4s;
+        }
+
+        .nav-pill.scrolled {
+            background: rgba(240, 240, 235, 0.85);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Pull quote */
+        .pull-quote {
+            position: relative;
+        }
+
+        .pull-quote::before {
+            content: '\201C';
+            position: absolute;
+            top: -40px;
+            left: -20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 120px;
+            line-height: 1;
+            color: rgba(184, 158, 95, 0.12);
+            pointer-events: none;
+        }
+
+        /* Grayscale to color on hover */
+        .grayscale-hover {
+            filter: grayscale(100%);
+            transition: filter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .grayscale-hover:hover {
+            filter: grayscale(0%);
+        }
+
+        /* Perspective parallax wrapper */
+        .parallax-wrap {
+            perspective: 1000px;
+        }
+
+        /* Parallax visual hover */
+        .parallax-visual {
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .parallax-visual:hover {
+            transform: scale(1.03);
+        }
+
+        /* Mobile menu */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* Horizontal scroll section */
+        .horizontal-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Phase cards */
+        .phase-card {
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.5s, border-color 0.5s;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(184, 158, 95, 0.3);
+        }
+
+        /* Scroll progress bar */
+        .scroll-progress {
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.1s linear;
+        }
+
+        /* Hero background art */
+        .hero-bg-art {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .hero-bg-art::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 15%;
+            width: 70%;
+            height: 70%;
+            background:
+                radial-gradient(ellipse at 30% 30%, rgba(184, 158, 95, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 70%, rgba(15, 15, 15, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(184, 158, 95, 0.03) 0%, transparent 70%);
+            filter: blur(60px);
+            animation: heroShift 20s ease-in-out infinite;
+        }
+
+        @keyframes heroShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(3%, -2%) scale(1.02); }
+            66% { transform: translate(-2%, 3%) scale(0.98); }
+        }
+
+        /* Abstract visual panels */
+        .abstract-panel-1 {
+            background:
+                linear-gradient(160deg, rgba(184, 158, 95, 0.15) 0%, rgba(184, 158, 95, 0.03) 40%, transparent 70%),
+                linear-gradient(220deg, rgba(15, 15, 15, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 30% 70%, rgba(184, 158, 95, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(160, 160, 156, 0.08) 0%, transparent 40%),
+                linear-gradient(180deg, #F0F0EB 0%, #E8E6DF 100%);
+        }
+
+        .abstract-panel-1::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 15%;
+            width: 60%;
+            height: 50%;
+            border: 1px solid rgba(184, 158, 95, 0.08);
+            border-radius: 50%;
+            transform: rotate(-15deg);
+        }
+
+        .abstract-panel-1::after {
+            content: '';
+            position: absolute;
+            bottom: 15%;
+            right: 10%;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(184, 158, 95, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .abstract-panel-2 {
+            background:
+                linear-gradient(200deg, rgba(160, 160, 156, 0.1) 0%, transparent 50%),
+                linear-gradient(340deg, rgba(184, 158, 95, 0.1) 0%, rgba(184, 158, 95, 0.02) 40%, transparent 70%),
+                radial-gradient(circle at 60% 40%, rgba(184, 158, 95, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(15, 15, 15, 0.04) 0%, transparent 40%),
+                linear-gradient(180deg, #EDEAE3 0%, #F0F0EB 100%);
+        }
+
+        .abstract-panel-2::before {
+            content: '';
+            position: absolute;
+            top: 30%;
+            right: 20%;
+            width: 40%;
+            height: 35%;
+            border: 1px solid rgba(184, 158, 95, 0.06);
+            transform: rotate(10deg);
+        }
+
+        .abstract-panel-2::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 15%;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(184, 158, 95, 0.12), transparent);
+            border-radius: 50%;
+        }
+
+        /* Phase card gradient backgrounds */
+        .phase-gradient-1 {
+            background:
+                linear-gradient(160deg, rgba(184, 158, 95, 0.12) 0%, transparent 60%),
+                linear-gradient(300deg, rgba(240, 240, 235, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(184, 158, 95, 0.06) 0%, transparent 50%);
+        }
+
+        .phase-gradient-2 {
+            background:
+                linear-gradient(200deg, rgba(160, 160, 156, 0.08) 0%, transparent 60%),
+                linear-gradient(340deg, rgba(184, 158, 95, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 30%, rgba(184, 158, 95, 0.06) 0%, transparent 50%);
+        }
+
+        .phase-gradient-3 {
+            background:
+                linear-gradient(140deg, rgba(184, 158, 95, 0.1) 0%, transparent 50%),
+                linear-gradient(280deg, rgba(160, 160, 156, 0.06) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(184, 158, 95, 0.08) 0%, transparent 40%);
+        }
+
+        /* Principle card glow */
+        .principle-card {
+            position: relative;
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .principle-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .principle-card::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(135deg, rgba(184, 158, 95, 0.15), transparent 60%);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .principle-card:hover::after {
+            opacity: 1;
+        }
+
+        /* Floating hero particles */
+        .hero-particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        /* Gold divider grow */
+        @keyframes goldDividerGrow {
+            0% { width: 0; }
+            100% { width: 80px; }
+        }
+
+        .gold-divider-grow {
+            width: 0;
+            transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .gold-divider-grow.visible {
+            width: 80px;
+        }
+
+        /* Mix-blend-mode header text */
+        .blend-header {
+            mix-blend-mode: difference;
+            color: #fff;
+        }
+
+        /* Tech number items */
+        .tech-item {
+            position: relative;
+            padding-left: 0;
+            transition: padding-left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .tech-item:hover {
+            padding-left: 8px;
+        }
+
+        .tech-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            width: 0;
+            height: 1px;
+            background: #B89E5F;
+            transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .tech-item:hover::before {
+            width: 12px;
+        }
+    </style>
+</head>
+<body class="relative font-sans selection:bg-burnished-gold selection:text-white">
+
+    <!-- Ambient background -->
+    <div class="ambient-bg"></div>
+    <!-- Noise overlay -->
+    <div class="fixed inset-0 z-10 pointer-events-none opacity-40 bg-noise mix-blend-overlay"></div>
+
+    <!-- Scroll progress -->
+    <div class="fixed top-0 left-0 w-full h-[2px] z-[60]">
+        <div class="scroll-progress h-full bg-burnished-gold/60 w-full"></div>
+    </div>
+
+    <!-- Custom cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-circle"></div>
+
+    <!-- Side indicator - fixed -->
+    <div class="fixed left-8 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col items-center gap-6">
+        <div class="w-px h-12 bg-gradient-to-b from-transparent via-obsidian/20 to-transparent"></div>
+        <span class="side-indicator font-sans text-[9px] uppercase tracking-[0.3em] text-soft-gray/60">About trySEO.ai</span>
+        <div class="w-px h-12 bg-gradient-to-b from-transparent via-obsidian/20 to-transparent"></div>
+    </div>
+
+    <!-- Mobile menu overlay -->
+    <div id="mobile-menu" class="mobile-menu fixed inset-0 z-50 bg-alabaster/95 backdrop-blur-lg flex flex-col items-center justify-center gap-8">
+        <button id="close-menu" class="nav-link absolute top-6 right-6 font-sans text-[10px] tracking-widest uppercase cursor-none">Close</button>
+        <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Home</a>
+        <a href="features.html" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Features</a>
+        <a href="pricing.html" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Pricing</a>
+        <a href="about.html" class="nav-link font-display text-3xl italic text-obsidian transition-colors">About</a>
+    </div>
+
+    <!-- Main content wrapper -->
+    <div class="relative z-20">
+
+        <!-- ==================== HEADER with glass morphism nav pill ==================== -->
+        <header class="fixed top-0 left-0 right-0 z-40 p-4 md:p-6">
+            <div class="max-w-7xl mx-auto flex justify-between items-center nav-pill px-6 md:px-8 py-4 rounded-full">
+                <div class="flex items-center gap-4 animate-in" style="animation-delay: 0.1s;">
+                    <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="group relative nav-link">
+                        <span class="font-serif text-2xl md:text-3xl font-semibold tracking-tighter">trySEO<span class="text-burnished-gold">.ai</span></span>
+                    </a>
+                    <span class="hidden md:inline-block h-px w-6 bg-obsidian/15"></span>
+                    <span class="hidden md:inline-block font-sans text-[9px] tracking-[0.2em] uppercase text-soft-gray">SEO Intelligence</span>
+                </div>
+
+                <nav class="hidden md:flex items-center gap-10 animate-in" style="animation-delay: 0.2s;">
+                    <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="nav-link font-display text-base italic text-obsidian/50 hover:text-obsidian transition-colors">Home</a>
+                    <a href="features.html" class="nav-link font-display text-base italic text-obsidian/50 hover:text-obsidian transition-colors">Features</a>
+                    <a href="pricing.html" class="nav-link font-display text-base italic text-obsidian/50 hover:text-obsidian transition-colors">Pricing</a>
+                    <a href="about.html" class="nav-link font-display text-base italic text-obsidian transition-colors relative">
+                        About
+                        <span class="absolute -bottom-1 left-0 w-full h-px bg-burnished-gold"></span>
+                    </a>
+                </nav>
+
+                <button id="hamburger" class="nav-link group flex flex-col items-end gap-1.5 animate-in md:hidden" style="animation-delay: 0.3s;">
+                    <span class="font-sans text-[10px] tracking-widest uppercase mb-1">Menu</span>
+                    <span class="w-8 h-px bg-obsidian group-hover:w-12 transition-all duration-300"></span>
+                    <span class="w-5 h-px bg-obsidian group-hover:w-8 transition-all duration-300 delay-75"></span>
+                </button>
+
+                <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="hidden md:inline-flex nav-link items-center gap-2 px-5 py-2.5 bg-obsidian text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans hover:bg-obsidian/85 transition-colors animate-in" style="animation-delay: 0.3s;">
+                    Free Audit
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
+            </div>
+        </header>
+
+
+        <!-- ==================== 1. FULL-SCREEN HERO ==================== -->
+        <section class="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-10 overflow-hidden">
+            <!-- Hero background art -->
+            <div class="hero-bg-art" data-parallax data-speed="0.1">
+                <!-- Abstract gradient shapes -->
+                <div class="absolute top-[15%] left-[10%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-burnished-gold/[0.05] to-transparent blur-[80px]" data-parallax data-speed="0.02"></div>
+                <div class="absolute bottom-[20%] right-[15%] w-[400px] h-[400px] rounded-full bg-gradient-to-tl from-soft-gray/[0.06] to-transparent blur-[60px]" data-parallax data-speed="0.03"></div>
+                <div class="absolute top-[40%] left-[50%] -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-gradient-to-r from-burnished-gold/[0.02] via-transparent to-soft-gray/[0.03] blur-[100px]" data-parallax data-speed="0.015"></div>
+                <!-- Subtle geometric lines -->
+                <div class="absolute top-[30%] left-[20%] w-[300px] h-px bg-gradient-to-r from-transparent via-burnished-gold/[0.08] to-transparent rotate-[20deg]"></div>
+                <div class="absolute bottom-[35%] right-[25%] w-[200px] h-px bg-gradient-to-r from-transparent via-soft-gray/[0.06] to-transparent -rotate-[15deg]"></div>
+            </div>
+
+            <!-- Floating particles -->
+            <div id="hero-particles" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+
+            <div class="text-center max-w-5xl mx-auto relative z-10 pt-32 pb-20">
+                <div class="animate-in" style="animation-delay: 0.4s;">
+                    <span class="inline-block font-sans text-[10px] tracking-[0.3em] uppercase text-burnished-gold border border-burnished-gold/30 rounded-full px-5 py-2">The Story</span>
+                </div>
+
+                <h1 class="mt-10 md:mt-14 font-serif text-5xl md:text-7xl lg:text-[110px] leading-[0.92] tracking-tighter text-obsidian animate-in" style="animation-delay: 0.6s;">
+                    SEO shouldn't<br>require <span class="font-display italic text-burnished-gold">guesswork.</span>
+                </h1>
+
+                <p class="mt-8 md:mt-10 font-sans text-base md:text-lg text-obsidian/40 leading-relaxed max-w-2xl mx-auto animate-in" style="animation-delay: 0.8s;">
+                    We built an AI agent that replaces gut feelings with evidence,<br class="hidden md:block">
+                    and complexity with clarity. This is the story of why.
+                </p>
+
+                <!-- Line growth animation -->
+                <div class="mt-14 flex justify-center">
+                    <div class="w-px bg-gradient-to-b from-burnished-gold/50 to-transparent line-grow"></div>
+                </div>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-in" style="animation-delay: 1.4s;">
+                <span class="font-sans text-[9px] uppercase tracking-[0.3em] text-soft-gray/60">Scroll</span>
+                <div class="w-px h-10 bg-gradient-to-b from-obsidian/20 to-transparent"></div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 2. MISSION SECTION (Editorial Two-Column) ==================== -->
+        <section class="px-6 md:px-10 lg:px-20 py-32 md:py-40">
+            <div class="max-w-7xl mx-auto">
+                <!-- Section label -->
+                <div class="mb-20 reveal">
+                    <div class="flex items-center gap-6">
+                        <span class="font-sans text-[10px] tracking-[0.2em] uppercase text-soft-gray">01 / Our Mission</span>
+                        <div class="flex-1 h-px bg-obsidian/10"></div>
+                    </div>
+                </div>
+
+                <!-- Two-column editorial layout -->
+                <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+                    <!-- Left: Visual panel with parallax -->
+                    <div class="reveal parallax-wrap">
+                        <div class="abstract-panel-1 rounded-lg aspect-[4/5] relative overflow-hidden border border-obsidian/5 parallax-visual" data-parallax data-speed="0.02">
+                            <!-- Inner decorative elements -->
+                            <div class="absolute inset-0 flex flex-col justify-between p-8 md:p-12">
+                                <div>
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-soft-gray/50">Genesis</span>
+                                </div>
+
+                                <!-- Central abstract composition -->
+                                <div class="flex-1 flex items-center justify-center relative">
+                                    <!-- Concentric circles -->
+                                    <div class="absolute w-48 h-48 rounded-full border border-burnished-gold/[0.08]"></div>
+                                    <div class="absolute w-32 h-32 rounded-full border border-burnished-gold/[0.12]"></div>
+                                    <div class="absolute w-16 h-16 rounded-full bg-gradient-to-br from-burnished-gold/[0.08] to-transparent"></div>
+                                    <!-- Radiating lines -->
+                                    <div class="absolute w-px h-32 bg-gradient-to-b from-transparent via-burnished-gold/[0.1] to-transparent -translate-y-4"></div>
+                                    <div class="absolute w-32 h-px bg-gradient-to-r from-transparent via-burnished-gold/[0.1] to-transparent translate-x-2"></div>
+                                    <div class="absolute w-px h-24 bg-gradient-to-b from-transparent via-soft-gray/[0.06] to-transparent rotate-45"></div>
+                                    <div class="absolute w-24 h-px bg-gradient-to-r from-transparent via-soft-gray/[0.06] to-transparent -rotate-45"></div>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-burnished-gold/30 animate-pulse"></div>
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-soft-gray/40">Intelligence at the core</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Text content -->
+                    <div class="reveal" style="transition-delay: 0.15s;">
+                        <span class="font-sans text-[10px] tracking-[0.3em] uppercase text-burnished-gold mb-4 inline-block">Our Mission</span>
+
+                        <h2 class="font-display italic text-4xl md:text-5xl lg:text-6xl leading-[0.95] tracking-tight text-obsidian mb-8">
+                            Democratizing<br>SEO intelligence
+                        </h2>
+
+                        <div class="space-y-6 mb-10">
+                            <p class="font-sans text-sm md:text-base text-obsidian/45 leading-relaxed">
+                                Enterprise-level SEO intelligence has always been locked behind expensive agencies, complex toolchains, and months of manual analysis. We built trySEO.ai to change that. One AI agent, ten specialized tools, and a single URL is all it takes to understand your entire search presence.
+                            </p>
+                            <p class="font-sans text-sm md:text-base text-obsidian/45 leading-relaxed">
+                                From solo founders launching their first site to growing teams scaling their organic presence, everyone deserves access to the same caliber of insight that fortune 500 companies rely on.
+                            </p>
+                        </div>
+
+                        <!-- Pull quote -->
+                        <div class="pull-quote pl-6 border-l border-burnished-gold/30 mb-10">
+                            <p class="font-display italic text-lg md:text-xl leading-relaxed text-obsidian/70">
+                                What used to require agencies and months, our AI delivers in seconds.
+                            </p>
+                        </div>
+
+                        <!-- Stats row -->
+                        <div class="flex items-center gap-8">
+                            <div>
+                                <span class="font-serif text-4xl text-obsidian">10</span>
+                                <p class="font-sans text-[10px] tracking-[0.15em] uppercase text-soft-gray mt-1">Specialized tools</p>
+                            </div>
+                            <div class="w-px h-12 bg-obsidian/10"></div>
+                            <div>
+                                <span class="font-serif text-4xl text-obsidian">30</span>
+                                <p class="font-sans text-[10px] tracking-[0.15em] uppercase text-soft-gray mt-1">Scoring criteria</p>
+                            </div>
+                            <div class="w-px h-12 bg-obsidian/10"></div>
+                            <div>
+                                <span class="font-serif text-4xl text-obsidian">&lt;60s</span>
+                                <p class="font-sans text-[10px] tracking-[0.15em] uppercase text-soft-gray mt-1">Full strategy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 3. HOW IT WORKS (Dark Obsidian Section) ==================== -->
+        <section class="relative bg-obsidian text-alabaster py-32 md:py-40 overflow-hidden" id="how-it-works">
+            <!-- Dark section background textures -->
+            <div class="absolute inset-0 opacity-30 bg-noise mix-blend-overlay pointer-events-none"></div>
+            <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-burnished-gold/20 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-burnished-gold/20 to-transparent"></div>
+            <!-- Subtle glow -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-to-r from-burnished-gold/[0.03] to-transparent blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 px-6 md:px-10 lg:px-20">
+                <!-- Section label -->
+                <div class="max-w-7xl mx-auto mb-16 reveal">
+                    <div class="flex items-center gap-6">
+                        <span class="font-sans text-[10px] tracking-[0.2em] uppercase text-burnished-gold">02 / The Process</span>
+                        <div class="flex-1 h-px bg-alabaster/10"></div>
+                    </div>
+                </div>
+
+                <!-- Title area -->
+                <div class="max-w-7xl mx-auto mb-20 reveal">
+                    <h2 class="font-display italic text-4xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight text-alabaster">
+                        Three steps<br>to <span class="text-burnished-gold">clarity.</span>
+                    </h2>
+                </div>
+
+                <!-- Horizontal scrollable gallery with 3 phase cards + staggered offsets -->
+                <div class="max-w-7xl mx-auto mb-20">
+                    <div class="horizontal-scroll flex gap-6 md:gap-8 overflow-x-auto pb-8 -mx-6 px-6 md:-mx-10 md:px-10 lg:-mx-20 lg:px-20">
+
+                        <!-- Phase 01: Enter your URL -->
+                        <div class="phase-card flex-shrink-0 w-[320px] md:w-[380px] border border-alabaster/10 rounded-lg overflow-hidden reveal grayscale-hover" style="margin-top: 0;">
+                            <!-- Top gradient visual -->
+                            <div class="relative aspect-[3/2] overflow-hidden phase-gradient-1">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <!-- Abstract URL/input visual -->
+                                    <div class="relative">
+                                        <div class="w-48 h-12 rounded-full border border-alabaster/10 flex items-center px-4 gap-3">
+                                            <div class="w-2 h-2 rounded-full bg-burnished-gold/40"></div>
+                                            <div class="flex-1 h-px bg-alabaster/10"></div>
+                                            <svg class="w-3.5 h-3.5 text-burnished-gold/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                        </div>
+                                        <div class="absolute -top-8 -right-6 w-3 h-3 rounded-full bg-burnished-gold/20 animate-pulse"></div>
+                                    </div>
+                                </div>
+                                <!-- Number overlay -->
+                                <div class="absolute top-5 left-6">
+                                    <span class="font-serif text-6xl text-alabaster/[0.06]">01</span>
+                                </div>
+                            </div>
+                            <!-- Text content -->
+                            <div class="p-8 md:p-10">
+                                <div class="flex items-center justify-between mb-6">
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-burnished-gold">Begin</span>
+                                </div>
+                                <h3 class="font-serif text-xl text-alabaster mb-4">Enter your URL</h3>
+                                <div class="w-8 h-px bg-burnished-gold/30 mb-4"></div>
+                                <p class="font-sans text-xs text-alabaster/35 leading-relaxed">Drop in any website and our AI begins its analysis immediately. No setup, no configuration, no waiting. One URL is all it takes.</p>
+                            </div>
+                        </div>
+
+                        <!-- Phase 02: AI analyzes everything -->
+                        <div class="phase-card flex-shrink-0 w-[320px] md:w-[380px] border border-alabaster/10 rounded-lg overflow-hidden reveal grayscale-hover" style="margin-top: 48px;">
+                            <!-- Top gradient visual -->
+                            <div class="relative aspect-[3/2] overflow-hidden phase-gradient-2">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <!-- Abstract analysis visual: radiating nodes -->
+                                    <div class="relative w-32 h-32">
+                                        <div class="absolute inset-0 rounded-full border border-burnished-gold/[0.08] animate-pulse"></div>
+                                        <div class="absolute inset-3 rounded-full border border-burnished-gold/[0.12]"></div>
+                                        <div class="absolute inset-6 rounded-full border border-burnished-gold/[0.15]"></div>
+                                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-burnished-gold/20"></div>
+                                        <!-- Orbital dots -->
+                                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-burnished-gold/30"></div>
+                                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-burnished-gold/30"></div>
+                                        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-burnished-gold/30"></div>
+                                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-burnished-gold/30"></div>
+                                        <div class="absolute top-2 right-2 w-1 h-1 rounded-full bg-alabaster/20"></div>
+                                        <div class="absolute bottom-2 left-2 w-1 h-1 rounded-full bg-alabaster/20"></div>
+                                    </div>
+                                </div>
+                                <!-- Number overlay -->
+                                <div class="absolute top-5 left-6">
+                                    <span class="font-serif text-6xl text-alabaster/[0.06]">02</span>
+                                </div>
+                            </div>
+                            <!-- Text content -->
+                            <div class="p-8 md:p-10">
+                                <div class="flex items-center justify-between mb-6">
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-burnished-gold">Analyze</span>
+                                </div>
+                                <h3 class="font-serif text-xl text-alabaster mb-4">AI analyzes everything</h3>
+                                <div class="w-8 h-px bg-burnished-gold/30 mb-4"></div>
+                                <p class="font-sans text-xs text-alabaster/35 leading-relaxed">10 specialized tools scan keywords, competitors, content, technical health, and backlinks in orchestrated phases. Real web data, not cached results.</p>
+                            </div>
+                        </div>
+
+                        <!-- Phase 03: Get actionable strategy -->
+                        <div class="phase-card flex-shrink-0 w-[320px] md:w-[380px] border border-burnished-gold/25 bg-burnished-gold/[0.04] rounded-lg overflow-hidden reveal grayscale-hover" style="margin-top: 16px;">
+                            <!-- Top gradient visual -->
+                            <div class="relative aspect-[3/2] overflow-hidden phase-gradient-3">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <!-- Abstract strategy/roadmap visual -->
+                                    <div class="space-y-3 w-40">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-1 rounded-full bg-burnished-gold/30"></div>
+                                            <div class="flex-1 h-px bg-alabaster/[0.06]"></div>
+                                            <span class="font-sans text-[8px] text-burnished-gold/40">92</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-12 h-1 rounded-full bg-burnished-gold/20"></div>
+                                            <div class="flex-1 h-px bg-alabaster/[0.06]"></div>
+                                            <span class="font-sans text-[8px] text-burnished-gold/40">78</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-6 h-1 rounded-full bg-burnished-gold/25"></div>
+                                            <div class="flex-1 h-px bg-alabaster/[0.06]"></div>
+                                            <span class="font-sans text-[8px] text-burnished-gold/40">85</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-10 h-1 rounded-full bg-burnished-gold/15"></div>
+                                            <div class="flex-1 h-px bg-alabaster/[0.06]"></div>
+                                            <span class="font-sans text-[8px] text-burnished-gold/40">71</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Number overlay -->
+                                <div class="absolute top-5 left-6">
+                                    <span class="font-serif text-6xl text-alabaster/[0.06]">03</span>
+                                </div>
+                            </div>
+                            <!-- Text content -->
+                            <div class="p-8 md:p-10">
+                                <div class="flex items-center justify-between mb-6">
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-burnished-gold">Deliver</span>
+                                </div>
+                                <h3 class="font-serif text-xl text-alabaster mb-4">Get actionable strategy</h3>
+                                <div class="w-8 h-px bg-burnished-gold/50 mb-4"></div>
+                                <p class="font-sans text-xs text-alabaster/40 leading-relaxed">Comprehensive roadmap with prioritized recommendations, scoring across 30 criteria, and a clear path to improving your rankings.</p>
+                                <div class="mt-6 pt-4 border-t border-burnished-gold/15">
+                                    <span class="font-sans text-[10px] tracking-[0.15em] uppercase text-burnished-gold/70">Output: Complete SEO Roadmap</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Scroll hint -->
+                    <div class="flex justify-end mt-4">
+                        <span class="font-sans text-[9px] tracking-wider uppercase text-alabaster/20">Scroll horizontally &rarr;</span>
+                    </div>
+                </div>
+
+                <!-- Bottom note -->
+                <div class="max-w-7xl mx-auto reveal">
+                    <div class="flex items-center gap-6 pt-8 border-t border-alabaster/8">
+                        <div class="w-2 h-2 rounded-full bg-burnished-gold/40 animate-pulse"></div>
+                        <span class="font-sans text-[10px] tracking-[0.15em] uppercase text-alabaster/30">Parallel execution where possible &mdash; Sequential where necessary</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 4. TECHNOLOGY SECTION (Editorial Two-Column, Reversed) ==================== -->
+        <section class="px-6 md:px-10 lg:px-20 py-32 md:py-40">
+            <div class="max-w-7xl mx-auto">
+                <!-- Section label -->
+                <div class="mb-20 reveal">
+                    <div class="flex items-center gap-6">
+                        <span class="font-sans text-[10px] tracking-[0.2em] uppercase text-soft-gray">03 / Built with Precision</span>
+                        <div class="flex-1 h-px bg-obsidian/10"></div>
+                    </div>
+                </div>
+
+                <!-- Two-column editorial layout (reversed) -->
+                <div class="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+                    <!-- Left: Text content -->
+                    <div class="reveal md:order-1 order-2">
+                        <span class="font-sans text-[10px] tracking-[0.3em] uppercase text-burnished-gold mb-4 inline-block">Built with Precision</span>
+
+                        <h2 class="font-display italic text-3xl md:text-4xl lg:text-5xl leading-[0.95] tracking-tight text-obsidian mb-8">
+                            The technology behind the intelligence
+                        </h2>
+
+                        <p class="font-sans text-sm md:text-base text-obsidian/45 leading-relaxed mb-10">
+                            Every component is chosen for a reason. No bloated stacks, no unnecessary complexity. Just the right tools, architected for speed, accuracy, and transparency.
+                        </p>
+
+                        <!-- Four numbered tech points -->
+                        <div class="space-y-8 ml-5">
+                            <!-- 01 -->
+                            <div class="tech-item reveal-child">
+                                <div class="flex items-start gap-5">
+                                    <span class="font-serif text-3xl text-obsidian/[0.08] leading-none mt-0.5 flex-shrink-0">01.</span>
+                                    <div>
+                                        <h4 class="font-sans text-xs font-medium tracking-wide uppercase text-obsidian/70 mb-1.5">AI-Powered Analysis</h4>
+                                        <p class="font-sans text-[13px] text-obsidian/40 leading-relaxed">Large language models reason about your SEO posture, identifying patterns and opportunities that rule-based tools miss entirely.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 02 -->
+                            <div class="tech-item reveal-child" style="transition-delay: 0.1s;">
+                                <div class="flex items-start gap-5">
+                                    <span class="font-serif text-3xl text-obsidian/[0.08] leading-none mt-0.5 flex-shrink-0">02.</span>
+                                    <div>
+                                        <h4 class="font-sans text-xs font-medium tracking-wide uppercase text-obsidian/70 mb-1.5">Real-Time Web Intelligence</h4>
+                                        <p class="font-sans text-[13px] text-obsidian/40 leading-relaxed">Every analysis pulls live data via Jina AI. No stale indexes, no outdated crawls. Your audit reflects the web as it exists right now.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 03 -->
+                            <div class="tech-item reveal-child" style="transition-delay: 0.2s;">
+                                <div class="flex items-start gap-5">
+                                    <span class="font-serif text-3xl text-obsidian/[0.08] leading-none mt-0.5 flex-shrink-0">03.</span>
+                                    <div>
+                                        <h4 class="font-sans text-xs font-medium tracking-wide uppercase text-obsidian/70 mb-1.5">30-Criteria Scoring Rubric</h4>
+                                        <p class="font-sans text-[13px] text-obsidian/40 leading-relaxed">Performance, SEO, content, technical health. Scores computed deterministically with weighted averages. No AI hallucination in the numbers.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 04 -->
+                            <div class="tech-item reveal-child" style="transition-delay: 0.3s;">
+                                <div class="flex items-start gap-5">
+                                    <span class="font-serif text-3xl text-obsidian/[0.08] leading-none mt-0.5 flex-shrink-0">04.</span>
+                                    <div>
+                                        <h4 class="font-sans text-xs font-medium tracking-wide uppercase text-obsidian/70 mb-1.5">Evidence-Backed Recommendations</h4>
+                                        <p class="font-sans text-[13px] text-obsidian/40 leading-relaxed">Full data traces stored for every recommendation. You can see exactly what data informed each suggestion. No black boxes.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Visual panel -->
+                    <div class="reveal parallax-wrap md:order-2 order-1" style="transition-delay: 0.15s;">
+                        <div class="abstract-panel-2 rounded-lg aspect-[4/5] relative overflow-hidden border border-obsidian/5 parallax-visual" data-parallax data-speed="0.025">
+                            <!-- Architecture flow visualization -->
+                            <div class="absolute inset-0 flex flex-col justify-between p-8 md:p-12">
+                                <div>
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-soft-gray/50">Architecture</span>
+                                </div>
+
+                                <div class="space-y-5">
+                                    <!-- Flow nodes -->
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full border border-burnished-gold/15 flex items-center justify-center flex-shrink-0">
+                                            <div class="w-2 h-2 rounded-full bg-burnished-gold/30"></div>
+                                        </div>
+                                        <div class="flex-1 h-px bg-gradient-to-r from-burnished-gold/15 to-transparent"></div>
+                                        <span class="font-sans text-[9px] text-soft-gray/40 uppercase tracking-wider">Query</span>
+                                    </div>
+                                    <div class="ml-4 w-px h-4 bg-gradient-to-b from-burnished-gold/15 to-transparent"></div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full border border-burnished-gold/15 flex items-center justify-center flex-shrink-0">
+                                            <div class="w-2 h-2 rounded-full bg-burnished-gold/30"></div>
+                                        </div>
+                                        <div class="flex-1 h-px bg-gradient-to-r from-burnished-gold/15 to-transparent"></div>
+                                        <span class="font-sans text-[9px] text-soft-gray/40 uppercase tracking-wider">Agent</span>
+                                    </div>
+                                    <div class="ml-4 w-px h-4 bg-gradient-to-b from-burnished-gold/15 to-transparent"></div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded border border-burnished-gold/10 flex items-center justify-center flex-shrink-0">
+                                            <div class="w-3 h-0.5 rounded-full bg-burnished-gold/25"></div>
+                                        </div>
+                                        <div class="flex-1 h-px bg-gradient-to-r from-burnished-gold/15 to-transparent"></div>
+                                        <span class="font-sans text-[9px] text-soft-gray/40 uppercase tracking-wider">Jina AI</span>
+                                    </div>
+                                    <div class="ml-4 w-px h-4 bg-gradient-to-b from-burnished-gold/15 to-transparent"></div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded border border-burnished-gold/10 flex items-center justify-center flex-shrink-0">
+                                            <div class="w-3 h-0.5 rounded-full bg-burnished-gold/25"></div>
+                                        </div>
+                                        <div class="flex-1 h-px bg-gradient-to-r from-burnished-gold/15 to-transparent"></div>
+                                        <span class="font-sans text-[9px] text-soft-gray/40 uppercase tracking-wider">LLM</span>
+                                    </div>
+                                    <div class="ml-4 w-px h-4 bg-gradient-to-b from-burnished-gold/15 to-transparent"></div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full border border-burnished-gold/20 flex items-center justify-center flex-shrink-0 bg-burnished-gold/[0.05]">
+                                            <div class="w-2 h-2 rounded-full bg-burnished-gold/40"></div>
+                                        </div>
+                                        <div class="flex-1 h-px bg-gradient-to-r from-burnished-gold/20 to-transparent"></div>
+                                        <span class="font-sans text-[9px] text-burnished-gold/50 uppercase tracking-wider">Insight</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-green-500/40 animate-pulse"></div>
+                                    <span class="font-sans text-[9px] tracking-[0.2em] uppercase text-soft-gray/40">Live System</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 5. VALUES / PHILOSOPHY (Centered Section) ==================== -->
+        <section class="px-6 md:px-10 lg:px-20 py-32 md:py-40">
+            <div class="max-w-5xl mx-auto">
+                <!-- Section label centered -->
+                <div class="text-center mb-6 reveal">
+                    <span class="font-sans text-[10px] tracking-[0.3em] uppercase text-burnished-gold">Our Principles</span>
+                </div>
+
+                <div class="text-center mb-10 reveal" style="transition-delay: 0.1s;">
+                    <h2 class="font-display italic text-4xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight text-obsidian">
+                        Guided by three<br>convictions.
+                    </h2>
+                </div>
+
+                <!-- Gold divider line (centered) -->
+                <div class="flex justify-center mb-20 reveal" style="transition-delay: 0.2s;">
+                    <div class="gold-divider-grow h-px bg-burnished-gold/50"></div>
+                </div>
+
+                <!-- Three principles -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-14 reveal-stagger">
+                    <!-- I. Evidence over opinion -->
+                    <div class="principle-card text-center md:text-left reveal-child" style="transition-delay: 0s;">
+                        <div class="mb-6">
+                            <span class="font-serif text-7xl md:text-8xl tracking-tighter text-burnished-gold/[0.12] leading-none">I</span>
+                        </div>
+                        <h3 class="font-serif text-xl md:text-2xl tracking-tight mb-3">Evidence over opinion</h3>
+                        <div class="w-8 h-px bg-burnished-gold/40 mb-4 mx-auto md:mx-0"></div>
+                        <p class="font-sans text-sm leading-relaxed text-obsidian/45">
+                            Every recommendation is backed by real, verifiable data scraped from the live web. We don't guess. We show you the evidence and let the data speak.
+                        </p>
+                    </div>
+
+                    <!-- II. Clarity over complexity -->
+                    <div class="principle-card text-center md:text-left reveal-child" style="transition-delay: 0.1s;">
+                        <div class="mb-6">
+                            <span class="font-serif text-7xl md:text-8xl tracking-tighter text-burnished-gold/[0.12] leading-none">II</span>
+                        </div>
+                        <h3 class="font-serif text-xl md:text-2xl tracking-tight mb-3">Clarity over complexity</h3>
+                        <div class="w-8 h-px bg-burnished-gold/40 mb-4 mx-auto md:mx-0"></div>
+                        <p class="font-sans text-sm leading-relaxed text-obsidian/45">
+                            Complex analysis, simple output. Ten tools perform deeply sophisticated work, but what you receive is clean, readable, and immediately actionable.
+                        </p>
+                    </div>
+
+                    <!-- III. Action over analysis -->
+                    <div class="principle-card text-center md:text-left reveal-child" style="transition-delay: 0.2s;">
+                        <div class="mb-6">
+                            <span class="font-serif text-7xl md:text-8xl tracking-tighter text-burnished-gold/[0.12] leading-none">III</span>
+                        </div>
+                        <h3 class="font-serif text-xl md:text-2xl tracking-tight mb-3">Action over analysis</h3>
+                        <div class="w-8 h-px bg-burnished-gold/40 mb-4 mx-auto md:mx-0"></div>
+                        <p class="font-sans text-sm leading-relaxed text-obsidian/45">
+                            Prioritized roadmaps, not data dumps. Every audit includes a ranked list of fixes sorted by the points they gain you. You know exactly what to do first.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 6. BOTTOM CTA ==================== -->
+        <section class="px-6 md:px-10 lg:px-20 pb-32">
+            <div class="max-w-7xl mx-auto">
+                <div class="h-px bg-obsidian/10 mb-20 reveal"></div>
+
+                <div class="max-w-4xl mx-auto text-center reveal">
+                    <h2 class="font-display italic text-4xl md:text-5xl lg:text-6xl leading-[1.05] text-obsidian">
+                        See it for yourself.
+                    </h2>
+                    <p class="mt-6 font-sans text-base text-obsidian/35 max-w-lg mx-auto leading-relaxed">
+                        Enter any URL and get a free, comprehensive SEO audit in under a minute. No sign-up required.
+                    </p>
+                    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <a href="design-0fda66f9-b953-4d4c-9bed-27c3b10d3d22.html" class="nav-link inline-flex items-center gap-3 px-8 py-4 bg-obsidian text-alabaster hover:bg-obsidian/85 transition-all duration-500 rounded-full group">
+                            <span class="font-sans text-[10px] uppercase tracking-[0.25em]">Start Free Audit</span>
+                            <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                        <a href="features.html" class="nav-link inline-flex items-center gap-3 px-8 py-4 border border-obsidian/15 hover:border-obsidian/40 hover:bg-white/50 backdrop-blur-sm transition-all duration-500 rounded-full group">
+                            <span class="font-sans text-[10px] uppercase tracking-[0.25em]">View Features</span>
+                            <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 7. FOOTER ==================== -->
+        <footer class="px-6 md:px-10 lg:px-20 pb-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="h-px bg-obsidian/10 mb-10"></div>
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-3 font-sans text-[10px] uppercase tracking-widest text-soft-gray">
+                        <span class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse"></span>
+                        <span>AI Engine Online</span>
+                    </div>
+
+                    <div class="flex items-center gap-8">
+                        <a href="features.html" class="nav-link font-sans text-[10px] uppercase tracking-widest text-obsidian/40 hover:text-obsidian transition-colors">Features</a>
+                        <a href="pricing.html" class="nav-link font-sans text-[10px] uppercase tracking-widest text-obsidian/40 hover:text-obsidian transition-colors">Pricing</a>
+                        <a href="about.html" class="nav-link font-sans text-[10px] uppercase tracking-widest text-obsidian/60 hover:text-obsidian transition-colors">About</a>
+                    </div>
+
+                    <div class="font-sans text-[10px] uppercase tracking-widest text-soft-gray">
+                        &copy; 2026 trySEO.ai
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script>
+        // ========== CUSTOM CURSOR ==========
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorCircle = document.querySelector('.cursor-circle');
+        let cursorX = 0, cursorY = 0;
+        let circleX = 0, circleY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+            cursorDot.style.transform = `translate(${cursorX}px, ${cursorY}px) translate(-50%, -50%)`;
+
+            // Check if cursor is over dark section
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            const darkSection = el && el.closest('#how-it-works');
+            if (darkSection) {
+                cursorDot.classList.add('inverted');
+                cursorCircle.classList.add('inverted');
+            } else {
+                cursorDot.classList.remove('inverted');
+                cursorCircle.classList.remove('inverted');
+            }
+        });
+
+        // Smooth circle follow
+        function animateCursor() {
+            circleX += (cursorX - circleX) * 0.12;
+            circleY += (cursorY - circleY) * 0.12;
+            cursorCircle.style.transform = `translate(${circleX}px, ${circleY}px) translate(-50%, -50%)`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Hover states for cursor
+        function bindCursorHover() {
+            document.querySelectorAll('a, button, .nav-link, .phase-card, .principle-card, .tech-item').forEach(el => {
+                el.addEventListener('mouseenter', () => cursorCircle.classList.add('hovered'));
+                el.addEventListener('mouseleave', () => cursorCircle.classList.remove('hovered'));
+            });
+        }
+        bindCursorHover();
+
+
+        // ========== SCROLL PROGRESS ==========
+        const scrollProgress = document.querySelector('.scroll-progress');
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+            scrollProgress.style.transform = `scaleX(${progress})`;
+        });
+
+
+        // ========== NAV PILL SCROLL STATE ==========
+        const navPill = document.querySelector('.nav-pill');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navPill.classList.add('scrolled');
+            } else {
+                navPill.classList.remove('scrolled');
+            }
+        });
+
+
+        // ========== SCROLL REVEAL (IntersectionObserver) ==========
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealStaggerElements = document.querySelectorAll('.reveal-stagger');
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+
+                    // Stagger children
+                    const children = entry.target.querySelectorAll('.reveal-child');
+                    children.forEach((child, i) => {
+                        child.style.transitionDelay = `${i * 0.1}s`;
+                    });
+                }
+            });
+        }, {
+            threshold: 0.08,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+        revealStaggerElements.forEach(el => revealObserver.observe(el));
+
+
+        // ========== GOLD DIVIDER OBSERVER ==========
+        const goldDividers = document.querySelectorAll('.gold-divider-grow');
+        const dividerObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.5 });
+        goldDividers.forEach(el => dividerObserver.observe(el));
+
+
+        // ========== PARALLAX ON SCROLL ==========
+        const parallaxElements = document.querySelectorAll('[data-parallax]');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+
+            parallaxElements.forEach(el => {
+                const speed = parseFloat(el.dataset.speed) || 0.02;
+                const rect = el.getBoundingClientRect();
+                const offset = (rect.top + scrollY - window.innerHeight / 2) * speed;
+                el.style.transform = `translateY(${offset}px)`;
+            });
+        });
+
+
+        // ========== MOBILE MENU ==========
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenu = document.getElementById('close-menu');
+
+        if (hamburger) {
+            hamburger.addEventListener('click', () => mobileMenu.classList.add('open'));
+        }
+        if (closeMenu) {
+            closeMenu.addEventListener('click', () => mobileMenu.classList.remove('open'));
+        }
+
+
+        // ========== HERO PARTICLES ==========
+        const particleContainer = document.getElementById('hero-particles');
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('hero-particle');
+            const size = Math.random() * 3 + 1;
+            const x = Math.random() * 100;
+            const duration = Math.random() * 10 + 12;
+            const delay = Math.random() * 8;
+
+            particle.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}%;
+                bottom: -10px;
+                background: rgba(184, 158, 95, ${Math.random() * 0.2 + 0.05});
+                animation-duration: ${duration}s;
+                animation-delay: ${delay}s;
+            `;
+            particleContainer.appendChild(particle);
+        }
+
+        for (let i = 0; i < 20; i++) {
+            createParticle();
+        }
+
+
+        // ========== SIDE INDICATOR PARALLAX ==========
+        const sideIndicator = document.querySelector('.side-indicator');
+        if (sideIndicator) {
+            window.addEventListener('scroll', () => {
+                const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+                sideIndicator.parentElement.style.opacity = Math.max(0.3, 1 - scrollPercent * 1.5);
+            });
+        }
+
+
+        // ========== RE-BIND CURSOR ON VISIBILITY CHANGE ==========
+        const mutationObserver = new MutationObserver(() => {
+            bindCursorHover();
+        });
+        mutationObserver.observe(document.body, { childList: true, subtree: true, attributes: true });
+    </script>
+
+</body>
+</html>
