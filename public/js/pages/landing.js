@@ -12,9 +12,10 @@ let _sectionObserver = null;
 
 export async function mount(container) {
   _container = container;
+  const _isLoggedIn = !!getUser();
 
   // Build HTML structure
-  _container.innerHTML = _html();
+  _container.innerHTML = _html(_isLoggedIn);
 
   // Bind CTA buttons
   _container.querySelectorAll('.landing-cta').forEach(btn => {
@@ -133,7 +134,8 @@ export function unmount() {
   _container = null;
 }
 
-function _html() {
+function _html(isLoggedIn = false) {
+  const signinLabel = isLoggedIn ? 'Go to App' : 'Sign In';
   const tools = [
     { icon: '&#9678;', name: 'Website Analyzer', desc: 'Full-spectrum site audit with 30-point scoring' },
     { icon: '&#9883;', name: 'Keyword Research', desc: 'Intent-mapped keyword clusters with difficulty scoring' },
@@ -184,16 +186,22 @@ function _html() {
               <span class="hidden md:inline-block h-px w-8 bg-obsidian/20"></span>
               <span class="hidden md:inline-block font-sans text-[10px] tracking-[0.2em] uppercase text-soft-gray">SEO Intelligence</span>
             </div>
-            <nav class="hidden md:flex gap-12 animate-in" style="animation-delay: 0.2s;">
-              <a href="/features" class="nav-link font-display text-lg italic text-obsidian/70 hover:text-obsidian transition-colors">Features</a>
-              <a href="/pricing" class="nav-link font-display text-lg italic text-obsidian/70 hover:text-obsidian transition-colors">Pricing</a>
-              <a href="/about" class="nav-link font-display text-lg italic text-obsidian/70 hover:text-obsidian transition-colors">About</a>
-            </nav>
-            <button class="nav-link group flex flex-col items-end gap-1.5 md:hidden animate-in" style="animation-delay: 0.3s;">
-              <span class="font-sans text-[10px] tracking-widest uppercase mb-1">Menu</span>
-              <span class="w-8 h-px bg-obsidian group-hover:w-12 transition-all duration-300"></span>
-              <span class="w-5 h-px bg-obsidian group-hover:w-8 transition-all duration-300 delay-75"></span>
-            </button>
+            <div class="flex items-center gap-8 md:gap-12">
+              <nav class="hidden md:flex gap-12 animate-in" style="animation-delay: 0.2s;">
+                <a href="/features" class="nav-link font-display text-lg italic text-obsidian/70 hover:text-obsidian transition-colors">Features</a>
+                <a href="/pricing" class="nav-link font-display text-lg italic text-obsidian/70 hover:text-obsidian transition-colors">Pricing</a>
+                <a href="/about" class="nav-link font-display text-lg italic text-obsidian/70 hover:text-obsidian transition-colors">About</a>
+              </nav>
+              <button class="landing-signin landing-cta hidden md:inline-flex items-center gap-2 px-5 py-2.5 bg-obsidian text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans hover:bg-obsidian/85 transition-colors animate-in" style="animation-delay: 0.3s;">
+                ${signinLabel}
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+              </button>
+              <button class="nav-link group flex flex-col items-end gap-1.5 md:hidden animate-in" style="animation-delay: 0.3s;">
+                <span class="font-sans text-[10px] tracking-widest uppercase mb-1">Menu</span>
+                <span class="w-8 h-px bg-obsidian group-hover:w-12 transition-all duration-300"></span>
+                <span class="w-5 h-px bg-obsidian group-hover:w-8 transition-all duration-300 delay-75"></span>
+              </button>
+            </div>
           </header>
 
           <!-- Center hero text -->
