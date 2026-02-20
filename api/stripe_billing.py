@@ -20,8 +20,8 @@ async def _authenticate(request: Request) -> dict | JSONResponse:
 
 @app.post("/api/stripe/checkout")
 async def create_checkout(request: Request):
-    auth_result = await _authenticate(request)
     """Create a Stripe Checkout Session and return the URL."""
+    auth_result = await _authenticate(request)
     import stripe
 
     from src.config import config
@@ -138,8 +138,8 @@ async def stripe_webhook(request: Request):
 
 @app.post("/api/stripe/portal")
 async def create_portal(request: Request):
-    auth_result = await _authenticate(request)
     """Create a Stripe Customer Portal session and return the URL."""
+    auth_result = await _authenticate(request)
     import stripe
 
     from src.config import config

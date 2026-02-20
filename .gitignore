@@ -8,3 +8,4 @@ dist/
 .vercel
 .DS_Store
 client_secret_*.json
+seoagent-*.json

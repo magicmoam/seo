@@ -24,9 +24,11 @@ async def cron_audit(request: Request):
     from src.db import get_all_active_tracked_urls, save_audit_snapshot
     from src.tools import website_analyzer
 
-    # Verify cron secret
+    # Verify cron secret (fail-closed: require secret to be configured)
     auth_header = request.headers.get("authorization", "")
-    if config.cron_secret and auth_header != f"Bearer {config.cron_secret}":
+    if not config.cron_secret:
+        return JSONResponse({"error": "CRON_SECRET not configured"}, status_code=500)
+    if auth_header != f"Bearer {config.cron_secret}":
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
 
     tracked_urls = await get_all_active_tracked_urls()

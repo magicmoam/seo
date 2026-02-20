@@ -122,12 +122,12 @@ async def history(request: Request):
 
 @app.post("/api/report")
 async def report(request: Request):
-    auth_result = await _authenticate(request)
     """Generate an HTML report from a previous query result.
 
     Accepts the same AgentResponse JSON that /api/query returns.
     Returns the HTML report directly (can be opened in a new tab or downloaded).
     """
+    auth_result = await _authenticate(request)
     from src.models import AgentResponse
     from src.report_exporter import export_html_string
 
@@ -145,8 +145,8 @@ async def report(request: Request):
 
 @app.post("/api/client-report")
 async def client_report(request: Request):
-    auth_result = await _authenticate(request)
     """Generate a client-facing Word document (.docx) pitch report."""
+    auth_result = await _authenticate(request)
     from starlette.responses import Response
 
     from src.client_report import generate_client_report
