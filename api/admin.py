@@ -8,19 +8,23 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-
-from api._deps import get_admin_user
 
 app = FastAPI()
 
 
+async def _authenticate_admin(request: Request) -> dict | JSONResponse:
+    from src.middleware import authenticate_admin
+    return await authenticate_admin(request)
+
+
 @app.get("/api/admin/users")
-async def list_users(request: Request, auth_result=Depends(get_admin_user)):
+async def list_users(request: Request):
     """List all users (paginated)."""
     from src.db import count_users, list_all_users
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -45,10 +49,11 @@ async def list_users(request: Request, auth_result=Depends(get_admin_user)):
 
 
 @app.get("/api/admin/users/{email}")
-async def get_user_detail(email: str, request: Request, auth_result=Depends(get_admin_user)):
+async def get_user_detail(email: str, request: Request):
     """Get detailed user info including usage stats and history."""
     from src.db import get_history, get_usage_stats, get_user
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -67,10 +72,11 @@ async def get_user_detail(email: str, request: Request, auth_result=Depends(get_
 
 
 @app.post("/api/admin/users/{email}/credits")
-async def adjust_credits(email: str, request: Request, auth_result=Depends(get_admin_user)):
+async def adjust_credits(email: str, request: Request):
     """Manually adjust a user's credits."""
     from src.db import get_user
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -115,10 +121,11 @@ async def adjust_credits(email: str, request: Request, auth_result=Depends(get_a
 
 
 @app.post("/api/admin/users/{email}/tier")
-async def change_tier(email: str, request: Request, auth_result=Depends(get_admin_user)):
+async def change_tier(email: str, request: Request):
     """Manually change a user's tier."""
     from src.db import get_user, reset_credits, update_user_tier
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -145,7 +152,7 @@ async def change_tier(email: str, request: Request, auth_result=Depends(get_admi
 
 
 @app.post("/api/admin/impersonate")
-async def impersonate(request: Request, auth_result=Depends(get_admin_user)):
+async def impersonate(request: Request):
     """Run a query as another user."""
     from src.agent import route
     from src.credits import get_tool_cost
@@ -153,6 +160,7 @@ async def impersonate(request: Request, auth_result=Depends(get_admin_user)):
     from src.models import AgentResponse
     from src.tools.runner import run_tool
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -225,10 +233,11 @@ async def impersonate(request: Request, auth_result=Depends(get_admin_user)):
 
 
 @app.get("/api/admin/blog")
-async def list_blog_posts(request: Request, auth_result=Depends(get_admin_user)):
+async def list_blog_posts(request: Request):
     """List all blog posts (including drafts) for admin review."""
     from src.db.blog import list_all_posts
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -237,10 +246,11 @@ async def list_blog_posts(request: Request, auth_result=Depends(get_admin_user))
 
 
 @app.post("/api/admin/blog/generate")
-async def generate_blog_post(request: Request, auth_result=Depends(get_admin_user)):
+async def generate_blog_post(request: Request):
     """Generate a single blog article via the content pipeline."""
     from src.content_pipeline import generate_and_store_article
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -269,10 +279,11 @@ async def generate_blog_post(request: Request, auth_result=Depends(get_admin_use
 
 
 @app.post("/api/admin/blog/generate-cluster")
-async def generate_blog_cluster(request: Request, auth_result=Depends(get_admin_user)):
+async def generate_blog_cluster(request: Request):
     """Generate a full content cluster (pillar + supporting articles)."""
     from src.content_pipeline import generate_cluster
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -302,11 +313,12 @@ async def generate_blog_cluster(request: Request, auth_result=Depends(get_admin_
 
 
 @app.post("/api/admin/blog/{post_id}/publish")
-async def publish_blog_post(post_id: str, request: Request, auth_result=Depends(get_admin_user)):
+async def publish_blog_post(post_id: str, request: Request):
     """Publish a draft blog post."""
     from src.content_pipeline import inject_internal_links
     from src.db.blog import publish_post
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -320,10 +332,11 @@ async def publish_blog_post(post_id: str, request: Request, auth_result=Depends(
 
 
 @app.post("/api/admin/blog/{post_id}/unpublish")
-async def unpublish_blog_post(post_id: str, request: Request, auth_result=Depends(get_admin_user)):
+async def unpublish_blog_post(post_id: str, request: Request):
     """Unpublish a blog post (revert to draft)."""
     from src.db.blog import unpublish_post
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -335,10 +348,11 @@ async def unpublish_blog_post(post_id: str, request: Request, auth_result=Depend
 
 
 @app.put("/api/admin/blog/{post_id}")
-async def update_blog_post(post_id: str, request: Request, auth_result=Depends(get_admin_user)):
+async def update_blog_post(post_id: str, request: Request):
     """Update a blog post's content."""
     from src.db.blog import update_post
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -370,10 +384,11 @@ async def update_blog_post(post_id: str, request: Request, auth_result=Depends(g
 
 
 @app.get("/api/admin/stats")
-async def platform_stats(request: Request, auth_result=Depends(get_admin_user)):
+async def platform_stats(request: Request):
     """Get platform-wide statistics."""
     from src.db import count_pro_users, count_users, get_queries_today
 
+    auth_result = await _authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 

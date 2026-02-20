@@ -8,16 +8,21 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-
-from api._deps import get_current_user
 
 app = FastAPI()
 
 
+async def _authenticate(request: Request) -> dict | JSONResponse:
+    """Verify Google token from Authorization header."""
+    from src.middleware import authenticate
+    return await authenticate(request)
+
+
 @app.post("/api/query")
-async def query(request: Request, auth_result=Depends(get_current_user)):
+async def query(request: Request):
+    auth_result = await _authenticate(request)
     from src.agent import route
     from src.db import save_evidence, save_search, save_usage
     from src.models import AgentResponse
@@ -103,7 +108,8 @@ async def query(request: Request, auth_result=Depends(get_current_user)):
 
 
 @app.get("/api/history")
-async def history(request: Request, auth_result=Depends(get_current_user)):
+async def history(request: Request):
+    auth_result = await _authenticate(request)
     from src.db import get_history
 
     if isinstance(auth_result, JSONResponse):
@@ -115,7 +121,8 @@ async def history(request: Request, auth_result=Depends(get_current_user)):
 
 
 @app.post("/api/report")
-async def report(request: Request, auth_result=Depends(get_current_user)):
+async def report(request: Request):
+    auth_result = await _authenticate(request)
     """Generate an HTML report from a previous query result.
 
     Accepts the same AgentResponse JSON that /api/query returns.
@@ -137,7 +144,8 @@ async def report(request: Request, auth_result=Depends(get_current_user)):
 
 
 @app.post("/api/client-report")
-async def client_report(request: Request, auth_result=Depends(get_current_user)):
+async def client_report(request: Request):
+    auth_result = await _authenticate(request)
     """Generate a client-facing Word document (.docx) pitch report."""
     from starlette.responses import Response
 

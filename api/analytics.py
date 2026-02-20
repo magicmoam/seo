@@ -8,19 +8,23 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-
-from api._deps import get_current_user
 
 app = FastAPI()
 
 
+async def _authenticate(request: Request) -> dict | JSONResponse:
+    from src.middleware import authenticate
+    return await authenticate(request)
+
+
 @app.get("/api/analytics")
-async def get_analytics(request: Request, auth_result=Depends(get_current_user)):
+async def get_analytics(request: Request):
     """Fetch GA4 analytics data for a property."""
     from src.tools import ga4
 
+    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 

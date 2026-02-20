@@ -7,18 +7,23 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-
-from api._deps import get_current_user
 
 app = FastAPI()
 
 
+async def _authenticate(request: Request) -> dict | JSONResponse:
+    """Verify Google token from Authorization header."""
+    from src.middleware import authenticate
+    return await authenticate(request)
+
+
 @app.get("/api/evidence/{search_id}")
-async def get_evidence(search_id: str, request: Request, auth_result=Depends(get_current_user)):
+async def get_evidence(search_id: str, request: Request):
     from src.db import get_evidence
 
+    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
     user = auth_result
