@@ -1,6 +1,4 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
   "builds": [
     { "src": "api/query.py", "use": "@vercel/python" },
     { "src": "api/history.py", "use": "@vercel/python" },
@@ -50,6 +48,9 @@
     { "src": "/blog", "dest": "/api/pages.py" },
     { "src": "/metrics", "dest": "/api/pages.py" },
     { "src": "/api/public-metrics", "dest": "/api/pages.py" },
+    { "src": "/features", "dest": "/public/features/index.html" },
+    { "src": "/pricing", "dest": "/public/pricing/index.html" },
+    { "src": "/about", "dest": "/public/about/index.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ],
   "crons": [
