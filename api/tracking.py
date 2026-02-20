@@ -8,23 +8,19 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
+
+from api._deps import get_current_user
 
 app = FastAPI()
 
 
-async def _authenticate(request: Request) -> dict | JSONResponse:
-    from src.middleware import authenticate
-    return await authenticate(request)
-
-
 @app.get("/api/tracking")
-async def get_tracked_urls(request: Request):
+async def get_tracked_urls(request: Request, auth_result=Depends(get_current_user)):
     """Get all tracked URLs for the authenticated user."""
     from src.db import get_tracked_urls
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -33,11 +29,10 @@ async def get_tracked_urls(request: Request):
 
 
 @app.post("/api/tracking")
-async def add_tracked_url(request: Request):
+async def add_tracked_url(request: Request, auth_result=Depends(get_current_user)):
     """Add a URL to track for scheduled audits."""
     from src.db import save_tracked_url
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -60,11 +55,10 @@ async def add_tracked_url(request: Request):
 
 
 @app.delete("/api/tracking")
-async def remove_tracked(request: Request):
+async def remove_tracked(request: Request, auth_result=Depends(get_current_user)):
     """Remove a tracked URL."""
     from src.db import remove_tracked_url
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -82,11 +76,10 @@ async def remove_tracked(request: Request):
 
 
 @app.get("/api/tracking/snapshots")
-async def get_snapshots(request: Request):
+async def get_snapshots(request: Request, auth_result=Depends(get_current_user)):
     """Get audit snapshots (score trend) for a tracked URL."""
     from src.db import get_score_trends
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -99,12 +92,11 @@ async def get_snapshots(request: Request):
 
 
 @app.post("/api/tracking/snapshot")
-async def run_snapshot(request: Request):
+async def run_snapshot(request: Request, auth_result=Depends(get_current_user)):
     """Run an on-demand audit snapshot for a URL."""
     from src.db import save_audit_snapshot, save_tracked_url
     from src.tools import website_analyzer
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 

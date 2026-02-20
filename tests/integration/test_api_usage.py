@@ -30,7 +30,7 @@ MOCK_USER = {
 def _mock_authenticate_success(user=None):
     u = user or MOCK_USER
     return patch(
-        "api.usage._authenticate",
+        "src.middleware.authenticate",
         new_callable=AsyncMock,
         return_value=u,
     )
@@ -38,7 +38,7 @@ def _mock_authenticate_success(user=None):
 
 def _mock_authenticate_failure():
     return patch(
-        "api.usage._authenticate",
+        "src.middleware.authenticate",
         new_callable=AsyncMock,
         return_value=JSONResponse({"error": "Missing authorization token"}, status_code=401),
     )

@@ -1,0 +1,21 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F0F0EB"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#grad)" opacity="0.5"/>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#B89E5F;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#0F0F0F;stop-opacity:0.05"/>
+    </linearGradient>
+  </defs>
+  <!-- Logo -->
+  <text x="600" y="260" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="600" fill="#0F0F0F" letter-spacing="-2">trySEO<tspan fill="#B89E5F">.ai</tspan></text>
+  <!-- Tagline -->
+  <text x="600" y="330" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-style="italic" fill="#0F0F0F" opacity="0.5">AI-Powered SEO Intelligence</text>
+  <!-- Divider -->
+  <line x1="540" y1="370" x2="660" y2="370" stroke="#B89E5F" stroke-width="1" opacity="0.4"/>
+  <!-- Features -->
+  <text x="600" y="420" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#0F0F0F" opacity="0.4" letter-spacing="3">10 TOOLS · 30 CRITERIA · ONE INTELLIGENCE</text>
+  <!-- Bottom bar -->
+  <rect x="0" y="610" width="1200" height="20" fill="#0F0F0F"/>
+  <rect x="0" y="610" width="400" height="20" fill="#B89E5F" opacity="0.6"/>
+</svg>

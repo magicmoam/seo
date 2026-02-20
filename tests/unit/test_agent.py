@@ -8,8 +8,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.agent import TOOLS, _unpack_tool_result, route
+from src.agent import route
 from src.models import EvidenceTrace
+from src.tools.common import unpack_tool_result
 
 
 @dataclass
@@ -23,14 +24,14 @@ class MockLLMResult:
 
 
 class TestUnpackToolResult:
-    """Test _unpack_tool_result() handles 2- and 3-tuple returns."""
+    """Test unpack_tool_result() handles 2- and 3-tuple returns."""
 
     def test_handles_3_tuple(self):
         result_obj = {"data": "value"}
         usage = {"input_tokens": 100}
         trace = EvidenceTrace(tool_used="keyword_research", query="test")
 
-        result, usage_out, trace_out = _unpack_tool_result(
+        result, usage_out, trace_out = unpack_tool_result(
             (result_obj, usage, trace), "keyword_research", "test"
         )
 
@@ -43,7 +44,7 @@ class TestUnpackToolResult:
         result_obj = {"data": "legacy"}
         usage = {"input_tokens": 50}
 
-        result, usage_out, trace_out = _unpack_tool_result(
+        result, usage_out, trace_out = unpack_tool_result(
             (result_obj, usage), "backlink_strategy", "example.com"
         )
 
@@ -61,31 +62,12 @@ class TestUnpackToolResult:
             total_input_tokens=500,
             total_output_tokens=200,
         )
-        result, _, trace_out = _unpack_tool_result(
+        result, _, trace_out = unpack_tool_result(
             ("result", {}, trace), "serp_analysis", "test query"
         )
         assert trace_out.model == "gpt-4o"
         assert trace_out.total_input_tokens == 500
         assert trace_out.total_output_tokens == 200
-
-
-class TestToolsDict:
-    """Test TOOLS dictionary."""
-
-    def test_has_expected_tools(self):
-        expected = {
-            "keyword_research",
-            "competitor_analysis",
-            "serp_analysis",
-            "content_gap",
-            "content_generation",
-            "website_analyzer",
-        }
-        assert set(TOOLS.keys()) == expected
-
-    def test_all_values_are_callable(self):
-        for name, func in TOOLS.items():
-            assert callable(func), f"TOOLS['{name}'] is not callable"
 
 
 class TestRoute:

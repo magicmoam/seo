@@ -1,4 +1,6 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "builds": [
     { "src": "api/query.py", "use": "@vercel/python" },
     { "src": "api/history.py", "use": "@vercel/python" },
@@ -13,6 +15,8 @@
     { "src": "api/ga4_connect.py", "use": "@vercel/python" },
     { "src": "api/stripe_billing.py", "use": "@vercel/python" },
     { "src": "api/admin.py", "use": "@vercel/python" },
+    { "src": "api/sitemap.py", "use": "@vercel/python" },
+    { "src": "api/pages.py", "use": "@vercel/python" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
@@ -39,6 +43,13 @@
     { "src": "/api/ga4/select-property", "dest": "/api/ga4_connect.py" },
     { "src": "/api/ga4/disconnect", "dest": "/api/ga4_connect.py" },
     { "src": "/api/ga4/status", "dest": "/api/ga4_connect.py" },
+    { "src": "/sitemap\\.xml", "dest": "/api/sitemap.py" },
+    { "src": "/feed\\.xml", "dest": "/api/pages.py" },
+    { "src": "/tools/(.*)", "dest": "/api/pages.py" },
+    { "src": "/blog/(.*)", "dest": "/api/pages.py" },
+    { "src": "/blog", "dest": "/api/pages.py" },
+    { "src": "/metrics", "dest": "/api/pages.py" },
+    { "src": "/api/public-metrics", "dest": "/api/pages.py" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ],
   "crons": [

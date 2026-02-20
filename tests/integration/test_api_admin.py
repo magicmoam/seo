@@ -224,7 +224,7 @@ class TestAdminAdjustCredits:
         with (
             _mock_admin_auth_success(),
             patch("src.db.get_user", new_callable=AsyncMock, return_value=mock_user),
-            patch("src.db._get_client", return_value=mock_client),
+            patch("src.db.client._get_client", return_value=mock_client),
         ):
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
@@ -254,7 +254,7 @@ class TestAdminAdjustCredits:
         with (
             _mock_admin_auth_success(),
             patch("src.db.get_user", new_callable=AsyncMock, return_value=mock_user),
-            patch("src.db._get_client", return_value=mock_client),
+            patch("src.db.client._get_client", return_value=mock_client),
         ):
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"

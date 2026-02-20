@@ -2,6 +2,7 @@
 import { getUser, onAuthStateChanged } from '../auth.js';
 import { getAdminUsers, getAdminUserDetail, adminAdjustCredits, adminChangeTier, adminImpersonate, getAdminStats } from '../api.js';
 import { navigate } from '../router.js';
+import { esc as _esc } from '../utils/helpers.js';
 
 let _container = null;
 let _unsubAuth = null;
@@ -9,6 +10,8 @@ let _stats = null;
 let _users = [];
 let _searchQuery = '';
 let _page = 1;
+let _activeTab = 'users';
+let _blogPosts = [];
 
 export function mount(container) {
   _container = container;
@@ -61,7 +64,16 @@ function _render() {
   if (!_container) return;
   _container.innerHTML = `
   <div style="max-width:960px;margin:0 auto;padding:100px 32px 64px">
-    <h1 class="fade-in" style="font-size:32px;font-weight:300;letter-spacing:-0.03em;color:var(--c-text-primary);margin-bottom:32px">Admin Dashboard</h1>
+    <h1 class="fade-in" style="font-size:32px;font-weight:300;letter-spacing:-0.03em;color:var(--c-text-primary);margin-bottom:16px">Admin Dashboard</h1>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:4px;margin-bottom:24px" class="fade-in">
+      <button class="admin-tab btn-ghost ${_activeTab === 'users' ? 'active' : ''}" data-tab="users" style="font-size:11px;padding:6px 16px;${_activeTab === 'users' ? 'background:rgba(212,184,149,0.15);color:var(--c-accent);border-color:var(--c-accent)' : ''}">Users</button>
+      <button class="admin-tab btn-ghost ${_activeTab === 'blog' ? 'active' : ''}" data-tab="blog" style="font-size:11px;padding:6px 16px;${_activeTab === 'blog' ? 'background:rgba(212,184,149,0.15);color:var(--c-accent);border-color:var(--c-accent)' : ''}">Blog</button>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="tab-users" style="${_activeTab !== 'users' ? 'display:none' : ''}">
 
     <!-- Stats -->
     <div id="admin-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px" class="fade-in fade-in-delay-1">
@@ -92,6 +104,18 @@ function _render() {
         <button id="impersonate-run" class="btn-primary" style="width:100%">Run Query</button>
         <div id="impersonate-result" style="margin-top:12px"></div>
       </div>
+    </div>
+
+    </div><!-- end tab-users -->
+
+    <!-- Blog Tab -->
+    <div id="tab-blog" style="${_activeTab !== 'blog' ? 'display:none' : ''}">
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button id="blog-generate" class="btn-ghost" style="font-size:11px;padding:6px 16px">Generate Article</button>
+        <button id="blog-generate-cluster" class="btn-ghost" style="font-size:11px;padding:6px 16px">Generate Cluster</button>
+        <button id="blog-refresh" class="btn-ghost" style="font-size:11px;padding:6px 16px">Refresh</button>
+      </div>
+      <div id="blog-table"></div>
     </div>
 
     <!-- Credits Modal -->
@@ -126,6 +150,24 @@ function _render() {
   _container.querySelector('#impersonate-modal')?.addEventListener('click', (e) => { if (e.target.id === 'impersonate-modal') e.target.classList.remove('show'); });
   _container.querySelector('#credits-close')?.addEventListener('click', () => _container.querySelector('#credits-modal').classList.remove('show'));
   _container.querySelector('#credits-modal')?.addEventListener('click', (e) => { if (e.target.id === 'credits-modal') e.target.classList.remove('show'); });
+
+  // Tab switching
+  _container.querySelectorAll('.admin-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _activeTab = btn.dataset.tab;
+      _render();
+      if (_activeTab === 'blog') _loadBlogPosts();
+      else _loadData();
+    });
+  });
+
+  // Blog buttons
+  _container.querySelector('#blog-generate')?.addEventListener('click', _openGenerateModal);
+  _container.querySelector('#blog-generate-cluster')?.addEventListener('click', _openClusterModal);
+  _container.querySelector('#blog-refresh')?.addEventListener('click', _loadBlogPosts);
+
+  // Load blog if active
+  if (_activeTab === 'blog') _loadBlogPosts();
 }
 
 function _renderStats() {
@@ -220,6 +262,131 @@ function _openCreditsModal(email) {
   });
 }
 
+// ── Blog management ──
+
+async function _loadBlogPosts() {
+  try {
+    const resp = await fetch('/api/admin/blog', {
+      headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token') },
+    });
+    const data = await resp.json();
+    _blogPosts = data.posts || [];
+    _renderBlogPosts();
+  } catch (e) { /* silent */ }
+}
+
+function _renderBlogPosts() {
+  if (!_container) return;
+  const table = _container.querySelector('#blog-table');
+  if (!table) return;
+
+  if (!_blogPosts.length) {
+    table.innerHTML = '<div style="text-align:center;padding:40px;color:var(--c-text-tertiary)">No blog posts yet. Generate your first article above.</div>';
+    return;
+  }
+
+  table.innerHTML = `
+  <div class="glass" style="overflow:hidden">
+    <table class="data-table">
+      <thead><tr><th>Title</th><th>Cluster</th><th>Type</th><th>Status</th><th>Words</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${_blogPosts.map(p => `
+        <tr>
+          <td><strong>${_esc(p.title || p.slug)}</strong></td>
+          <td class="cell-dim">${_esc(p.cluster_slug || '-')}</td>
+          <td><span style="font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius);${p.content_type === 'pillar' ? 'background:rgba(212,184,149,0.15);color:var(--c-accent)' : 'background:rgba(255,255,255,0.05);color:var(--c-text-tertiary)'}">${p.content_type || 'supporting'}</span></td>
+          <td><span style="font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius);${p.status === 'published' ? 'background:rgba(107,207,127,0.12);color:var(--c-green)' : 'background:rgba(255,255,255,0.05);color:var(--c-text-tertiary)'}">${p.status}</span></td>
+          <td style="font-family:'Space Mono',monospace">${p.word_count || '-'}</td>
+          <td>
+            <div style="display:flex;gap:4px">
+              ${p.status === 'draft' ? `<button class="btn-blog-publish btn-ghost" data-id="${_esc(p.id)}" style="font-size:10px;padding:3px 8px">Publish</button>` : `<button class="btn-blog-unpublish btn-ghost" data-id="${_esc(p.id)}" style="font-size:10px;padding:3px 8px">Unpublish</button>`}
+              ${p.status === 'published' ? `<a href="/blog/${_esc(p.slug)}" target="_blank" class="btn-ghost" style="font-size:10px;padding:3px 8px;text-decoration:none">Preview</a>` : ''}
+            </div>
+          </td>
+        </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>`;
+
+  // Publish/unpublish events
+  table.querySelectorAll('.btn-blog-publish').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      btn.textContent = '...';
+      btn.disabled = true;
+      try {
+        await fetch('/api/admin/blog/' + btn.dataset.id + '/publish', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token') },
+        });
+        _loadBlogPosts();
+      } catch (e) { alert('Failed: ' + e.message); }
+    });
+  });
+  table.querySelectorAll('.btn-blog-unpublish').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      btn.textContent = '...';
+      btn.disabled = true;
+      try {
+        await fetch('/api/admin/blog/' + btn.dataset.id + '/unpublish', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token') },
+        });
+        _loadBlogPosts();
+      } catch (e) { alert('Failed: ' + e.message); }
+    });
+  });
+}
+
+async function _openGenerateModal() {
+  const keyword = prompt('Enter target keyword for the article:');
+  if (!keyword) return;
+  const cluster = prompt('Cluster slug (leave empty for none):', '') || '';
+  try {
+    window.showToast?.('Generating article... This may take a minute.', 'success', 10000);
+    const resp = await fetch('/api/admin/blog/generate', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token'),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ keyword, cluster_slug: cluster }),
+    });
+    const data = await resp.json();
+    if (data.post_id) {
+      window.showToast?.('Article generated as draft!', 'success');
+      _loadBlogPosts();
+    } else {
+      alert('Failed: ' + (data.error || 'Unknown error'));
+    }
+  } catch (e) { alert('Failed: ' + e.message); }
+}
+
+async function _openClusterModal() {
+  const name = prompt('Cluster name (e.g., "Website SEO Audit"):');
+  if (!name) return;
+  const pillar = prompt('Pillar keyword:');
+  if (!pillar) return;
+  const supporting = prompt('Supporting keywords (comma-separated):');
+  if (!supporting) return;
+
+  const keywords = supporting.split(',').map(k => k.trim()).filter(Boolean);
+  try {
+    window.showToast?.('Generating cluster... This will take several minutes.', 'success', 30000);
+    const resp = await fetch('/api/admin/blog/generate-cluster', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token'),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cluster_name: name, pillar_keyword: pillar, supporting_keywords: keywords }),
+    });
+    const data = await resp.json();
+    window.showToast?.(`Cluster generated: ${data.total_articles || 0} articles as drafts.`, 'success');
+    _loadBlogPosts();
+  } catch (e) { alert('Failed: ' + e.message); }
+}
+
 function _openImpersonateModal(email) {
   if (!_container) return;
   const modal = _container.querySelector('#impersonate-modal');
@@ -249,9 +416,3 @@ function _openImpersonateModal(email) {
   });
 }
 
-function _esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = String(s);
-  return d.innerHTML;
-}

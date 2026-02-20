@@ -2,6 +2,7 @@
 import { getUser, onAuthStateChanged } from '../auth.js';
 import { getUsage, stripePortal } from '../api.js';
 import { navigate } from '../router.js';
+import { esc as _esc, formatNum as _formatNum } from '../utils/helpers.js';
 
 let _container = null;
 let _unsubAuth = null;
@@ -141,16 +142,3 @@ function _render(user) {
   if (backBtn) backBtn.addEventListener('click', () => navigate('/app'));
 }
 
-function _formatNum(n) {
-  if (!n) return '0';
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
-  return String(n);
-}
-
-function _esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = String(s);
-  return d.innerHTML;
-}

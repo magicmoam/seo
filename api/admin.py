@@ -8,19 +8,19 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
+
+from api._deps import get_admin_user
 
 app = FastAPI()
 
 
 @app.get("/api/admin/users")
-async def list_users(request: Request):
+async def list_users(request: Request, auth_result=Depends(get_admin_user)):
     """List all users (paginated)."""
     from src.db import count_users, list_all_users
-    from src.middleware import authenticate_admin
 
-    auth_result = await authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -45,12 +45,10 @@ async def list_users(request: Request):
 
 
 @app.get("/api/admin/users/{email}")
-async def get_user_detail(email: str, request: Request):
+async def get_user_detail(email: str, request: Request, auth_result=Depends(get_admin_user)):
     """Get detailed user info including usage stats and history."""
     from src.db import get_history, get_usage_stats, get_user
-    from src.middleware import authenticate_admin
 
-    auth_result = await authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -69,12 +67,10 @@ async def get_user_detail(email: str, request: Request):
 
 
 @app.post("/api/admin/users/{email}/credits")
-async def adjust_credits(email: str, request: Request):
+async def adjust_credits(email: str, request: Request, auth_result=Depends(get_admin_user)):
     """Manually adjust a user's credits."""
     from src.db import get_user
-    from src.middleware import authenticate_admin
 
-    auth_result = await authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -93,9 +89,9 @@ async def adjust_credits(email: str, request: Request):
 
     new_balance = max(0, user.get("credits_remaining", 0) + amount)
 
-    from src.db import _get_client
+    import src.db.client as _db_client
     from datetime import datetime, timezone
-    client = _get_client()
+    client = _db_client._get_client()
     if client:
         client.table("users").update({
             "credits_remaining": new_balance,
@@ -119,12 +115,10 @@ async def adjust_credits(email: str, request: Request):
 
 
 @app.post("/api/admin/users/{email}/tier")
-async def change_tier(email: str, request: Request):
+async def change_tier(email: str, request: Request, auth_result=Depends(get_admin_user)):
     """Manually change a user's tier."""
     from src.db import get_user, reset_credits, update_user_tier
-    from src.middleware import authenticate_admin
 
-    auth_result = await authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -151,28 +145,14 @@ async def change_tier(email: str, request: Request):
 
 
 @app.post("/api/admin/impersonate")
-async def impersonate(request: Request):
+async def impersonate(request: Request, auth_result=Depends(get_admin_user)):
     """Run a query as another user."""
     from src.agent import route
     from src.credits import get_tool_cost
     from src.db import deduct_credits, get_user, save_evidence, save_search, save_usage
-    from src.middleware import authenticate_admin
     from src.models import AgentResponse
-    from src.tools import (
-        backlink_strategy,
-        competitor_analysis,
-        content_gap,
-        content_generator,
-        ga4,
-        keyword_research,
-        serp_analysis,
-        strategy_orchestrator,
-        technical_seo,
-        topical_authority,
-        website_analyzer,
-    )
+    from src.tools.runner import run_tool
 
-    auth_result = await authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -205,50 +185,11 @@ async def impersonate(request: Request):
                 "credits_required": cost,
             }, status_code=402)
 
-        from api.query import _unpack_tool_result
-
-        if tool_name == "content_generation":
-            result, tool_usage, trace = await content_generator.run(
-                keyword=q,
-                content_type=extras.get("content_type", "blog post"),
-                tone=extras.get("tone", "professional"),
+        try:
+            result, tool_usage, trace = await run_tool(
+                tool_name, q, extras, user_email=target_email,
             )
-        elif tool_name == "keyword_research":
-            result, tool_usage, trace = await keyword_research.run(q)
-        elif tool_name == "competitor_analysis":
-            result, tool_usage, trace = await competitor_analysis.run(q)
-        elif tool_name == "serp_analysis":
-            result, tool_usage, trace = await serp_analysis.run(q)
-        elif tool_name == "content_gap":
-            result, tool_usage, trace = await content_gap.run(q)
-        elif tool_name == "website_analyzer":
-            result, tool_usage, trace = await website_analyzer.run(q)
-        elif tool_name == "topical_authority":
-            result, tool_usage, trace = _unpack_tool_result(
-                await topical_authority.run(domain=q, niche=extras.get("niche", "")),
-                tool_name, q,
-            )
-        elif tool_name == "technical_seo":
-            result, tool_usage, trace = _unpack_tool_result(
-                await technical_seo.run(q), tool_name, q,
-            )
-        elif tool_name == "backlink_strategy":
-            result, tool_usage, trace = _unpack_tool_result(
-                await backlink_strategy.run(domain=q, niche=extras.get("niche", "")),
-                tool_name, q,
-            )
-        elif tool_name == "seo_strategy":
-            result, tool_usage, trace = _unpack_tool_result(
-                await strategy_orchestrator.run(url=q, niche=extras.get("niche", "")),
-                tool_name, q,
-            )
-        elif tool_name == "ga4_analytics":
-            result, tool_usage, trace = await ga4.run(
-                property_id=q,
-                date_range=extras.get("date_range", "last_30_days"),
-                user_email=target_email,
-            )
-        else:
+        except ValueError:
             return JSONResponse({"error": f"Unknown tool: {tool_name}"}, status_code=400)
 
         # Save under target user's account
@@ -283,13 +224,156 @@ async def impersonate(request: Request):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+@app.get("/api/admin/blog")
+async def list_blog_posts(request: Request, auth_result=Depends(get_admin_user)):
+    """List all blog posts (including drafts) for admin review."""
+    from src.db.blog import list_all_posts
+
+    if isinstance(auth_result, JSONResponse):
+        return auth_result
+
+    posts = await list_all_posts(limit=200)
+    return JSONResponse({"posts": posts})
+
+
+@app.post("/api/admin/blog/generate")
+async def generate_blog_post(request: Request, auth_result=Depends(get_admin_user)):
+    """Generate a single blog article via the content pipeline."""
+    from src.content_pipeline import generate_and_store_article
+
+    if isinstance(auth_result, JSONResponse):
+        return auth_result
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+
+    keyword = body.get("keyword", "").strip()
+    if not keyword:
+        return JSONResponse({"error": "keyword is required"}, status_code=400)
+
+    post_id = await generate_and_store_article(
+        keyword=keyword,
+        content_type=body.get("content_type", "blog post"),
+        cluster_slug=body.get("cluster_slug", ""),
+        post_content_type=body.get("post_content_type", "supporting"),
+        pillar_post_id=body.get("pillar_post_id"),
+        tone=body.get("tone", "professional"),
+    )
+
+    if not post_id:
+        return JSONResponse({"error": "Failed to generate article"}, status_code=500)
+
+    return JSONResponse({"post_id": post_id, "status": "draft"})
+
+
+@app.post("/api/admin/blog/generate-cluster")
+async def generate_blog_cluster(request: Request, auth_result=Depends(get_admin_user)):
+    """Generate a full content cluster (pillar + supporting articles)."""
+    from src.content_pipeline import generate_cluster
+
+    if isinstance(auth_result, JSONResponse):
+        return auth_result
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+
+    cluster_name = body.get("cluster_name", "").strip()
+    pillar_keyword = body.get("pillar_keyword", "").strip()
+    supporting_keywords = body.get("supporting_keywords", [])
+
+    if not cluster_name or not pillar_keyword or not supporting_keywords:
+        return JSONResponse(
+            {"error": "cluster_name, pillar_keyword, and supporting_keywords are required"},
+            status_code=400,
+        )
+
+    result = await generate_cluster(
+        cluster_name=cluster_name,
+        pillar_keyword=pillar_keyword,
+        supporting_keywords=supporting_keywords,
+        tone=body.get("tone", "professional"),
+    )
+
+    return JSONResponse(result)
+
+
+@app.post("/api/admin/blog/{post_id}/publish")
+async def publish_blog_post(post_id: str, request: Request, auth_result=Depends(get_admin_user)):
+    """Publish a draft blog post."""
+    from src.content_pipeline import inject_internal_links
+    from src.db.blog import publish_post
+
+    if isinstance(auth_result, JSONResponse):
+        return auth_result
+
+    success = await publish_post(post_id)
+    if not success:
+        return JSONResponse({"error": "Failed to publish post"}, status_code=500)
+
+    links_added = await inject_internal_links(post_id)
+
+    return JSONResponse({"post_id": post_id, "status": "published", "internal_links_added": links_added})
+
+
+@app.post("/api/admin/blog/{post_id}/unpublish")
+async def unpublish_blog_post(post_id: str, request: Request, auth_result=Depends(get_admin_user)):
+    """Unpublish a blog post (revert to draft)."""
+    from src.db.blog import unpublish_post
+
+    if isinstance(auth_result, JSONResponse):
+        return auth_result
+
+    success = await unpublish_post(post_id)
+    if not success:
+        return JSONResponse({"error": "Failed to unpublish post"}, status_code=500)
+
+    return JSONResponse({"post_id": post_id, "status": "draft"})
+
+
+@app.put("/api/admin/blog/{post_id}")
+async def update_blog_post(post_id: str, request: Request, auth_result=Depends(get_admin_user)):
+    """Update a blog post's content."""
+    from src.db.blog import update_post
+
+    if isinstance(auth_result, JSONResponse):
+        return auth_result
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+
+    allowed_fields = {"title", "meta_description", "content_markdown", "content_html", "slug", "cluster_slug", "content_type", "schema_type", "og_image_url"}
+    updates = {k: v for k, v in body.items() if k in allowed_fields}
+
+    if not updates:
+        return JSONResponse({"error": "No valid fields to update"}, status_code=400)
+
+    # Auto-regenerate HTML if markdown is updated but HTML is not
+    if "content_markdown" in updates and "content_html" not in updates:
+        import markdown
+        updates["content_html"] = markdown.markdown(
+            updates["content_markdown"],
+            extensions=["extra", "toc", "sane_lists"],
+            output_format="html",
+        )
+
+    success = await update_post(post_id, **updates)
+    if not success:
+        return JSONResponse({"error": "Failed to update post"}, status_code=500)
+
+    return JSONResponse({"post_id": post_id, "updated_fields": list(updates.keys())})
+
+
 @app.get("/api/admin/stats")
-async def platform_stats(request: Request):
+async def platform_stats(request: Request, auth_result=Depends(get_admin_user)):
     """Get platform-wide statistics."""
     from src.db import count_pro_users, count_users, get_queries_today
-    from src.middleware import authenticate_admin
 
-    auth_result = await authenticate_admin(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 

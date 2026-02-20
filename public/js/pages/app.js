@@ -5,6 +5,32 @@ import {
 } from '../api.js';
 import { getUser, signOut, onAuthStateChanged, updateUserCredits, getGoogleClientId, isGA4OAuthEnabled } from '../auth.js';
 import { navigate } from '../router.js';
+import { esc as _esc, formatNum as _formatNum } from '../utils/helpers.js';
+import * as kwRenderer from '../renderers/keyword_research.js';
+import * as compRenderer from '../renderers/competitor_analysis.js';
+import * as serpRenderer from '../renderers/serp_analysis.js';
+import * as gapRenderer from '../renderers/content_gap.js';
+import * as contentRenderer from '../renderers/content_generation.js';
+import * as analyzerRenderer from '../renderers/website_analyzer.js';
+import * as topicalRenderer from '../renderers/topical_authority.js';
+import * as techRenderer from '../renderers/technical_seo.js';
+import * as backlinkRenderer from '../renderers/backlink_strategy.js';
+import * as strategyRenderer from '../renderers/seo_strategy.js';
+import * as ga4Renderer from '../renderers/ga4_analytics.js';
+
+const RENDERERS = {
+  keyword_research: kwRenderer,
+  competitor_analysis: compRenderer,
+  serp_analysis: serpRenderer,
+  content_gap: gapRenderer,
+  content_generation: contentRenderer,
+  website_analyzer: analyzerRenderer,
+  topical_authority: topicalRenderer,
+  technical_seo: techRenderer,
+  backlink_strategy: backlinkRenderer,
+  seo_strategy: strategyRenderer,
+  ga4_analytics: ga4Renderer,
+};
 
 let _container = null;
 let _unsubAuth = null;
@@ -575,17 +601,8 @@ function _renderResult(data, searchId) {
   }
 
   // Tool-specific rendering
-  if (tool === 'keyword_research') html += _renderKeywords(r);
-  else if (tool === 'competitor_analysis') html += _renderCompetitors(r);
-  else if (tool === 'serp_analysis') html += _renderSERP(r);
-  else if (tool === 'content_gap') html += _renderGaps(r);
-  else if (tool === 'content_generation') html += _renderContent(r);
-  else if (tool === 'website_analyzer') html += _renderAnalyzer(r);
-  else if (tool === 'topical_authority') html += _renderTopicalAuthority(r);
-  else if (tool === 'technical_seo') html += _renderTechnicalSEO(r);
-  else if (tool === 'backlink_strategy') html += _renderBacklinks(r);
-  else if (tool === 'seo_strategy') html += _renderStrategy(r);
-  else if (tool === 'ga4_analytics') html += _renderGA4Analytics(r);
+  const renderer = RENDERERS[tool];
+  if (renderer) html += renderer.render(r);
   else html += `<pre style="background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius);padding:20px;font-family:'Space Mono',monospace;font-size:11px;color:var(--c-text-secondary);overflow-x:auto;white-space:pre-wrap;word-break:break-word">${JSON.stringify(r, null, 2)}</pre>`;
 
   el.innerHTML = html;
@@ -623,344 +640,6 @@ function _renderResult(data, searchId) {
   });
 }
 
-// ── Tool renderers ──
-
-function _renderKeywords(r) {
-  let h = `<div class="panel"><table class="data-table"><thead><tr><th>Keyword</th><th>Volume</th><th>Difficulty</th><th>Intent</th><th>CPC</th><th>Notes</th></tr></thead><tbody>`;
-  for (const k of (r.keywords || [])) {
-    h += `<tr><td><strong>${_esc(k.keyword)}</strong></td><td>${_esc(k.search_volume)}</td><td>${_diffBadge(k.difficulty)}</td><td>${_intentBadge(k.intent)}</td><td>${_esc(k.cpc_estimate)}</td><td class="cell-dim">${_esc(k.notes)}</td></tr>`;
-  }
-  h += '</tbody></table></div>';
-  if (r.long_tail_suggestions?.length) {
-    h += `<div class="panel"><div class="panel-label">Long-tail Suggestions</div><ul class="panel-list">${r.long_tail_suggestions.map(s => `<li>${_esc(s)}</li>`).join('')}</ul></div>`;
-  }
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary)}</p></div>`;
-  return h;
-}
-
-function _renderCompetitors(r) {
-  let h = '';
-  for (const c of (r.competitors || [])) {
-    h += `<div class="panel"><h3 style="font-size:15px;font-weight:500;color:var(--c-text-primary);margin-bottom:3px">${_esc(c.title)}</h3>
-      <div style="color:var(--c-text-tertiary);font-size:11px;margin-bottom:12px;word-break:break-all">${_esc(c.url)}</div>
-      <div style="display:flex;gap:14px;margin-bottom:14px;font-size:11px;color:var(--c-text-tertiary)"><span>${_esc(c.content_type)}</span><span>~${_esc(c.estimated_word_count)} words</span></div>
-      <ul style="list-style:none;padding:0;font-size:12px;margin-bottom:6px">${(c.strengths||[]).map(s=>`<li style="color:var(--c-green);margin-bottom:4px;padding-left:16px;position:relative;line-height:1.4"><span style="position:absolute;left:0;font-family:'Space Mono',monospace;font-size:12px">+</span>${_esc(s)}</li>`).join('')}</ul>
-      <ul style="list-style:none;padding:0;font-size:12px">${(c.weaknesses||[]).map(w=>`<li style="color:rgba(255,107,107,0.7);margin-bottom:4px;padding-left:16px;position:relative;line-height:1.4"><span style="position:absolute;left:0;font-family:'Space Mono',monospace;font-size:12px">&minus;</span>${_esc(w)}</li>`).join('')}</ul>
-    </div>`;
-  }
-  if (r.opportunities?.length) {
-    h += `<div class="panel"><div class="panel-label">Opportunities</div><ul class="panel-list">${r.opportunities.map(o=>`<li>${_esc(o)}</li>`).join('')}</ul></div>`;
-  }
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary)}</p></div>`;
-  return h;
-}
-
-function _renderSERP(r) {
-  let h = `<div class="panel"><table class="data-table"><thead><tr><th>#</th><th>Title</th><th>Type</th><th>URL</th></tr></thead><tbody>`;
-  for (const e of (r.entries || [])) {
-    h += `<tr><td><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:var(--radius);background:var(--c-accent-dim);font-family:'Space Mono',monospace;font-size:11px;color:var(--c-accent);border:1px solid rgba(212,184,149,0.1)">${e.position}</span></td>
-      <td><strong>${_esc(e.title)}</strong><br><span class="cell-dim">${_esc(e.snippet)}</span></td>
-      <td>${_intentBadge(e.content_type)}</td>
-      <td class="cell-dim" style="word-break:break-all">${_esc(e.url)}</td></tr>`;
-  }
-  h += '</tbody></table></div>';
-  h += `<div class="panel"><div class="panel-label">SERP Features</div><ul class="panel-list">${(r.serp_features||[]).map(f=>`<li>${_esc(f)}</li>`).join('')}</ul></div>`;
-  h += `<div class="panel"><div class="panel-label">Dominant Intent: ${_esc(r.dominant_intent)}</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary)}</p></div>`;
-  return h;
-}
-
-function _renderGaps(r) {
-  let h = `<div class="panel"><table class="data-table"><thead><tr><th>Topic</th><th>Gap Type</th><th>Opportunity</th><th>Suggested Angle</th></tr></thead><tbody>`;
-  for (const g of (r.gaps || [])) {
-    h += `<tr><td><strong>${_esc(g.topic)}</strong></td><td>${_esc(g.gap_type)}</td><td>${_diffBadge(g.opportunity_score)}</td><td class="cell-dim">${_esc(g.suggested_angle)}</td></tr>`;
-  }
-  h += '</tbody></table></div>';
-  if (r.underserved_subtopics?.length) {
-    h += `<div class="panel"><div class="panel-label">Underserved Subtopics</div><ul class="panel-list">${r.underserved_subtopics.map(s=>`<li>${_esc(s)}</li>`).join('')}</ul></div>`;
-  }
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary)}</p></div>`;
-  return h;
-}
-
-function _renderContent(r) {
-  let h = `<div class="panel"><h2 style="font-size:22px;font-weight:400;letter-spacing:-0.02em;color:var(--c-text-primary);margin-bottom:8px">${_esc(r.title)}</h2>
-    <p style="color:var(--c-text-secondary);font-size:13px;font-style:italic;font-weight:300;margin-bottom:14px">${_esc(r.meta_description)}</p>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-      <span style="padding:3px 10px;background:var(--c-accent-dim);border:1px solid rgba(212,184,149,0.15);border-radius:var(--radius);font-size:11px;color:var(--c-accent);font-family:'Space Mono',monospace">${_esc(r.target_keyword)}</span>
-      ${(r.secondary_keywords||[]).map(k=>`<span style="padding:3px 10px;background:var(--c-accent-dim);border:1px solid rgba(212,184,149,0.15);border-radius:var(--radius);font-size:11px;color:var(--c-accent);font-family:'Space Mono',monospace">${_esc(k)}</span>`).join('')}
-    </div>
-    <p style="font-size:12px;color:var(--c-text-tertiary);font-family:'Space Mono',monospace">${r.word_count} words</p>
-  </div>`;
-  if (r.outline?.length) {
-    h += `<div class="panel"><div class="panel-label">Outline</div><ul class="panel-list">${r.outline.map(o=>`<li>${_esc(o)}</li>`).join('')}</ul></div>`;
-  }
-  let content = _esc(r.content || '')
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>').replace(/^## (.+)$/gm, '<h2>$1</h2>').replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/^\- (.+)$/gm, '<li>$1</li>')
-    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>').replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-  h += `<div class="panel" style="font-size:14px;line-height:1.8;font-weight:300;color:var(--c-text-secondary)"><p>${content}</p></div>`;
-  if (r.seo_notes?.length) {
-    h += `<div class="panel"><div class="panel-label">SEO Notes</div><ul class="panel-list">${r.seo_notes.map(n=>`<li>${_esc(n)}</li>`).join('')}</ul></div>`;
-  }
-  return h;
-}
-
-function _renderAnalyzer(r) {
-  let h = '';
-  // Overview
-  h += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-    <div class="panel" style="text-align:center;padding:14px"><div class="label" style="font-size:9px;padding:0;margin-bottom:4px">Overall Score</div><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700">${r.overall_score}/100</div></div>
-    <div class="panel" style="text-align:center;padding:14px"><div class="label" style="font-size:9px;padding:0;margin-bottom:4px">Word Count</div><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700">${_formatNum(r.word_count)}</div></div>
-    <div class="panel" style="text-align:center;padding:14px"><div class="label" style="font-size:9px;padding:0;margin-bottom:4px">Internal Links</div><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700">${r.internal_links}</div></div>
-    <div class="panel" style="text-align:center;padding:14px"><div class="label" style="font-size:9px;padding:0;margin-bottom:4px">External Links</div><div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700">${r.external_links}</div></div>
-  </div>`;
-
-  // Score grid
-  if (r.rubric) {
-    const catMap = {};
-    for (const cat of r.rubric.categories) catMap[cat.category] = cat;
-    h += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">';
-    for (const catName of ['performance', 'seo', 'content', 'technical']) {
-      const cat = catMap[catName];
-      if (cat) {
-        const barColor = cat.score >= 70 ? 'var(--c-green)' : cat.score >= 40 ? 'var(--c-yellow)' : 'var(--c-red)';
-        h += `<div class="panel" style="padding:12px"><div class="label" style="font-size:9px;padding:0;margin-bottom:6px">${catName}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:${barColor}">${cat.score}/100</div>
-          <div style="font-size:10px;color:var(--c-text-tertiary);margin-top:2px">${cat.passed_count}/${cat.total_count} passed</div>
-          <div style="height:3px;background:rgba(255,255,255,0.05);border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;width:${cat.score}%;background:${barColor};border-radius:2px"></div></div>
-        </div>`;
-      }
-    }
-    h += '</div>';
-    // Rubric breakdown
-    h += _renderRubricBreakdown(r.rubric);
-  } else {
-    h += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-      <div class="panel" style="padding:12px"><div class="label" style="font-size:9px;padding:0;margin-bottom:6px">Performance</div>${_diffBadge(r.performance_score)}</div>
-      <div class="panel" style="padding:12px"><div class="label" style="font-size:9px;padding:0;margin-bottom:6px">SEO</div>${_diffBadge(r.seo_score)}</div>
-      <div class="panel" style="padding:12px"><div class="label" style="font-size:9px;padding:0;margin-bottom:6px">Content</div>${_diffBadge(r.content_score)}</div>
-      <div class="panel" style="padding:12px"><div class="label" style="font-size:9px;padding:0;margin-bottom:6px">Technical</div>${_diffBadge(r.technical_score)}</div>
-    </div>`;
-  }
-
-  // Path to 80
-  if (r.path_to_80) h += _renderPathTo80(r.path_to_80);
-
-  // Meta
-  h += `<div class="panel"><div class="panel-label">Page Meta</div>
-    <p style="font-size:14px;font-weight:500;color:var(--c-text-primary);margin-bottom:4px">${_esc(r.page_title)}</p>
-    <p style="font-size:12px;color:var(--c-text-tertiary);margin-bottom:8px;word-break:break-all">${_esc(r.url)}</p>
-    <p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary);font-style:italic">${_esc(r.meta_description)}</p>
-  </div>`;
-
-  // Issues
-  if (r.issues?.length) {
-    h += `<div class="panel"><div class="panel-label">Issues Found</div><table class="data-table"><thead><tr><th>Severity</th><th>Issue</th><th>Description</th><th>Recommendation</th></tr></thead><tbody>`;
-    for (const iss of r.issues) {
-      h += `<tr><td>${_diffBadge(iss.severity)}</td><td><strong>${_esc(iss.issue)}</strong></td><td class="cell-dim">${_esc(iss.description)}</td><td class="cell-dim">${_esc(iss.recommendation)}</td></tr>`;
-    }
-    h += '</tbody></table></div>';
-  }
-
-  // Headings
-  if (r.heading_structure?.length) {
-    h += `<div class="panel"><div class="panel-label">Heading Structure</div><ul class="panel-list">${r.heading_structure.map(hs=>`<li>${_esc(hs)}</li>`).join('')}</ul></div>`;
-  }
-
-  // Schema
-  if (r.schema_markup?.length) {
-    h += `<div class="panel"><div class="panel-label">Schema Markup</div><ul class="panel-list">${r.schema_markup.map(sm=>`<li>${_esc(sm)}</li>`).join('')}</ul></div>`;
-  }
-
-  // Summary
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary)}</p></div>`;
-
-  // Track button
-  h += `<div class="panel" style="text-align:center">
-    <button class="btn-track-url btn-primary-solid" data-url="${_esc(r.url)}">Track This URL for Score Trends</button>
-    <p style="font-size:11px;color:var(--c-text-tertiary);margin-top:6px">Get weekly automated audits and track score changes over time</p>
-  </div>`;
-  return h;
-}
-
-function _renderTopicalAuthority(r) {
-  let h = '';
-  if (r.pillar_pages?.length) {
-    h += `<div class="panel"><div class="panel-label">Pillar Pages</div><ul class="panel-list">${r.pillar_pages.map(p=>`<li>${_esc(p)}</li>`).join('')}</ul></div>`;
-  }
-  if (r.topic_clusters?.length) {
-    h += `<div class="panel"><div class="panel-label">Topic Clusters</div><table class="data-table"><thead><tr><th>Cluster</th><th>Subtopics</th></tr></thead><tbody>`;
-    for (const c of r.topic_clusters) {
-      const subtopics = Array.isArray(c.subtopics) ? c.subtopics.join(', ') : (c.subtopics || '');
-      h += `<tr><td><strong>${_esc(c.cluster || c.topic)}</strong></td><td class="cell-dim">${_esc(subtopics)}</td></tr>`;
-    }
-    h += '</tbody></table></div>';
-  }
-  if (r.content_calendar?.length) {
-    h += `<div class="panel"><div class="panel-label">Content Calendar</div><ul class="panel-list">${r.content_calendar.map(c=>`<li>${_esc(c)}</li>`).join('')}</ul></div>`;
-  }
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary)}</p></div>`;
-  return h;
-}
-
-function _renderTechnicalSEO(r) {
-  let h = '';
-  if (r.issues?.length) {
-    h += `<div class="panel"><div class="panel-label">Technical Issues</div><table class="data-table"><thead><tr><th>Severity</th><th>Issue</th><th>Description</th><th>Recommendation</th></tr></thead><tbody>`;
-    for (const iss of r.issues) {
-      h += `<tr><td>${_diffBadge(iss.severity)}</td><td><strong>${_esc(iss.issue)}</strong></td><td class="cell-dim">${_esc(iss.description)}</td><td class="cell-dim">${_esc(iss.recommendation)}</td></tr>`;
-    }
-    h += '</tbody></table></div>';
-  }
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary)}</p></div>`;
-  return h;
-}
-
-function _renderBacklinks(r) {
-  let h = '';
-  if (r.opportunities?.length) {
-    h += `<div class="panel"><div class="panel-label">Backlink Opportunities</div><table class="data-table"><thead><tr><th>Source</th><th>Type</th><th>Authority</th><th>Strategy</th></tr></thead><tbody>`;
-    for (const o of r.opportunities) {
-      h += `<tr><td><strong>${_esc(o.source || o.domain)}</strong></td><td>${_esc(o.type || o.link_type)}</td><td>${_diffBadge(o.authority || o.domain_authority)}</td><td class="cell-dim">${_esc(o.strategy || o.approach)}</td></tr>`;
-    }
-    h += '</tbody></table></div>';
-  }
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary)}</p></div>`;
-  return h;
-}
-
-function _renderStrategy(r) {
-  let h = '';
-  // Strategy results can have multiple sub-results
-  if (r.phases || r.website_analysis || r.keyword_research || r.executive_summary) {
-    if (r.executive_summary) {
-      h += `<div class="panel"><div class="panel-label">Executive Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.executive_summary)}</p></div>`;
-    }
-    if (r.key_findings?.length) {
-      h += `<div class="panel"><div class="panel-label">Key Findings</div><ul class="panel-list">${r.key_findings.map(f=>`<li>${_esc(f)}</li>`).join('')}</ul></div>`;
-    }
-    if (r.action_items?.length) {
-      h += `<div class="panel"><div class="panel-label">Action Items</div><table class="data-table"><thead><tr><th>Priority</th><th>Action</th><th>Category</th></tr></thead><tbody>`;
-      for (const a of r.action_items) {
-        h += `<tr><td>${_diffBadge(a.priority)}</td><td>${_esc(a.action || a.description)}</td><td class="cell-dim">${_esc(a.category)}</td></tr>`;
-      }
-      h += '</tbody></table></div>';
-    }
-    if (r.content_calendar?.length) {
-      h += `<div class="panel"><div class="panel-label">Content Calendar</div><ul class="panel-list">${r.content_calendar.map(c=>`<li>${_esc(typeof c === 'string' ? c : c.title || JSON.stringify(c))}</li>`).join('')}</ul></div>`;
-    }
-  }
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${_esc(r.summary || r.executive_summary || '')}</p></div>`;
-  return h;
-}
-
-function _renderGA4Analytics(r) {
-  const o = r.overview || {};
-  let h = '';
-  h += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
-    <div class="panel" style="text-align:center;padding:16px"><div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--c-accent)">${_formatNum(o.total_users||0)}</div><div style="font-size:11px;color:var(--c-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px">Total Users</div></div>
-    <div class="panel" style="text-align:center;padding:16px"><div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--c-accent)">${_formatNum(o.sessions||0)}</div><div style="font-size:11px;color:var(--c-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px">Sessions</div></div>
-    <div class="panel" style="text-align:center;padding:16px"><div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--c-accent)">${_formatNum(o.pageviews||0)}</div><div style="font-size:11px;color:var(--c-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px">Pageviews</div></div>
-  </div>`;
-  if (r.daily_users?.length) {
-    const maxUsers = Math.max(...r.daily_users.map(d => d.users), 1);
-    h += `<div class="panel"><div class="panel-label">Daily Users</div><div style="display:flex;align-items:flex-end;gap:2px;height:120px">`;
-    for (const d of r.daily_users) {
-      const pct = (d.users / maxUsers * 100).toFixed(1);
-      h += `<div style="flex:1;background:var(--c-accent);opacity:0.6;border-radius:2px 2px 0 0;min-width:3px;height:${pct}%" title="${d.date}: ${d.users} users"></div>`;
-    }
-    h += '</div></div>';
-  }
-  if (r.channels?.length) {
-    h += `<div class="panel"><div class="panel-label">Traffic Channels</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">`;
-    for (const c of r.channels) {
-      h += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius)">
-        <span style="font-size:13px;color:var(--c-text-primary)">${_esc(c.channel)}</span>
-        <div style="flex:1;margin:0 12px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="height:100%;background:var(--c-accent);border-radius:2px;width:${c.percentage}%"></div></div>
-        <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--c-text-secondary);min-width:40px;text-align:right">${c.percentage}%</span>
-      </div>`;
-    }
-    h += '</div></div>';
-  }
-  if (r.top_pages?.length) {
-    h += `<div class="panel"><div class="panel-label">Top Pages</div><table class="data-table"><thead><tr><th>Page</th><th>Views</th><th>Avg Time</th><th>Bounce</th></tr></thead><tbody>`;
-    for (const p of r.top_pages.slice(0, 15)) {
-      h += `<tr><td style="word-break:break-all"><strong>${_esc(p.page_title||p.page_path)}</strong><br><span class="cell-dim">${_esc(p.page_path)}</span></td><td>${_formatNum(p.pageviews)}</td><td>${_esc(p.avg_time_on_page)}</td><td>${_esc(p.bounce_rate)}</td></tr>`;
-    }
-    h += '</tbody></table></div>';
-  }
-  if (r.insights?.length) {
-    h += `<div class="panel"><div class="panel-label">Key Insights</div>${r.insights.map(i=>`<div style="padding:8px 12px;margin-bottom:6px;background:var(--c-accent-dim);border-left:2px solid var(--c-accent);border-radius:0 var(--radius) var(--radius) 0;font-size:13px;color:var(--c-text-secondary)">${_esc(i)}</div>`).join('')}</div>`;
-  }
-  return h;
-}
-
-// ── Sub-renderers ──
-
-function _renderRubricBreakdown(rubric) {
-  let h = '';
-  for (const cat of rubric.categories) {
-    const barColor = cat.score >= 70 ? 'var(--c-green)' : cat.score >= 40 ? 'var(--c-yellow)' : 'var(--c-red)';
-    h += `<div class="rubric-cat-section" style="background:rgba(255,255,255,0.02);border:1px solid var(--c-glass-border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden">
-      <div class="rubric-cat-toggle" style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:background 0.15s">
-        <span class="rubric-chevron" style="color:var(--c-text-tertiary);font-size:12px;transition:transform 0.2s">&#9656;</span>
-        <span style="font-family:'Space Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-text-primary);flex:1">${_esc(cat.category)}</span>
-        <div style="height:3px;background:rgba(255,255,255,0.05);border-radius:2px;width:60px;overflow:hidden"><div style="height:100%;width:${cat.score}%;background:${barColor};border-radius:2px"></div></div>
-        <span style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:${barColor}">${cat.score}</span>
-        <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--c-text-tertiary)">${cat.passed_count}/${cat.total_count}</span>
-      </div>
-      <div class="rubric-criteria-inner" style="display:none;padding:0 16px 12px">`;
-    for (const cr of cat.criteria) {
-      const cls = cr.passed ? 'var(--c-green)' : 'var(--c-red)';
-      const icon = cr.passed ? '&#10003;' : '&#10007;';
-      h += `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px">
-        <span style="color:${cls};font-size:12px;flex-shrink:0;width:18px;text-align:center">${icon}</span>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:500;color:var(--c-text-primary)">${_esc(cr.criterion_name)}</div>
-          <div style="font-size:11px;color:var(--c-text-tertiary);line-height:1.4">${_esc(cr.finding)}</div>
-          ${cr.recommendation && !cr.passed ? `<div style="font-size:11px;color:var(--c-yellow);margin-top:2px;line-height:1.4">${_esc(cr.recommendation)}</div>` : ''}
-        </div>
-        <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--c-text-tertiary);flex-shrink:0;min-width:32px;text-align:right">${cr.score}</span>
-      </div>`;
-    }
-    h += '</div></div>';
-  }
-  return h;
-}
-
-function _renderPathTo80(p) {
-  const currentPct = Math.min(p.current_score, 100);
-  const gainPct = Math.min(p.projected_score - p.current_score, 100 - currentPct);
-  let running = p.current_score;
-
-  let stepsHtml = '';
-  for (const s of (p.steps || [])) {
-    running += s.estimated_points;
-    const crossed = running >= 80;
-    stepsHtml += `<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px">
-      <span style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--c-green);background:rgba(107,207,127,0.12);padding:2px 6px;border-radius:3px;white-space:nowrap;min-width:50px;text-align:center">+${s.estimated_points} pts</span>
-      <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:rgba(212,184,149,0.1);color:var(--c-accent);white-space:nowrap">${_esc(s.category)}</span>
-      <span style="font-size:10px;padding:1px 6px;border-radius:3px;white-space:nowrap;${s.effort === 'quick_win' ? 'background:rgba(107,207,127,0.12);color:var(--c-green)' : s.effort === 'moderate' ? 'background:rgba(245,197,66,0.12);color:var(--c-yellow)' : 'background:rgba(255,107,107,0.12);color:var(--c-red)'}">${_esc((s.effort||'').replace(/_/g, ' '))}</span>
-      <span style="flex:1;color:var(--c-text-primary)">${_esc(s.action)}<br><span style="font-size:11px;color:var(--c-text-tertiary)">${_esc(s.explanation)}</span></span>
-      <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--c-text-tertiary);min-width:28px;text-align:right;${crossed ? 'color:var(--c-green);font-weight:700' : ''}">${running}</span>
-    </div>`;
-  }
-
-  return `<div style="margin-bottom:12px;padding:16px;background:rgba(255,255,255,0.02);border:1px solid var(--c-glass-border);border-left:3px solid var(--c-accent);border-radius:var(--radius)">
-    <div class="label" style="padding:0;margin-bottom:10px">Path to 80</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-      <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--c-text-tertiary)">${p.current_score}</span>
-      <div style="flex:1;height:10px;background:rgba(255,255,255,0.05);border-radius:5px;overflow:visible;position:relative">
-        <div style="height:100%;width:${currentPct}%;background:var(--c-yellow);border-radius:5px 0 0 5px"></div>
-        <div style="height:100%;position:absolute;top:0;left:${currentPct}%;width:${gainPct}%;background:var(--c-green);border-radius:0 5px 5px 0"></div>
-        <div style="position:absolute;top:-3px;left:80%;width:2px;height:16px;background:var(--c-accent)"></div>
-      </div>
-      <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--c-accent);font-weight:700">80</span>
-    </div>
-    <div style="font-size:12px;color:var(--c-text-secondary);margin-bottom:12px;line-height:1.5">${_esc(p.quick_wins_summary)}</div>
-    ${stepsHtml}
-  </div>`;
-}
 
 // ── Evidence ──
 
@@ -1138,28 +817,3 @@ function _showToast(msg, type = 'success') {
   setTimeout(() => { toast.remove(); }, 4000);
 }
 
-function _formatNum(n) {
-  if (!n) return '0';
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
-  return String(n);
-}
-
-function _diffBadge(d) {
-  if (!d) return '';
-  const l = String(d).toLowerCase();
-  const map = { low: 'low', medium: 'medium', high: 'high', poor: 'poor', fair: 'fair', good: 'good', excellent: 'excellent', critical: 'critical', warning: 'warning', info: 'info' };
-  const cls = map[l] || 'medium';
-  return `<span class="badge badge-${cls}">${_esc(d)}</span>`;
-}
-
-function _intentBadge(i) {
-  return `<span class="badge badge-intent">${_esc(i)}</span>`;
-}
-
-function _esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = String(s);
-  return d.innerHTML;
-}

@@ -8,47 +8,21 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
+
+from api._deps import get_current_user
 
 app = FastAPI()
 
 
-async def _authenticate(request: Request) -> dict | JSONResponse:
-    """Verify Google token from Authorization header. Returns user dict or error response."""
-    from src.middleware import authenticate
-    return await authenticate(request)
-
-
-def _unpack_tool_result(result_tuple, tool_name, query):
-    """Unpack tool result, handling both 2-tuple and 3-tuple returns."""
-    from src.models import EvidenceTrace
-
-    if len(result_tuple) == 3:
-        return result_tuple[0], result_tuple[1], result_tuple[2]
-    return result_tuple[0], result_tuple[1], EvidenceTrace(tool_used=tool_name, query=query)
-
-
 @app.post("/api/query")
-async def query(request: Request):
+async def query(request: Request, auth_result=Depends(get_current_user)):
     from src.agent import route
     from src.db import save_evidence, save_search, save_usage
     from src.models import AgentResponse
-    from src.tools import (
-        backlink_strategy,
-        competitor_analysis,
-        content_gap,
-        content_generator,
-        ga4,
-        keyword_research,
-        serp_analysis,
-        strategy_orchestrator,
-        technical_seo,
-        topical_authority,
-        website_analyzer,
-    )
+    from src.tools.runner import run_tool
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
     user = auth_result
@@ -76,48 +50,11 @@ async def query(request: Request):
                 "upgrade_url": "/#/pricing",
             }, status_code=402)
 
-        if tool_name == "content_generation":
-            result, tool_usage, trace = await content_generator.run(
-                keyword=q,
-                content_type=extras.get("content_type", "blog post"),
-                tone=extras.get("tone", "professional"),
+        try:
+            result, tool_usage, trace = await run_tool(
+                tool_name, q, extras, user_email=user["email"],
             )
-        elif tool_name == "keyword_research":
-            result, tool_usage, trace = await keyword_research.run(q)
-        elif tool_name == "competitor_analysis":
-            result, tool_usage, trace = await competitor_analysis.run(q)
-        elif tool_name == "serp_analysis":
-            result, tool_usage, trace = await serp_analysis.run(q)
-        elif tool_name == "content_gap":
-            result, tool_usage, trace = await content_gap.run(q)
-        elif tool_name == "website_analyzer":
-            result, tool_usage, trace = await website_analyzer.run(q)
-        elif tool_name == "topical_authority":
-            result, tool_usage, trace = _unpack_tool_result(
-                await topical_authority.run(domain=q, niche=extras.get("niche", "")),
-                tool_name, q,
-            )
-        elif tool_name == "technical_seo":
-            result, tool_usage, trace = _unpack_tool_result(
-                await technical_seo.run(q), tool_name, q,
-            )
-        elif tool_name == "backlink_strategy":
-            result, tool_usage, trace = _unpack_tool_result(
-                await backlink_strategy.run(domain=q, niche=extras.get("niche", "")),
-                tool_name, q,
-            )
-        elif tool_name == "seo_strategy":
-            result, tool_usage, trace = _unpack_tool_result(
-                await strategy_orchestrator.run(url=q, niche=extras.get("niche", "")),
-                tool_name, q,
-            )
-        elif tool_name == "ga4_analytics":
-            result, tool_usage, trace = await ga4.run(
-                property_id=q,
-                date_range=extras.get("date_range", "last_30_days"),
-                user_email=user["email"],
-            )
-        else:
+        except ValueError:
             return JSONResponse({"error": f"Unknown tool: {tool_name}"}, status_code=400)
 
         # Attach routing evidence to trace
@@ -166,10 +103,9 @@ async def query(request: Request):
 
 
 @app.get("/api/history")
-async def history(request: Request):
+async def history(request: Request, auth_result=Depends(get_current_user)):
     from src.db import get_history
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
     user = auth_result
@@ -179,7 +115,7 @@ async def history(request: Request):
 
 
 @app.post("/api/report")
-async def report(request: Request):
+async def report(request: Request, auth_result=Depends(get_current_user)):
     """Generate an HTML report from a previous query result.
 
     Accepts the same AgentResponse JSON that /api/query returns.
@@ -188,7 +124,6 @@ async def report(request: Request):
     from src.models import AgentResponse
     from src.report_exporter import export_html_string
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
@@ -202,14 +137,13 @@ async def report(request: Request):
 
 
 @app.post("/api/client-report")
-async def client_report(request: Request):
+async def client_report(request: Request, auth_result=Depends(get_current_user)):
     """Generate a client-facing Word document (.docx) pitch report."""
     from starlette.responses import Response
 
     from src.client_report import generate_client_report
     from src.models import AgentResponse
 
-    auth_result = await _authenticate(request)
     if isinstance(auth_result, JSONResponse):
         return auth_result
 

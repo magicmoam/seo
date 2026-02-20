@@ -30,6 +30,12 @@ async def cron_audit(request: Request):
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
 
     tracked_urls = await get_all_active_tracked_urls()
+
+    # Always include trySEO.ai self-audit (practice what we preach)
+    self_audit = {"url": "https://tryseo.ai", "user_email": "system@tryseo.ai", "id": None}
+    if not any(t.get("url") == "https://tryseo.ai" for t in tracked_urls):
+        tracked_urls.append(self_audit)
+
     if not tracked_urls:
         return JSONResponse({"message": "No tracked URLs", "audited": 0})
 

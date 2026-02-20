@@ -3,12 +3,16 @@ import { getUser } from './auth.js';
 
 const routes = {
   '/': () => import('./pages/landing.js'),
-  '/features': () => import('./pages/features.js'),
-  '/pricing': () => import('./pages/pricing.js'),
-  '/about': () => import('./pages/about.js'),
   '/app': () => import('./pages/app.js'),
   '/account': () => import('./pages/account.js'),
   '/admin': () => import('./pages/admin.js'),
+};
+
+// Marketing pages now live at real URLs — redirect hash routes
+const hashRedirects = {
+  '/features': '/features',
+  '/pricing': '/pricing',
+  '/about': '/about',
 };
 
 const authGuardedRoutes = new Set(['/app', '/account', '/admin']);
@@ -35,6 +39,12 @@ async function handleRouteChange() {
   const routePath = getRouteFromHash();
   const container = document.getElementById('page');
   if (!container) return;
+
+  // Redirect hash-based marketing routes to real URLs
+  if (hashRedirects[routePath]) {
+    window.location.href = hashRedirects[routePath];
+    return;
+  }
 
   // Auth guard
   if (authGuardedRoutes.has(routePath) && !getUser()) {

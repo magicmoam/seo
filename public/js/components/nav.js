@@ -1,6 +1,7 @@
 // nav.js - Glass morphism pill navigation for trySEO.ai
 import { getUser, signOut, signIn, onAuthStateChanged } from '../auth.js';
 import { navigate, getCurrentRoute } from '../router.js';
+import { esc as _esc } from '../utils/helpers.js';
 
 let _navEl = null;
 let _unsubAuth = null;
@@ -94,9 +95,9 @@ function _renderMarketingNav(user, route) {
 
         <nav class="hidden md:flex items-center gap-10">
           <a href="#/" class="${activeLink('/')}"">Home${activeUnderline('/')}</a>
-          <a href="#/features" class="${activeLink('/features')}">Features${activeUnderline('/features')}</a>
-          <a href="#/pricing" class="${activeLink('/pricing')}">Pricing${activeUnderline('/pricing')}</a>
-          <a href="#/about" class="${activeLink('/about')}">About${activeUnderline('/about')}</a>
+          <a href="/features" class="${activeLink('/features')}">Features${activeUnderline('/features')}</a>
+          <a href="/pricing" class="${activeLink('/pricing')}">Pricing${activeUnderline('/pricing')}</a>
+          <a href="/about" class="${activeLink('/about')}">About${activeUnderline('/about')}</a>
         </nav>
 
         <button id="nav-hamburger" class="nav-link group flex flex-col items-end gap-1.5 md:hidden">
@@ -112,10 +113,10 @@ function _renderMarketingNav(user, route) {
     <!-- Mobile menu overlay -->
     <div id="mobile-menu" class="mobile-menu fixed inset-0 z-50 bg-alabaster/95 backdrop-blur-lg flex flex-col items-center justify-center gap-8">
       <button id="close-menu" class="nav-link absolute top-6 right-6 font-sans text-[10px] tracking-widest uppercase">Close</button>
-      <a href="#/" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Home</a>
-      <a href="#/features" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Features</a>
-      <a href="#/pricing" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Pricing</a>
-      <a href="#/about" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">About</a>
+      <a href="/" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Home</a>
+      <a href="/features" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Features</a>
+      <a href="/pricing" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Pricing</a>
+      <a href="/about" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">About</a>
       ${user ? '<a href="#/app" class="nav-link font-display text-3xl italic text-burnished-gold hover:text-obsidian transition-colors">App</a>' : ''}
     </div>
   `;
@@ -185,9 +186,3 @@ function _renderAppNav(user, route) {
   }
 }
 
-function _esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = String(s);
-  return d.innerHTML;
-}

@@ -1,0 +1,105 @@
+# Content Cluster Definitions for trySEO.ai Blog
+# Each cluster maps to one or more tools in the platform.
+# Total: 6 pillars + ~61 supporting = ~67 pages
+
+clusters:
+
+  - name: Website SEO Audit
+    slug: website-seo-audit
+    tool: website_analyzer
+    pillar_keyword: "website SEO audit"
+    supporting_keywords:
+      - "how to read an SEO audit report"
+      - "Core Web Vitals checklist"
+      - "meta tags SEO audit"
+      - "image SEO optimization guide"
+      - "schema markup for SEO"
+      - "mobile SEO audit checklist"
+      - "site speed optimization guide"
+      - "SEO scoring rubric explained"
+      - "tracking SEO score over time"
+      - "common SEO audit mistakes"
+
+  - name: Keyword Research
+    slug: keyword-research
+    tool: keyword_research
+    pillar_keyword: "keyword research guide"
+    supporting_keywords:
+      - "long-tail keywords strategy"
+      - "search intent mapping guide"
+      - "keyword difficulty explained"
+      - "keyword clustering for SEO"
+      - "CPC and commercial intent keywords"
+      - "People Also Ask mining"
+      - "seed keyword to content plan workflow"
+      - "AI keyword discovery tools"
+      - "keyword research tools comparison"
+
+  - name: Competitor Analysis
+    slug: competitor-analysis
+    tools:
+      - competitor_analysis
+      - content_gap
+    pillar_keyword: "SEO competitor analysis"
+    supporting_keywords:
+      - "content gap analysis guide"
+      - "reverse engineer competitor backlinks"
+      - "SERP analysis for competitors"
+      - "competitor content audit"
+      - "identifying real SEO competitors"
+      - "competitive keyword gap analysis"
+      - "competitor site architecture analysis"
+      - "monthly SEO competitor monitoring"
+      - "competitor content calendar analysis"
+      - "blue ocean SEO strategy"
+
+  - name: Topical Authority
+    slug: topical-authority
+    tools:
+      - topical_authority
+      - content_generation
+    pillar_keyword: "topical authority SEO"
+    supporting_keywords:
+      - "content clusters strategy"
+      - "content calendar template for SEO"
+      - "pillar page strategy guide"
+      - "internal linking hub and spoke model"
+      - "entity SEO explained"
+      - "content velocity for SEO"
+      - "EEAT explained for SEO"
+      - "AI content at scale"
+      - "content pruning strategy"
+      - "measuring topical authority"
+      - "content calendar to execution workflow"
+
+  - name: Technical SEO
+    slug: technical-seo
+    tool: technical_seo
+    pillar_keyword: "technical SEO guide"
+    supporting_keywords:
+      - "robots.txt and crawl budget"
+      - "XML sitemaps best practices"
+      - "structured data guide for SEO"
+      - "Core Web Vitals optimization"
+      - "HTTPS and security headers for SEO"
+      - "canonical tags guide"
+      - "JavaScript SEO best practices"
+      - "international SEO hreflang guide"
+      - "site migration SEO checklist"
+      - "page speed optimization techniques"
+
+  - name: Link Building
+    slug: link-building
+    tool: backlink_strategy
+    pillar_keyword: "link building strategy"
+    supporting_keywords:
+      - "guest posting for SEO"
+      - "digital PR link building"
+      - "broken link building guide"
+      - "linkable assets creation"
+      - "HARO outreach for backlinks"
+      - "skyscraper technique guide"
+      - "link building cost guide"
+      - "link quality vs quantity"
+      - "niche edits for link building"
+      - "measuring link building ROI"

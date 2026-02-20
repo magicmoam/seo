@@ -157,7 +157,7 @@ class MockSupabaseClient:
 def mock_supabase():
     """Provides a MockSupabaseClient and patches _get_client."""
     client = MockSupabaseClient()
-    with patch("src.db._get_client", return_value=client):
+    with patch("src.db.client._get_client", return_value=client):
         yield client
 
 

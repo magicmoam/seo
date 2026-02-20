@@ -49,7 +49,7 @@ def _mock_authenticate_success(user=None):
     """Return a patch context for successful authentication."""
     u = user or MOCK_USER
     return patch(
-        "api.stripe_billing._authenticate",
+        "src.middleware.authenticate",
         new_callable=AsyncMock,
         return_value=u,
     )
@@ -60,7 +60,7 @@ def _mock_authenticate_failure():
     from fastapi.responses import JSONResponse
 
     return patch(
-        "api.stripe_billing._authenticate",
+        "src.middleware.authenticate",
         new_callable=AsyncMock,
         return_value=JSONResponse({"error": "Missing authorization token"}, status_code=401),
     )

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /#/app
+Disallow: /#/account
+Disallow: /#/admin
+Disallow: /api/
+
+Sitemap: https://tryseo.ai/sitemap.xml

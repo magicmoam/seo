@@ -64,7 +64,7 @@ class TestGetOrCreateUser:
         assert result["email"] == "user@test.com"
 
     async def test_returns_none_when_no_client(self):
-        with patch("src.db._get_client", return_value=None):
+        with patch("src.db.client._get_client", return_value=None):
             result = await get_or_create_user("user@test.com")
             assert result is None
 
@@ -90,7 +90,7 @@ class TestGetUser:
         assert result is None
 
     async def test_returns_none_when_no_client(self):
-        with patch("src.db._get_client", return_value=None):
+        with patch("src.db.client._get_client", return_value=None):
             result = await get_user("user@test.com")
             assert result is None
 
@@ -113,7 +113,7 @@ class TestDeductCredits:
 
     async def test_returns_true_when_no_db_client(self):
         """When no DB client, allow usage (returns True)."""
-        with patch("src.db._get_client", return_value=None):
+        with patch("src.db.client._get_client", return_value=None):
             result = await deduct_credits("user@test.com", 5, "tool")
             assert result is True
 
@@ -139,7 +139,7 @@ class TestResetCredits:
         assert result is True
 
     async def test_returns_false_when_no_client(self):
-        with patch("src.db._get_client", return_value=None):
+        with patch("src.db.client._get_client", return_value=None):
             result = await reset_credits("user@test.com", 100)
             assert result is False
 
@@ -154,7 +154,7 @@ class TestListAllUsers:
         assert len(result) == 2
 
     async def test_returns_empty_list_when_no_client(self):
-        with patch("src.db._get_client", return_value=None):
+        with patch("src.db.client._get_client", return_value=None):
             result = await list_all_users()
             assert result == []
 
@@ -178,7 +178,7 @@ class TestGetHistory:
         assert len(result) == 2
 
     async def test_returns_empty_list_when_no_client(self):
-        with patch("src.db._get_client", return_value=None):
+        with patch("src.db.client._get_client", return_value=None):
             result = await get_history("user@test.com")
             assert result == []
 
@@ -192,7 +192,7 @@ class TestSaveSearch:
         assert result == "search-uuid-1"
 
     async def test_returns_none_when_no_client(self):
-        with patch("src.db._get_client", return_value=None):
+        with patch("src.db.client._get_client", return_value=None):
             result = await save_search("user@test.com", "q", "t", {})
             assert result is None
 
@@ -219,7 +219,7 @@ class TestSaveEvidence:
         assert result == "trace-uuid-1"
 
     async def test_returns_none_when_no_client(self):
-        with patch("src.db._get_client", return_value=None):
+        with patch("src.db.client._get_client", return_value=None):
             result = await save_evidence("user@test.com", "s1", {})
             assert result is None
 
