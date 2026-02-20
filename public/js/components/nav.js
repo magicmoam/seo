@@ -77,7 +77,7 @@ function _renderMarketingNav(user, route) {
     </button>`;
   } else {
     rightCTA = `<button id="nav-signin-cta" class="hidden md:inline-flex nav-link items-center gap-2 px-5 py-2.5 bg-obsidian text-alabaster rounded-full text-[10px] uppercase tracking-[0.2em] font-sans hover:bg-obsidian/85 transition-colors animate-in" style="animation-delay: 0.3s;">
-      Free Audit
+      Sign In
       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
     </button>`;
   }
@@ -117,7 +117,9 @@ function _renderMarketingNav(user, route) {
       <a href="/features" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Features</a>
       <a href="/pricing" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">Pricing</a>
       <a href="/about" class="nav-link font-display text-3xl italic text-obsidian/70 hover:text-obsidian transition-colors">About</a>
-      ${user ? '<a href="#/app" class="nav-link font-display text-3xl italic text-burnished-gold hover:text-obsidian transition-colors">App</a>' : ''}
+      ${user
+        ? '<a href="#/app" class="nav-link font-display text-3xl italic text-burnished-gold hover:text-obsidian transition-colors">App</a>'
+        : '<button id="mobile-signin" class="nav-link font-display text-3xl italic text-burnished-gold hover:text-obsidian transition-colors" style="background:none;border:none;cursor:pointer">Sign In</button>'}
     </div>
   `;
 
@@ -141,7 +143,15 @@ function _renderMarketingNav(user, route) {
   if (gotoApp) gotoApp.addEventListener('click', () => navigate('/app'));
 
   const signinCta = _navEl.querySelector('#nav-signin-cta');
-  if (signinCta) signinCta.addEventListener('click', () => navigate('/'));
+  if (signinCta) signinCta.addEventListener('click', () => signIn());
+
+  const mobileSignin = _navEl.querySelector('#mobile-signin');
+  if (mobileSignin) {
+    mobileSignin.addEventListener('click', () => {
+      if (mobileMenu) mobileMenu.classList.remove('open');
+      signIn();
+    });
+  }
 }
 
 function _renderAppNav(user, route) {

@@ -17,18 +17,50 @@ export function mount(container) {
   _container = container;
   const user = getUser();
   if (!user) { navigate('/'); return; }
-  if (!user.is_admin) {
-    _container.innerHTML = `<div style="text-align:center;padding:120px 32px">
-      <h2 style="font-size:24px;font-weight:300;color:var(--c-text-primary);margin-bottom:12px">Access Denied</h2>
-      <p style="color:var(--c-text-tertiary);font-size:14px">You do not have admin privileges.</p>
-      <a href="#/app" class="btn-ghost" style="display:inline-block;margin-top:16px;text-decoration:none">Back to App</a>
-    </div>`;
+
+  // Show loading while we wait for backend to confirm admin status
+  _container.innerHTML = `<div style="text-align:center;padding:120px 32px">
+    <p style="color:var(--c-text-tertiary);font-size:14px">Checking admin access...</p>
+  </div>`;
+
+  // If is_admin is already true (cached from previous session), render immediately
+  if (user.is_admin) {
+    _renderAdmin();
     return;
   }
 
+  // Otherwise wait for the auth state update from /api/usage
+  _unsubAuth = onAuthStateChanged((u) => {
+    if (!u) { navigate('/'); return; }
+    if (u.is_admin) {
+      _renderAdmin();
+    } else if (u.tier !== undefined && u.credits_remaining !== undefined) {
+      // Backend has responded but user is not admin
+      _container.innerHTML = `<div style="text-align:center;padding:120px 32px">
+        <h2 style="font-size:24px;font-weight:300;color:var(--c-text-primary);margin-bottom:12px">Access Denied</h2>
+        <p style="color:var(--c-text-tertiary);font-size:14px">You do not have admin privileges.</p>
+        <a href="#/app" class="btn-ghost" style="display:inline-block;margin-top:16px;text-decoration:none">Back to App</a>
+      </div>`;
+    }
+  });
+
+  // Fallback: if no update after 5s, show denied
+  setTimeout(() => {
+    const u = getUser();
+    if (u && !u.is_admin && _container && _container.textContent.includes('Checking')) {
+      _container.innerHTML = `<div style="text-align:center;padding:120px 32px">
+        <h2 style="font-size:24px;font-weight:300;color:var(--c-text-primary);margin-bottom:12px">Access Denied</h2>
+        <p style="color:var(--c-text-tertiary);font-size:14px">You do not have admin privileges.</p>
+        <a href="#/app" class="btn-ghost" style="display:inline-block;margin-top:16px;text-decoration:none">Back to App</a>
+      </div>`;
+    }
+  }, 5000);
+}
+
+function _renderAdmin() {
+  if (_unsubAuth) _unsubAuth();
   _render();
   _loadData();
-
   _unsubAuth = onAuthStateChanged((u) => {
     if (!u || !u.is_admin) { navigate('/'); }
   });
