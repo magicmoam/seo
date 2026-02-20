@@ -75,7 +75,7 @@ def generate_report(search_result: dict, evidence: dict) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wongzo Report: {_esc(query)}</title>
+<title>trySEO.ai Report: {_esc(query)}</title>
 <style>
     :root {{
         --bg: #0a0d10;
@@ -215,7 +215,7 @@ def generate_report(search_result: dict, evidence: dict) -> str:
 </div>
 
 <div class="disclaimer">
-    <p><span class="brand">Wongzo</span> SEO Intelligence Report</p>
+    <p><span class="brand">trySEO.ai</span> SEO Intelligence Report</p>
     <p>This report was generated automatically using AI-powered analysis.
     Scores and recommendations are estimates based on publicly available web data
     and should be validated with additional tools and expert review.

@@ -15,20 +15,8 @@ app = FastAPI()
 
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
-    from src.auth import verify_google_token, is_allowed
-
-    auth = request.headers.get("Authorization", "")
-    if not auth.startswith("Bearer "):
-        return JSONResponse({"error": "Missing authorization token"}, status_code=401)
-
-    user = await verify_google_token(auth[7:])
-    if not user:
-        return JSONResponse({"error": "Invalid or expired token"}, status_code=401)
-
-    if not is_allowed(user["email"]):
-        return JSONResponse({"error": "Access denied"}, status_code=403)
-
-    return user
+    from src.middleware import authenticate
+    return await authenticate(request)
 
 
 @app.get("/api/tracking")

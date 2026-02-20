@@ -37,6 +37,20 @@ class Config:
     google_client_secret: str = field(default_factory=lambda: os.getenv("GOOGLE_CLIENT_SECRET", ""))
     ga4_token_encryption_key: str = field(default_factory=lambda: os.getenv("GA4_TOKEN_ENCRYPTION_KEY", ""))
 
+    # Stripe
+    stripe_secret_key: str = field(default_factory=lambda: os.getenv("STRIPE_SECRET_KEY", ""))
+    stripe_webhook_secret: str = field(default_factory=lambda: os.getenv("STRIPE_WEBHOOK_SECRET", ""))
+    stripe_publishable_key: str = field(default_factory=lambda: os.getenv("STRIPE_PUBLISHABLE_KEY", ""))
+    stripe_pro_monthly_price_id: str = field(default_factory=lambda: os.getenv("STRIPE_PRO_MONTHLY_PRICE_ID", ""))
+    stripe_pro_annual_price_id: str = field(default_factory=lambda: os.getenv("STRIPE_PRO_ANNUAL_PRICE_ID", ""))
+
+    # Admin
+    admin_emails: list[str] = field(
+        default_factory=lambda: [
+            e.strip() for e in os.getenv("ADMIN_EMAILS", "").split(",") if e.strip()
+        ]
+    )
+
     # Cron secret (for Vercel cron authentication)
     cron_secret: str = field(default_factory=lambda: os.getenv("CRON_SECRET", ""))
 

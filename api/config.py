@@ -19,4 +19,7 @@ async def get_config():
     return JSONResponse({
         "google_client_id": config.google_client_id,
         "ga4_oauth_enabled": bool(config.google_client_secret),
+        "stripe_publishable_key": config.stripe_publishable_key,
+        "stripe_pro_monthly_price_id": config.stripe_pro_monthly_price_id,
+        "stripe_pro_annual_price_id": config.stripe_pro_annual_price_id,
     })

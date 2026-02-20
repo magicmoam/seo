@@ -16,20 +16,8 @@ app = FastAPI()
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
     """Verify Google token from Authorization header. Returns user dict or error response."""
-    from src.auth import verify_google_token, is_allowed
-
-    auth = request.headers.get("Authorization", "")
-    if not auth.startswith("Bearer "):
-        return JSONResponse({"error": "Missing authorization token"}, status_code=401)
-
-    user = await verify_google_token(auth[7:])
-    if not user:
-        return JSONResponse({"error": "Invalid or expired token"}, status_code=401)
-
-    if not is_allowed(user["email"]):
-        return JSONResponse({"error": "Access denied"}, status_code=403)
-
-    return user
+    from src.middleware import authenticate
+    return await authenticate(request)
 
 
 def _unpack_tool_result(result_tuple, tool_name, query):
@@ -75,6 +63,18 @@ async def query(request: Request):
         tool_name = routing["tool"]
         q = routing["query"]
         extras = routing.get("extras", {})
+
+        # Credit enforcement
+        from src.credits import get_tool_cost
+        from src.db import deduct_credits
+        cost = get_tool_cost(tool_name)
+        if not await deduct_credits(user["email"], cost, tool_name, q):
+            return JSONResponse({
+                "error": "Insufficient credits",
+                "credits_required": cost,
+                "tool": tool_name,
+                "upgrade_url": "/#/pricing",
+            }, status_code=402)
 
         if tool_name == "content_generation":
             result, tool_usage, trace = await content_generator.run(
@@ -218,7 +218,7 @@ async def client_report(request: Request):
         response = AgentResponse(**body)
         docx_bytes = generate_client_report(response)
         domain = response.query.replace("https://", "").replace("http://", "").split("/")[0]
-        filename = f"wongzo_report_{domain}.docx"
+        filename = f"tryseo_report_{domain}.docx"
         return Response(
             content=docx_bytes,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

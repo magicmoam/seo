@@ -11,9 +11,15 @@
     { "src": "api/tracking.py", "use": "@vercel/python" },
     { "src": "api/cron_audit.py", "use": "@vercel/python" },
     { "src": "api/ga4_connect.py", "use": "@vercel/python" },
+    { "src": "api/stripe_billing.py", "use": "@vercel/python" },
+    { "src": "api/admin.py", "use": "@vercel/python" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/api/stripe/checkout", "dest": "/api/stripe_billing.py" },
+    { "src": "/api/stripe/webhook", "dest": "/api/stripe_billing.py" },
+    { "src": "/api/stripe/portal", "dest": "/api/stripe_billing.py" },
+    { "src": "/api/admin/(.*)", "dest": "/api/admin.py" },
     { "src": "/api/query", "dest": "/api/query.py" },
     { "src": "/api/report", "dest": "/api/query.py" },
     { "src": "/api/client-report", "dest": "/api/query.py" },

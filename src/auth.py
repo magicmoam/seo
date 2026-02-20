@@ -39,7 +39,12 @@ async def verify_google_token(id_token: str) -> dict | None:
 
 
 def is_allowed(email: str) -> bool:
-    """Check if an email is in the whitelist."""
-    if not config.allowed_emails:
-        return True  # no whitelist = allow all authenticated users
-    return email.lower() in [e.lower() for e in config.allowed_emails]
+    """Check if an email is allowed. With SaaS model, all authenticated users are allowed."""
+    return True
+
+
+def is_admin(email: str) -> bool:
+    """Check if an email is in the admin list."""
+    if not config.admin_emails:
+        return False
+    return email.lower() in [e.lower() for e in config.admin_emails]
