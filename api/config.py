@@ -34,3 +34,43 @@ async def debug_admin():
         "admin_emails_masked": [e[:3] + "***" + e[e.index("@"):] if "@" in e else "***" for e in config.admin_emails],
         "admin_emails_raw_env": bool(os.getenv("ADMIN_EMAILS")),
     })
+
+
+@app.get("/api/config/health")
+async def health_check():
+    """Temporary diagnostic endpoint — tests all critical imports."""
+    results = {}
+
+    try:
+        import src.db.client as _c
+        results["db_client"] = "ok"
+    except Exception as e:
+        results["db_client"] = str(e)
+
+    try:
+        from src.db import get_or_create_user, get_usage_stats
+        results["db_imports"] = "ok"
+    except Exception as e:
+        results["db_imports"] = str(e)
+
+    try:
+        from src.db.blog import list_all_posts
+        results["db_blog"] = "ok"
+    except Exception as e:
+        results["db_blog"] = str(e)
+
+    try:
+        from src.middleware import authenticate
+        results["middleware"] = "ok"
+    except Exception as e:
+        results["middleware"] = str(e)
+
+    try:
+        from src.config import config
+        results["config"] = "ok"
+        results["admin_emails_count"] = len(config.admin_emails)
+        results["supabase_configured"] = bool(config.supabase_url)
+    except Exception as e:
+        results["config"] = str(e)
+
+    return JSONResponse(results)
