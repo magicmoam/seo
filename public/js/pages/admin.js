@@ -1,4 +1,4 @@
-// admin.js - Admin dashboard for trySEO.ai
+// admin.js - Admin console for Retune
 import { getUser, onAuthStateChanged } from '../auth.js';
 import { getAdminUsers, getAdminUserDetail, adminAdjustCredits, adminChangeTier, adminImpersonate, getAdminStats } from '../api.js';
 import { navigate } from '../router.js';
@@ -6,6 +6,8 @@ import { esc as _esc } from '../utils/helpers.js';
 
 let _container = null;
 let _unsubAuth = null;
+let _adminAuthTimeout = null;
+let _searchTimer = null;
 let _stats = null;
 let _users = [];
 let _searchQuery = '';
@@ -19,9 +21,7 @@ export function mount(container) {
   if (!user) { navigate('/'); return; }
 
   // Show loading while we wait for backend to confirm admin status
-  _container.innerHTML = `<div style="text-align:center;padding:120px 32px">
-    <p style="color:var(--c-text-tertiary);font-size:14px">Checking admin access...</p>
-  </div>`;
+  _container.innerHTML = `<div class="empty-state" style="padding:120px 32px">[VERIFYING] Checking admin access...</div>`;
 
   // If is_admin is already true (cached from previous session), render immediately
   if (user.is_admin) {
@@ -33,26 +33,19 @@ export function mount(container) {
   _unsubAuth = onAuthStateChanged((u) => {
     if (!u) { navigate('/'); return; }
     if (u.is_admin) {
+      if (_adminAuthTimeout) clearTimeout(_adminAuthTimeout);
       _renderAdmin();
     } else if (u.tier !== undefined && u.credits_remaining !== undefined) {
-      // Backend has responded but user is not admin
-      _container.innerHTML = `<div style="text-align:center;padding:120px 32px">
-        <h2 style="font-size:24px;font-weight:300;color:var(--c-text-primary);margin-bottom:12px">Access Denied</h2>
-        <p style="color:var(--c-text-tertiary);font-size:14px">You do not have admin privileges.</p>
-        <a href="#/app" class="btn-ghost" style="display:inline-block;margin-top:16px;text-decoration:none">Back to App</a>
-      </div>`;
+      if (_adminAuthTimeout) clearTimeout(_adminAuthTimeout);
+      _container.innerHTML = `<div class="empty-state" style="padding:120px 32px">[ACCESS_DENIED] Admin privileges required.</div>`;
     }
   });
 
-  // Fallback: if no update after 5s, show denied
-  setTimeout(() => {
+  // Fallback: if no update after 5s, show denied (cancellable)
+  _adminAuthTimeout = setTimeout(() => {
     const u = getUser();
-    if (u && !u.is_admin && _container && _container.textContent.includes('Checking')) {
-      _container.innerHTML = `<div style="text-align:center;padding:120px 32px">
-        <h2 style="font-size:24px;font-weight:300;color:var(--c-text-primary);margin-bottom:12px">Access Denied</h2>
-        <p style="color:var(--c-text-tertiary);font-size:14px">You do not have admin privileges.</p>
-        <a href="#/app" class="btn-ghost" style="display:inline-block;margin-top:16px;text-decoration:none">Back to App</a>
-      </div>`;
+    if (u && !u.is_admin && _container) {
+      _container.innerHTML = `<div class="empty-state" style="padding:120px 32px">[ACCESS_DENIED] Admin privileges required.</div>`;
     }
   }, 5000);
 }
@@ -68,6 +61,8 @@ function _renderAdmin() {
 
 export function unmount() {
   if (_unsubAuth) _unsubAuth();
+  if (_adminAuthTimeout) clearTimeout(_adminAuthTimeout);
+  if (_searchTimer) clearTimeout(_searchTimer);
   _container = null;
   _stats = null;
   _users = [];
@@ -94,88 +89,110 @@ async function _loadUsers() {
 
 function _render() {
   if (!_container) return;
-  _container.innerHTML = `
-  <div style="max-width:960px;margin:0 auto;padding:100px 32px 64px">
-    <h1 class="fade-in" style="font-size:32px;font-weight:300;letter-spacing:-0.03em;color:var(--c-text-primary);margin-bottom:16px">Admin Dashboard</h1>
 
-    <!-- Tabs -->
-    <div style="display:flex;gap:4px;margin-bottom:24px" class="fade-in">
-      <button class="admin-tab btn-ghost ${_activeTab === 'users' ? 'active' : ''}" data-tab="users" style="font-size:11px;padding:6px 16px;${_activeTab === 'users' ? 'background:rgba(212,184,149,0.15);color:var(--c-accent);border-color:var(--c-accent)' : ''}">Users</button>
-      <button class="admin-tab btn-ghost ${_activeTab === 'blog' ? 'active' : ''}" data-tab="blog" style="font-size:11px;padding:6px 16px;${_activeTab === 'blog' ? 'background:rgba(212,184,149,0.15);color:var(--c-accent);border-color:var(--c-accent)' : ''}">Blog</button>
+  const tabStyle = (tab) => {
+    const active = _activeTab === tab;
+    return `font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;padding:8px 20px;border:none;cursor:pointer;background:${active ? 'var(--bg-panel-light)' : 'transparent'};color:${active ? 'var(--accent-olive)' : 'var(--text-muted)'};border-bottom:2px solid ${active ? 'var(--accent-olive)' : 'transparent'};transition:all 0.2s`;
+  };
+
+  _container.innerHTML = `
+  <div style="max-width:1000px;margin:0 auto;padding:100px 32px 64px">
+
+    <div class="panel-label" style="margin-bottom:24px">[ADMIN_CONSOLE]</div>
+
+    <!-- Stats Row -->
+    <div id="admin-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:28px">
+      <div class="card" style="text-align:center;padding:20px">
+        <div style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--accent-cyan)" id="stat-users">--</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:6px">TOTAL USERS</div>
+      </div>
+      <div class="card" style="text-align:center;padding:20px">
+        <div style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--accent-olive)" id="stat-pro">--</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:6px">ACTIVE PRO</div>
+      </div>
+      <div class="card" style="text-align:center;padding:20px">
+        <div style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--accent-cyan)" id="stat-mrr">--</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:6px">MRR</div>
+      </div>
+      <div class="card" style="text-align:center;padding:20px">
+        <div style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--accent-orange)" id="stat-queries">--</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:6px">QUERIES TODAY</div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div style="display:flex;border-bottom:1px solid var(--border-subtle);margin-bottom:20px">
+      <button class="admin-tab" data-tab="users" style="${tabStyle('users')}">USERS</button>
+      <button class="admin-tab" data-tab="blog" style="${tabStyle('blog')}">BLOG</button>
     </div>
 
     <!-- Users Tab -->
     <div id="tab-users" style="${_activeTab !== 'users' ? 'display:none' : ''}">
 
-    <!-- Stats -->
-    <div id="admin-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px" class="fade-in fade-in-delay-1">
-      <div class="panel" style="text-align:center;padding:20px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--c-accent)" id="stat-users">--</div><div style="font-size:11px;color:var(--c-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px">Total Users</div></div>
-      <div class="panel" style="text-align:center;padding:20px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--c-green)" id="stat-pro">--</div><div style="font-size:11px;color:var(--c-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px">Active Pro</div></div>
-      <div class="panel" style="text-align:center;padding:20px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--c-accent)" id="stat-mrr">--</div><div style="font-size:11px;color:var(--c-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px">MRR</div></div>
-      <div class="panel" style="text-align:center;padding:20px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--c-accent)" id="stat-queries">--</div><div style="font-size:11px;color:var(--c-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px">Queries Today</div></div>
-    </div>
-
-    <!-- Search -->
-    <div style="margin-bottom:16px" class="fade-in fade-in-delay-2">
-      <input id="user-search" type="text" placeholder="Search users by email..."
-        style="width:100%;padding:12px 16px;background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius);color:var(--c-text-primary);font-size:14px;font-family:Inter,sans-serif;font-weight:300;outline:none;transition:border-color 0.2s"
-        value="${_esc(_searchQuery)}">
-    </div>
-
-    <!-- Users Table -->
-    <div id="users-table" class="fade-in fade-in-delay-3"></div>
-
-    <!-- Impersonate Modal -->
-    <div id="impersonate-modal" class="modal-backdrop">
-      <div class="modal-content" style="max-width:520px">
-        <button class="modal-close" id="impersonate-close">&times;</button>
-        <h3 style="font-size:16px;font-weight:500;color:var(--c-text-primary);margin-bottom:12px">Impersonate User</h3>
-        <div id="impersonate-email" style="font-size:13px;color:var(--c-text-tertiary);margin-bottom:12px"></div>
-        <textarea id="impersonate-query" rows="3" placeholder="Enter query to run as this user..."
-          style="width:100%;padding:12px;background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius);color:var(--c-text-primary);font-size:14px;font-family:Inter,sans-serif;resize:none;outline:none;margin-bottom:12px"></textarea>
-        <button id="impersonate-run" class="btn-primary" style="width:100%">Run Query</button>
-        <div id="impersonate-result" style="margin-top:12px"></div>
+      <!-- Search -->
+      <div style="margin-bottom:16px">
+        <input id="user-search" type="text" placeholder="Search users by email..."
+          style="width:100%;padding:12px 16px;background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:4px;color:var(--text-main);font-family:var(--font-mono);font-size:12px;outline:none;transition:border-color 0.2s"
+          value="${_esc(_searchQuery)}">
       </div>
-    </div>
+
+      <!-- Users Table -->
+      <div id="users-table"></div>
+
+      <!-- Impersonate Modal -->
+      <div id="impersonate-modal" class="modal-backdrop">
+        <div class="modal-content" style="max-width:520px;background:var(--bg-panel);border:1px solid var(--border-subtle)">
+          <button class="modal-close" id="impersonate-close">&times;</button>
+          <div class="panel-label" style="margin-bottom:12px">[IMPERSONATE]</div>
+          <div id="impersonate-email" style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);margin-bottom:12px"></div>
+          <textarea id="impersonate-query" rows="3" placeholder="Enter query to run as this user..."
+            style="width:100%;padding:12px;background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:4px;color:var(--text-main);font-family:var(--font-mono);font-size:12px;resize:none;outline:none;margin-bottom:12px"></textarea>
+          <button id="impersonate-run" class="btn-action" style="width:100%">Run Query</button>
+          <div id="impersonate-result" style="margin-top:12px"></div>
+        </div>
+      </div>
 
     </div><!-- end tab-users -->
 
     <!-- Blog Tab -->
     <div id="tab-blog" style="${_activeTab !== 'blog' ? 'display:none' : ''}">
       <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button id="blog-generate" class="btn-ghost" style="font-size:11px;padding:6px 16px">Generate Article</button>
-        <button id="blog-generate-cluster" class="btn-ghost" style="font-size:11px;padding:6px 16px">Generate Cluster</button>
-        <button id="blog-refresh" class="btn-ghost" style="font-size:11px;padding:6px 16px">Refresh</button>
+        <button id="blog-generate" class="btn-ghost">Generate Article</button>
+        <button id="blog-generate-cluster" class="btn-ghost">Generate Cluster</button>
+        <button id="blog-refresh" class="btn-ghost">Refresh</button>
       </div>
       <div id="blog-table"></div>
     </div>
 
     <!-- Credits Modal -->
     <div id="credits-modal" class="modal-backdrop">
-      <div class="modal-content" style="max-width:400px">
+      <div class="modal-content" style="max-width:400px;background:var(--bg-panel);border:1px solid var(--border-subtle)">
         <button class="modal-close" id="credits-close">&times;</button>
-        <h3 style="font-size:16px;font-weight:500;color:var(--c-text-primary);margin-bottom:12px">Adjust Credits</h3>
-        <div id="credits-email" style="font-size:13px;color:var(--c-text-tertiary);margin-bottom:12px"></div>
+        <div class="panel-label" style="margin-bottom:12px">[ADJUST_CREDITS]</div>
+        <div id="credits-email" style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);margin-bottom:12px"></div>
         <input id="credits-amount" type="number" placeholder="Amount (positive or negative)"
-          style="width:100%;padding:10px 12px;background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius);color:var(--c-text-primary);font-size:14px;font-family:inherit;outline:none;margin-bottom:8px">
+          style="width:100%;padding:10px 12px;background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:4px;color:var(--text-main);font-family:var(--font-mono);font-size:12px;outline:none;margin-bottom:8px">
         <input id="credits-reason" type="text" placeholder="Reason"
-          style="width:100%;padding:10px 12px;background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius);color:var(--c-text-primary);font-size:14px;font-family:inherit;outline:none;margin-bottom:12px">
-        <button id="credits-submit" class="btn-primary" style="width:100%">Adjust Credits</button>
+          style="width:100%;padding:10px 12px;background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:4px;color:var(--text-main);font-family:var(--font-mono);font-size:12px;outline:none;margin-bottom:12px">
+        <button id="credits-submit" class="btn-action" style="width:100%">Adjust Credits</button>
       </div>
     </div>
   </div>`;
 
-  // Search event
+  // Search event with module-level timer
   const searchInput = _container.querySelector('#user-search');
-  let searchTimer;
   searchInput.addEventListener('input', () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
+    if (_searchTimer) clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => {
       _searchQuery = searchInput.value.trim();
       _page = 1;
       _loadUsers();
     }, 300);
   });
+
+  // Focus style
+  searchInput.addEventListener('focus', () => { searchInput.style.borderColor = 'var(--accent-olive)'; });
+  searchInput.addEventListener('blur', () => { searchInput.style.borderColor = 'var(--border-subtle)'; });
 
   // Modal closes
   _container.querySelector('#impersonate-close')?.addEventListener('click', () => _container.querySelector('#impersonate-modal').classList.remove('show'));
@@ -217,30 +234,33 @@ function _renderUsers() {
   if (!table) return;
 
   if (!_users.length) {
-    table.innerHTML = '<div style="text-align:center;padding:40px;color:var(--c-text-tertiary)">No users found.</div>';
+    table.innerHTML = '<div class="empty-state">No users found.</div>';
     return;
   }
 
   table.innerHTML = `
-  <div class="glass" style="overflow:hidden">
+  <div class="card" style="padding:0;overflow:hidden">
     <table class="data-table">
-      <thead><tr><th>Email</th><th>Name</th><th>Tier</th><th>Credits</th><th>Joined</th><th>Actions</th></tr></thead>
+      <thead><tr><th>#</th><th>USER</th><th>TIER</th><th>CREDITS</th><th>JOINED</th><th>ACTIONS</th></tr></thead>
       <tbody>
-        ${_users.map(u => `
+        ${_users.map((u, i) => `
         <tr>
-          <td><strong>${_esc(u.email)}</strong></td>
-          <td>${_esc(u.name || '-')}</td>
-          <td><span style="font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius);${u.tier === 'pro' ? 'background:rgba(107,207,127,0.12);color:var(--c-green)' : 'background:rgba(255,255,255,0.05);color:var(--c-text-tertiary)'}">${u.tier || 'free'}</span></td>
-          <td style="font-family:'Space Mono',monospace">${u.credits_remaining ?? '-'}</td>
-          <td class="cell-dim">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '-'}</td>
+          <td style="font-family:var(--font-mono);color:var(--text-dim)">${String((_page - 1) * 20 + i + 1).padStart(3, '0')}</td>
+          <td>
+            <div style="font-size:13px;color:var(--text-main)">${_esc(u.email)}</div>
+            ${u.name ? `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px">${_esc(u.name)}</div>` : ''}
+          </td>
+          <td><span class="badge" style="${u.tier === 'pro' ? 'background:rgba(156,170,126,0.15);color:var(--accent-olive)' : ''}">${(u.tier || 'free').toUpperCase()}</span></td>
+          <td style="font-family:var(--font-mono)">${u.credits_remaining ?? '-'}</td>
+          <td style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '-'}</td>
           <td>
             <div style="display:flex;gap:4px">
-              <button class="btn-admin-credits btn-ghost" data-email="${_esc(u.email)}" style="font-size:10px;padding:3px 8px">Credits</button>
-              <select class="sel-admin-tier" data-email="${_esc(u.email)}" style="background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius);color:var(--c-text-secondary);font-size:10px;padding:3px;cursor:pointer">
-                <option value="free" ${(u.tier||'free')==='free'?'selected':''}>Free</option>
-                <option value="pro" ${u.tier==='pro'?'selected':''}>Pro</option>
+              <button class="btn-admin-credits btn-ghost" data-email="${_esc(u.email)}">Credits</button>
+              <select class="sel-admin-tier" data-email="${_esc(u.email)}" style="background:var(--bg-panel);border:1px solid var(--border-subtle);border-radius:4px;color:var(--text-muted);font-family:var(--font-mono);font-size:10px;padding:4px;cursor:pointer">
+                <option value="free" ${(u.tier||'free')==='free'?'selected':''}>FREE</option>
+                <option value="pro" ${u.tier==='pro'?'selected':''}>PRO</option>
               </select>
-              <button class="btn-admin-impersonate btn-ghost" data-email="${_esc(u.email)}" style="font-size:10px;padding:3px 8px">Impersonate</button>
+              <button class="btn-admin-impersonate btn-ghost" data-email="${_esc(u.email)}">Impersonate</button>
             </div>
           </td>
         </tr>
@@ -275,7 +295,6 @@ function _openCreditsModal(email) {
   modal.classList.add('show');
 
   const submitBtn = _container.querySelector('#credits-submit');
-  // Clone to remove old listeners
   const newBtn = submitBtn.cloneNode(true);
   submitBtn.replaceWith(newBtn);
   newBtn.addEventListener('click', async () => {
@@ -313,26 +332,28 @@ function _renderBlogPosts() {
   if (!table) return;
 
   if (!_blogPosts.length) {
-    table.innerHTML = '<div style="text-align:center;padding:40px;color:var(--c-text-tertiary)">No blog posts yet. Generate your first article above.</div>';
+    table.innerHTML = '<div class="empty-state">No blog posts yet. Generate your first article above.</div>';
     return;
   }
 
   table.innerHTML = `
-  <div class="glass" style="overflow:hidden">
+  <div class="card" style="padding:0;overflow:hidden">
     <table class="data-table">
-      <thead><tr><th>Title</th><th>Cluster</th><th>Type</th><th>Status</th><th>Words</th><th>Actions</th></tr></thead>
+      <thead><tr><th>TITLE</th><th>CLUSTER</th><th>TYPE</th><th>STATUS</th><th>WORDS</th><th>ACTIONS</th></tr></thead>
       <tbody>
         ${_blogPosts.map(p => `
         <tr>
-          <td><strong>${_esc(p.title || p.slug)}</strong></td>
-          <td class="cell-dim">${_esc(p.cluster_slug || '-')}</td>
-          <td><span style="font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius);${p.content_type === 'pillar' ? 'background:rgba(212,184,149,0.15);color:var(--c-accent)' : 'background:rgba(255,255,255,0.05);color:var(--c-text-tertiary)'}">${p.content_type || 'supporting'}</span></td>
-          <td><span style="font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius);${p.status === 'published' ? 'background:rgba(107,207,127,0.12);color:var(--c-green)' : 'background:rgba(255,255,255,0.05);color:var(--c-text-tertiary)'}">${p.status}</span></td>
-          <td style="font-family:'Space Mono',monospace">${p.word_count || '-'}</td>
+          <td style="color:var(--text-main)">${_esc(p.title || p.slug)}</td>
+          <td style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">${_esc(p.cluster_slug || '-')}</td>
+          <td><span class="badge" style="${p.content_type === 'pillar' ? 'background:rgba(156,170,126,0.15);color:var(--accent-olive)' : ''}">${(p.content_type || 'supporting').toUpperCase()}</span></td>
+          <td><span class="badge" style="${p.status === 'published' ? 'background:rgba(0,209,230,0.1);color:var(--accent-cyan)' : ''}">${(p.status || 'draft').toUpperCase()}</span></td>
+          <td style="font-family:var(--font-mono)">${p.word_count || '-'}</td>
           <td>
             <div style="display:flex;gap:4px">
-              ${p.status === 'draft' ? `<button class="btn-blog-publish btn-ghost" data-id="${_esc(p.id)}" style="font-size:10px;padding:3px 8px">Publish</button>` : `<button class="btn-blog-unpublish btn-ghost" data-id="${_esc(p.id)}" style="font-size:10px;padding:3px 8px">Unpublish</button>`}
-              ${p.status === 'published' ? `<a href="/blog/${_esc(p.slug)}" target="_blank" class="btn-ghost" style="font-size:10px;padding:3px 8px;text-decoration:none">Preview</a>` : ''}
+              ${p.status === 'draft'
+                ? `<button class="btn-blog-publish btn-ghost" data-id="${_esc(p.id)}">Publish</button>`
+                : `<button class="btn-blog-unpublish btn-ghost" data-id="${_esc(p.id)}">Unpublish</button>`}
+              ${p.status === 'published' ? `<a href="/blog/${_esc(p.slug)}" target="_blank" class="btn-ghost" style="text-decoration:none">Preview</a>` : ''}
             </div>
           </td>
         </tr>
@@ -436,15 +457,14 @@ function _openImpersonateModal(email) {
     const resultEl = _container.querySelector('#impersonate-result');
     newBtn.textContent = 'Running...';
     newBtn.disabled = true;
-    resultEl.innerHTML = '<p style="color:var(--c-text-tertiary);font-size:13px">Processing...</p>';
+    resultEl.innerHTML = `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:12px">[PROCESSING]...</div>`;
     try {
       const data = await adminImpersonate(email, query);
-      resultEl.innerHTML = `<pre style="background:rgba(0,0,0,0.2);border:1px solid var(--c-glass-border);border-radius:var(--radius);padding:12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--c-text-secondary);overflow-x:auto;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto">${_esc(JSON.stringify(data, null, 2))}</pre>`;
+      resultEl.innerHTML = `<pre style="background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:4px;padding:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);overflow-x:auto;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto">${_esc(JSON.stringify(data, null, 2))}</pre>`;
     } catch (e) {
-      resultEl.innerHTML = `<p style="color:var(--c-red);font-size:13px">${_esc(e.message)}</p>`;
+      resultEl.innerHTML = `<div style="font-family:var(--font-mono);font-size:12px;color:var(--accent-orange);padding:8px">${_esc(e.message)}</div>`;
     }
     newBtn.textContent = 'Run Query';
     newBtn.disabled = false;
   });
 }
-

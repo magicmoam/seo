@@ -9,6 +9,6 @@ export function render(r) {
     }
     h += '</tbody></table></div>';
   }
-  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--c-text-secondary)">${esc(r.summary)}</p></div>`;
+  h += `<div class="panel"><div class="panel-label">Summary</div><p style="font-size:14px;font-weight:300;line-height:1.7;color:var(--text-muted)">${esc(r.summary)}</p></div>`;
   return h;
 }

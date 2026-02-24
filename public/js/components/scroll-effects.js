@@ -35,8 +35,16 @@ export function initScrollEffects() {
   // Observe all existing elements
   _observeAll();
 
-  // Re-observe on DOM changes
-  _mutationObs = new MutationObserver(() => _observeAll());
+  // Re-observe on DOM changes (debounced to prevent jank during page transitions)
+  let _pendingObserveRaf = false;
+  _mutationObs = new MutationObserver(() => {
+    if (_pendingObserveRaf) return;
+    _pendingObserveRaf = true;
+    requestAnimationFrame(() => {
+      _pendingObserveRaf = false;
+      _observeAll();
+    });
+  });
   _mutationObs.observe(document.body, { childList: true, subtree: true });
 
   // Unified scroll handler

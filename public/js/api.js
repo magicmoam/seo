@@ -59,7 +59,7 @@ export async function downloadReport(data) {
   if (!res.ok) throw new Error('Report generation failed');
   const html = await res.text();
   const blob = new Blob([html], { type: 'text/html' });
-  triggerDownload(blob, `tryseo_${data.tool_used}_${Date.now()}.html`);
+  triggerDownload(blob, sanitizeFilename(`retune_${data.tool_used}_${Date.now()}.html`));
 }
 
 export async function downloadClientReport(data) {
@@ -70,8 +70,10 @@ export async function downloadClientReport(data) {
   if (!res.ok) throw new Error('Client report generation failed');
   const blob = await res.blob();
   const domain = (data.query || 'report').replace(/https?:\/\//, '').split('/')[0];
-  triggerDownload(blob, `tryseo_report_${domain}.docx`);
+  triggerDownload(blob, sanitizeFilename(`retune_report_${domain}.docx`));
 }
+
+function sanitizeFilename(name) { return name.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 200); }
 
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);

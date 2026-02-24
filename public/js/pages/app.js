@@ -483,7 +483,7 @@ async function _openPropertySelector() {
     });
     const data = await res.json();
     if (data.error || !data.properties?.length) {
-      list.innerHTML = `<div style="text-align:center;padding:24px;color:var(--c-text-tertiary);font-size:13px">${data.error || 'No GA4 properties found.'}</div>`;
+      list.innerHTML = `<div style="text-align:center;padding:24px;color:var(--c-text-tertiary);font-size:13px">${_esc(data.error || 'No GA4 properties found.')}</div>`;
       return;
     }
     list.innerHTML = data.properties.map(p => `
@@ -579,7 +579,7 @@ function _renderResult(data, searchId) {
   const r = data.result;
 
   let html = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--c-glass-border);flex-wrap:wrap">
-    <span class="badge badge-intent">${tool.replace(/_/g, ' ')}</span>
+    <span class="badge badge-intent">${_esc(tool.replace(/_/g, ' '))}</span>
     <span style="color:var(--c-text-tertiary);font-size:13px">${_esc(data.query)}</span>
     <button class="btn-dl-report btn-ghost" style="margin-left:auto;display:inline-flex;align-items:center;gap:6px">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -603,7 +603,7 @@ function _renderResult(data, searchId) {
   // Tool-specific rendering
   const renderer = RENDERERS[tool];
   if (renderer) html += renderer.render(r);
-  else html += `<pre style="background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius);padding:20px;font-family:'Space Mono',monospace;font-size:11px;color:var(--c-text-secondary);overflow-x:auto;white-space:pre-wrap;word-break:break-word">${JSON.stringify(r, null, 2)}</pre>`;
+  else html += `<pre style="background:var(--c-bg-card);border:1px solid var(--c-glass-border);border-radius:var(--radius);padding:20px;font-family:'Space Mono',monospace;font-size:11px;color:var(--c-text-secondary);overflow-x:auto;white-space:pre-wrap;word-break:break-word">${_esc(JSON.stringify(r, null, 2))}</pre>`;
 
   el.innerHTML = html;
   el.style.animation = 'fadeIn 0.5s ease-out';

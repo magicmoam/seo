@@ -130,7 +130,7 @@ export function renderGoogleButton(elementId, opts = {}) {
   const el = document.getElementById(elementId);
   if (!el) return;
   google.accounts.id.renderButton(el, {
-    theme: 'filled_black',
+    theme: 'outline',  /* 'filled_black' is invisible on #030808 dark bg */
     size: 'large',
     shape: 'rectangular',
     text: 'signin_with',

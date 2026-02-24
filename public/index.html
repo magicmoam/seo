@@ -3,36 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>trySEO.ai | AI-Powered SEO Intelligence</title>
-  <meta name="description" content="AI-powered SEO intelligence platform. Analyze websites, research keywords, track competitors, and generate content strategies.">
+  <title>Retune — AI-Powered SEO Intelligence</title>
+  <meta name="description" content="Retune is an AI-powered SEO intelligence platform. Analyze websites, research keywords, track competitors, and generate data-driven content strategies.">
+  <meta name="keywords" content="SEO, AI SEO, keyword research, competitor analysis, website audit, content strategy, technical SEO, backlink analysis">
 
   <!-- Canonical -->
-  <link rel="canonical" href="https://tryseo.ai">
+  <link rel="canonical" href="https://retune.so">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://tryseo.ai">
-  <meta property="og:title" content="trySEO.ai | AI-Powered SEO Intelligence">
-  <meta property="og:description" content="AI-powered SEO intelligence platform. Analyze websites, research keywords, track competitors, and generate content strategies.">
-  <meta property="og:image" content="https://tryseo.ai/og-image.svg">
-  <meta property="og:site_name" content="trySEO.ai">
+  <meta property="og:url" content="https://retune.so">
+  <meta property="og:title" content="Retune — AI-Powered SEO Intelligence">
+  <meta property="og:description" content="Retune is an AI-powered SEO intelligence platform. Analyze websites, research keywords, track competitors, and generate data-driven content strategies.">
+  <meta property="og:image" content="https://retune.so/og-image.svg">
+  <meta property="og:site_name" content="Retune">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="trySEO.ai | AI-Powered SEO Intelligence">
-  <meta name="twitter:description" content="AI-powered SEO intelligence platform. Analyze websites, research keywords, track competitors, and generate content strategies.">
-  <meta name="twitter:image" content="https://tryseo.ai/og-image.svg">
+  <meta name="twitter:title" content="Retune — AI-Powered SEO Intelligence">
+  <meta name="twitter:description" content="Retune is an AI-powered SEO intelligence platform. Analyze websites, research keywords, track competitors, and generate data-driven content strategies.">
+  <meta name="twitter:image" content="https://retune.so/og-image.svg">
 
   <!-- JSON-LD Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "trySEO.ai",
+    "name": "Retune",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Web",
-    "url": "https://tryseo.ai",
-    "description": "AI-powered SEO intelligence platform with 10 specialized tools. Analyze websites, research keywords, audit technical SEO, and generate content strategies.",
+    "url": "https://retune.so",
+    "description": "AI-powered SEO intelligence platform with 10 specialized tools. Analyze websites, research keywords, audit technical SEO, and generate data-driven content strategies.",
     "offers": [
       {
         "@type": "Offer",
@@ -49,12 +50,7 @@
         "billingIncrement": "P1M",
         "description": "200 credits per month with all 10 AI-powered SEO tools"
       }
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "150"
-    }
+    ]
   }
   </script>
 
@@ -64,65 +60,32 @@
   <!-- Resource Hints -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Inter:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,500;1,400&display=swap" rel="stylesheet">
+  <!-- Fonts: Syne + IBM Plex Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'alabaster': '#F0F0EB',
-            'obsidian': '#0F0F0F',
-            'burnished-gold': '#B89E5F',
-            'soft-gray': '#A0A09C',
-          },
-          fontFamily: {
-            serif: ['"Bodoni Moda"', 'serif'],
-            sans: ['"Inter"', 'sans-serif'],
-            display: ['"Cormorant Garamond"', 'serif'],
-          },
-          backgroundImage: {
-            'noise': "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\" opacity=\"0.08\"/%3E%3C/svg%3E')",
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- Three.js importmap for landing page -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
+  <!-- Module Preloads -->
+  <link rel="modulepreload" href="/js/pages/landing.js">
+  <link rel="modulepreload" href="/js/auth.js">
+  <link rel="modulepreload" href="/js/api.js">
 
   <!-- Shared Styles -->
   <link rel="stylesheet" href="/css/main.css">
 </head>
-<body class="relative font-sans selection:bg-burnished-gold selection:text-white">
+<body>
 
   <!-- Noscript fallback for crawlers -->
   <noscript>
-    <div style="max-width:800px;margin:0 auto;padding:60px 24px;font-family:Inter,sans-serif;color:#0F0F0F">
-      <h1 style="font-family:'Bodoni Moda',serif;font-size:36px;margin-bottom:16px">trySEO.ai &mdash; AI-Powered SEO Intelligence</h1>
-      <p style="color:#666;line-height:1.8;margin-bottom:24px">Analyze websites, research keywords, track competitors, and generate content strategies with 10 AI-powered tools. Start with a free audit.</p>
+    <div style="max-width:800px;margin:0 auto;padding:60px 24px;font-family:'IBM Plex Mono',monospace;color:#e0e0e0;background:#0a0a0a">
+      <h1 style="font-family:'Syne',sans-serif;font-size:36px;margin-bottom:16px;color:#fff">Retune &mdash; AI-Powered SEO Intelligence</h1>
+      <p style="color:#888;line-height:1.8;margin-bottom:24px">Analyze websites, research keywords, track competitors, and generate data-driven content strategies with 10 AI-powered tools. Start with a free audit.</p>
       <nav style="margin-bottom:32px">
-        <a href="/features" style="margin-right:24px;color:#B89E5F">Features</a>
-        <a href="/pricing" style="margin-right:24px;color:#B89E5F">Pricing</a>
-        <a href="/about" style="margin-right:24px;color:#B89E5F">About</a>
-        <a href="/blog" style="margin-right:24px;color:#B89E5F">Blog</a>
-        <a href="/metrics" style="color:#B89E5F">Our SEO Score</a>
+        <a href="/features" style="margin-right:24px;color:#00e5a0">Features</a>
+        <a href="/pricing" style="margin-right:24px;color:#00e5a0">Pricing</a>
+        <a href="/about" style="margin-right:24px;color:#00e5a0">About</a>
       </nav>
-      <h2 style="font-size:20px;margin-bottom:12px">10 AI-Powered SEO Tools</h2>
-      <ul style="color:#666;line-height:2">
+      <h2 style="font-size:20px;margin-bottom:12px;color:#fff">10 AI-Powered SEO Tools</h2>
+      <ul style="color:#888;line-height:2">
         <li>Website Analyzer &mdash; 30-criteria site audit with scoring rubric</li>
         <li>Keyword Research &mdash; Intent-mapped keyword clusters</li>
         <li>Competitor Analysis &mdash; Gap identification and positioning</li>
@@ -134,105 +97,69 @@
         <li>Backlink Strategy &mdash; Link building opportunities</li>
         <li>Strategy Orchestrator &mdash; All tools in one unified pipeline</li>
       </ul>
-      <p style="margin-top:24px;color:#666">Free tier: 5 credits/month. Pro: $49/month with 200 credits.</p>
+      <p style="margin-top:24px;color:#888">Free tier: 5 credits/month. Pro: $49/month with 200 credits.</p>
     </div>
   </noscript>
 
-  <!-- Ambient background -->
-  <div class="ambient-bg"></div>
+  <!-- Scan line (system-active aesthetic) -->
+  <div class="scan-line-container"><div class="scan-line"></div></div>
 
-  <!-- Noise overlay -->
-  <div class="fixed inset-0 z-10 pointer-events-none opacity-40 bg-noise mix-blend-overlay"></div>
-
-  <!-- Scroll progress bar -->
-  <div class="fixed top-0 left-0 w-full h-[2px] z-[60]">
-    <div class="scroll-progress h-full bg-burnished-gold/60 w-full"></div>
-  </div>
-
-  <!-- Custom cursor -->
-  <div class="cursor-dot"></div>
-  <div class="cursor-circle"></div>
-
-  <!-- Navigation container -->
+  <!-- Navigation mounts here -->
   <div id="nav-container"></div>
 
-  <!-- Page content container -->
+  <!-- Page content mounts here -->
   <div id="page">
-    <div class="spa-loading"></div>
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;">
+      <div class="spinner"></div>
+    </div>
   </div>
 
   <!-- Upgrade modal -->
-  <div class="upgrade-modal-overlay" id="upgrade-modal">
-    <div class="upgrade-modal">
-      <h2>Upgrade to Pro</h2>
-      <p>You've used all your free credits. Upgrade to Pro for 200 credits/month and unlock the full power of trySEO.ai.</p>
-      <a href="/pricing" class="btn-primary" onclick="document.getElementById('upgrade-modal').classList.remove('active')">View Plans</a>
-      <button class="btn-dismiss" onclick="document.getElementById('upgrade-modal').classList.remove('active')">Maybe Later</button>
-    </div>
-  </div>
+  <div id="upgrade-modal"></div>
+
+  <!-- Scroll progress bar -->
+  <div class="scroll-progress" style="position:fixed;top:0;left:0;height:2px;background:var(--accent-olive);transform-origin:left;transform:scaleX(0);z-index:9999;transition:transform 0.1s;"></div>
 
   <!-- App initialization -->
   <script type="module">
     import { initAuth, onAuthStateChanged } from '/js/auth.js';
-    import { initRouter, remountCurrentPage } from '/js/router.js';
+    import { initRouter, navigate } from '/js/router.js';
     import { mountNav } from '/js/components/nav.js';
-    import { initCursor } from '/js/components/cursor.js';
     import { initScrollEffects } from '/js/components/scroll-effects.js';
 
-    // Listen for credits-exhausted events from api.js
-    window.addEventListener('credits-exhausted', () => {
-      document.getElementById('upgrade-modal').classList.add('active');
-    });
-
-    // Toast helper
-    window.showToast = function(message, type = 'success', duration = 4000) {
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.3s';
-        setTimeout(() => toast.remove(), 300);
-      }, duration);
-    };
-
-    // Initialize app
-    async function init() {
-      // Mount navigation
-      mountNav(document.getElementById('nav-container'));
-
-      // Init cursor (desktop only)
-      initCursor();
-
-      // Init scroll effects
+    (async () => {
+      mountNav();
       initScrollEffects();
-
-      // Init auth (loads config, restores session)
       await initAuth();
-
-      // Init router (loads initial page)
       initRouter();
 
-      // Re-mount page when auth state changes
-      onAuthStateChanged((user) => {
-        const hash = window.location.hash.slice(1) || '/';
-        const route = hash.split('?')[0];
-        const guarded = ['/app', '/account', '/admin'];
-        if (guarded.includes(route) && !user) {
-          window.location.hash = '#/';
-        }
+      // Show upgrade modal on credits exhausted
+      window.addEventListener('credits-exhausted', () => {
+        document.getElementById('upgrade-modal').innerHTML = `
+          <div class="modal-backdrop" id="upgrade-backdrop">
+            <div class="modal-content">
+              <button class="modal-close" onclick="document.getElementById('upgrade-backdrop').remove()">×</button>
+              <span class="label">Credits Exhausted</span>
+              <h2 style="font-size:1.5rem;margin-bottom:1rem;color:var(--text-main)">Upgrade to Retune Pro</h2>
+              <p style="color:var(--text-muted);margin-bottom:1.5rem;">You've used all your free credits. Upgrade for 200 credits/month.</p>
+              <button class="btn-primary" onclick="window.location.href='/#/pricing'">View Plans</button>
+            </div>
+          </div>
+        `;
       });
 
-      // Check for upgrade success
-      if (window.location.hash.includes('upgraded=true')) {
+      window.showToast = function(message, type = 'success', duration = 4000) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
         setTimeout(() => {
-          window.showToast('Welcome to Pro! You now have 200 credits.', 'success');
-        }, 500);
-      }
-    }
-
-    init().catch(console.error);
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.3s';
+          setTimeout(() => toast.remove(), 300);
+        }, duration);
+      };
+    })();
   </script>
 </body>
 </html>
