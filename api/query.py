@@ -107,18 +107,6 @@ async def query(request: Request):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
-@app.get("/api/history")
-async def history(request: Request):
-    auth_result = await _authenticate(request)
-    from src.db import get_history
-
-    if isinstance(auth_result, JSONResponse):
-        return auth_result
-    user = auth_result
-
-    records = await get_history(user["email"])
-    return JSONResponse(records)
-
 
 @app.post("/api/report")
 async def report(request: Request):

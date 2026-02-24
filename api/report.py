@@ -15,7 +15,7 @@ app = FastAPI()
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
     """Verify Google token from Authorization header or query param."""
-    from src.auth import verify_google_token, is_allowed
+    from src.auth import verify_google_token
 
     # Support token via query param (for new-tab download)
     token = request.query_params.get("token", "")
@@ -30,9 +30,6 @@ async def _authenticate(request: Request) -> dict | JSONResponse:
     user = await verify_google_token(token)
     if not user:
         return JSONResponse({"error": "Invalid or expired token"}, status_code=401)
-
-    if not is_allowed(user["email"]):
-        return JSONResponse({"error": "Access denied"}, status_code=403)
 
     return user
 

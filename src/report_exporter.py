@@ -479,17 +479,17 @@ def _html_seo_strategy(r: SEOStrategy) -> str:
 
 
 _HTML_RENDERERS = {
-    "keyword_research": lambda r: _html_keyword_research(r),
-    "competitor_analysis": lambda r: _html_competitor_analysis(r),
-    "serp_analysis": lambda r: _html_serp_analysis(r),
-    "content_gap": lambda r: _html_content_gap(r),
-    "content_generation": lambda r: _html_content(r),
-    "website_analyzer": lambda r: _html_website_analysis(r),
-    "topical_authority": lambda r: _html_topical_authority(r),
-    "content_calendar": lambda r: _html_content_calendar(r),
-    "technical_seo": lambda r: _html_technical_seo(r),
-    "backlink_strategy": lambda r: _html_backlink_strategy(r),
-    "seo_strategy": lambda r: _html_seo_strategy(r),
+    "keyword_research": _html_keyword_research,
+    "competitor_analysis": _html_competitor_analysis,
+    "serp_analysis": _html_serp_analysis,
+    "content_gap": _html_content_gap,
+    "content_generation": _html_content,
+    "website_analyzer": _html_website_analysis,
+    "topical_authority": _html_topical_authority,
+    "content_calendar": _html_content_calendar,
+    "technical_seo": _html_technical_seo,
+    "backlink_strategy": _html_backlink_strategy,
+    "seo_strategy": _html_seo_strategy,
 }
 
 

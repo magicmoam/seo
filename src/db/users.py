@@ -95,7 +95,7 @@ async def deduct_credits(email: str, amount: int, tool: str, query: str = "") ->
     """Deduct credits from a user. Returns False if insufficient credits."""
     client = _db_client._get_client()
     if not client:
-        return True  # allow if no DB
+        return False  # fail-closed: deny if no DB
 
     user = await get_user(email)
     if not user:

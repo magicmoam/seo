@@ -530,11 +530,10 @@ Available tools:
 5. content_generation - Generate SEO-optimized content (articles, blog posts)
 6. website_analyzer - Analyze a specific URL/webpage for SEO issues, scores, and recommendations
 7. topical_authority - Build a topical authority map with content clusters and silo architecture
-8. content_calendar - Create a prioritized content publishing calendar with timing and costs
-9. technical_seo - Deep technical SEO audit with Core Web Vitals, schema markup, and implementation guides
-10. backlink_strategy - Develop a link building and off-page SEO strategy with cost estimates
-11. seo_strategy - FULL multi-agent SEO strategy: deploys ALL agents (site audit, keywords, competitors, content gaps, topical authority, content calendar, technical SEO, backlinks) and synthesizes into a comprehensive plan with costs and ROI projections
-12. ga4_analytics - Fetch Google Analytics 4 traffic data (users, sessions, channels, top pages, countries, daily trends). Requires a GA4 property ID.
+8. technical_seo - Deep technical SEO audit with Core Web Vitals, schema markup, and implementation guides
+9. backlink_strategy - Develop a link building and off-page SEO strategy with cost estimates
+10. seo_strategy - FULL multi-agent SEO strategy: deploys ALL agents (site audit, keywords, competitors, content gaps, topical authority, content calendar, technical SEO, backlinks) and synthesizes into a comprehensive plan with costs and ROI projections
+11. ga4_analytics - Fetch Google Analytics 4 traffic data (users, sessions, channels, top pages, countries, daily trends). Requires a GA4 property ID.
 
 IMPORTANT: If the user provides a URL (starts with http://, https://, or www.) and asks to analyze, audit, or review it, use website_analyzer. The query should be the full URL.
 

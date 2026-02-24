@@ -1,4 +1,4 @@
-"""Interactive CLI for Wongzo."""
+"""Interactive CLI for trySEO.ai."""
 
 from __future__ import annotations
 
@@ -582,7 +582,7 @@ def _export_reports(response: AgentResponse) -> None:
 async def interactive() -> None:
     console.print(
         Panel(
-            "[bold cyan]Wongzo[/bold cyan] - Multi-Agent SEO Intelligence\n\n"
+            "[bold cyan]trySEO.ai[/bold cyan] - Multi-Agent SEO Intelligence\n\n"
             "I can help you with:\n"
             "  1. [green]Keyword Research[/green] - Find high-value keywords\n"
             "  2. [green]Competitor Analysis[/green] - Analyze top-ranking pages\n"

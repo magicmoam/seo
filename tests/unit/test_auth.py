@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.auth import is_admin, is_allowed, verify_google_token
+from src.auth import is_admin, verify_google_token
 
 
 class TestVerifyGoogleToken:
@@ -112,19 +112,6 @@ class TestVerifyGoogleToken:
 
         assert result is not None
         assert result["name"] == "noname"
-
-
-class TestIsAllowed:
-    """Test is_allowed() - SaaS model always returns True."""
-
-    def test_always_returns_true(self):
-        assert is_allowed("anyone@example.com") is True
-
-    def test_returns_true_for_empty_email(self):
-        assert is_allowed("") is True
-
-    def test_returns_true_for_any_domain(self):
-        assert is_allowed("user@random-domain.org") is True
 
 
 class TestIsAdmin:

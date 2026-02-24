@@ -38,11 +38,6 @@ async def verify_google_token(id_token: str) -> dict | None:
     }
 
 
-def is_allowed(email: str) -> bool:
-    """Check if an email is allowed. With SaaS model, all authenticated users are allowed."""
-    return True
-
-
 def is_admin(email: str) -> bool:
     """Check if an email is in the admin list."""
     if not config.admin_emails:

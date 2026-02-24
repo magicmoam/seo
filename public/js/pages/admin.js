@@ -299,7 +299,7 @@ function _openCreditsModal(email) {
 async function _loadBlogPosts() {
   try {
     const resp = await fetch('/api/admin/blog', {
-      headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token') },
+      headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('seo_token') },
     });
     const data = await resp.json();
     _blogPosts = data.posts || [];
@@ -349,7 +349,7 @@ function _renderBlogPosts() {
       try {
         await fetch('/api/admin/blog/' + btn.dataset.id + '/publish', {
           method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token') },
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('seo_token') },
         });
         _loadBlogPosts();
       } catch (e) { alert('Failed: ' + e.message); }
@@ -362,7 +362,7 @@ function _renderBlogPosts() {
       try {
         await fetch('/api/admin/blog/' + btn.dataset.id + '/unpublish', {
           method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token') },
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('seo_token') },
         });
         _loadBlogPosts();
       } catch (e) { alert('Failed: ' + e.message); }
@@ -379,7 +379,7 @@ async function _openGenerateModal() {
     const resp = await fetch('/api/admin/blog/generate', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token'),
+        'Authorization': 'Bearer ' + sessionStorage.getItem('seo_token'),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ keyword, cluster_slug: cluster }),
@@ -408,7 +408,7 @@ async function _openClusterModal() {
     const resp = await fetch('/api/admin/blog/generate-cluster', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('auth_token'),
+        'Authorization': 'Bearer ' + sessionStorage.getItem('seo_token'),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ cluster_name: name, pillar_keyword: pillar, supporting_keywords: keywords }),

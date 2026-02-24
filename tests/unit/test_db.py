@@ -111,11 +111,11 @@ class TestDeductCredits:
         result = await deduct_credits("user@test.com", 10, "seo_strategy")
         assert result is False
 
-    async def test_returns_true_when_no_db_client(self):
-        """When no DB client, allow usage (returns True)."""
+    async def test_returns_false_when_no_db_client(self):
+        """When no DB client, deny usage (fail-closed)."""
         with patch("src.db.client._get_client", return_value=None):
             result = await deduct_credits("user@test.com", 5, "tool")
-            assert result is True
+            assert result is False
 
     async def test_fails_when_user_not_found(self, mock_supabase):
         mock_supabase.configure_table("users", data=[])

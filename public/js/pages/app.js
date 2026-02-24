@@ -214,12 +214,12 @@ function _toolCards() {
     { q: 'Find keywords for ', num: '01', name: 'Keywords', desc: 'Volume, difficulty & long-tail', credits: 1 },
     { q: 'Analyze competitors for ', num: '02', name: 'Competitors', desc: 'Strengths, weaknesses & gaps', credits: 2 },
     { q: 'Analyze SERP for ', num: '03', name: 'SERP', desc: 'Features, intent & positions', credits: 1 },
-    { q: 'Find content gaps for ', num: '04', name: 'Content Gaps', desc: 'Underserved topics & angles', credits: 1 },
+    { q: 'Find content gaps for ', num: '04', name: 'Content Gaps', desc: 'Underserved topics & angles', credits: 2 },
     { q: 'Write a blog post about ', num: '05', name: 'Generate Content', desc: 'SEO-optimized articles', credits: 2 },
-    { q: 'Analyze the website ', num: '06', name: 'Website Analyzer', desc: 'SEO audit & scoring', credits: 2 },
-    { q: 'Map topical authority for ', num: '07', name: 'Topical Authority', desc: 'Topic clusters & pillars', credits: 1 },
-    { q: 'Run technical SEO audit for ', num: '08', name: 'Technical SEO', desc: 'Speed, crawl & indexation', credits: 2 },
-    { q: 'Find backlink opportunities for ', num: '09', name: 'Backlinks', desc: 'Link building strategy', credits: 1 },
+    { q: 'Analyze the website ', num: '06', name: 'Website Analyzer', desc: 'SEO audit & scoring', credits: 1 },
+    { q: 'Map topical authority for ', num: '07', name: 'Topical Authority', desc: 'Topic clusters & pillars', credits: 2 },
+    { q: 'Run technical SEO audit for ', num: '08', name: 'Technical SEO', desc: 'Speed, crawl & indexation', credits: 1 },
+    { q: 'Find backlink opportunities for ', num: '09', name: 'Backlinks', desc: 'Link building strategy', credits: 2 },
     { q: 'Create SEO strategy for ', num: '10', name: 'SEO Strategy', desc: 'Complete multi-tool plan', credits: 10 },
   ];
   return tools.map(t => `
