@@ -130,7 +130,8 @@
     (async () => {
       mountNav();
       initScrollEffects();
-      await initAuth();
+      // Start auth and router in parallel — don't block routing on Google SDK load
+      initAuth();
       initRouter();
 
       // Show upgrade modal on credits exhausted

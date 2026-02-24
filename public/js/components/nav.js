@@ -35,7 +35,7 @@ export function updateNav() {
 function _render() {
   if (!_navEl) return;
   const user = getUser();
-  const route = getCurrentRoute();
+  const route = getCurrentRoute() || '/';
   const isApp = appRoutes.has(route);
 
   if (isApp && user) {
