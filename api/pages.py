@@ -14,9 +14,28 @@ from html import escape
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 
+try:
+    import nh3
+    def _sanitize_html(html: str) -> str:
+        """Sanitize HTML to prevent XSS while allowing safe content tags."""
+        return nh3.clean(html)
+except ImportError:
+    def _sanitize_html(html: str) -> str:
+        """Fallback: strip all tags if nh3 not available."""
+        import re
+        return re.sub(r"<script[^>]*>.*?</script>", "", html, flags=re.DOTALL | re.IGNORECASE)
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 BASE_URL = "https://tryseo.ai"
 
@@ -337,7 +356,7 @@ async def blog_article(slug: str, request: Request):
                     prose-headings:font-serif prose-headings:text-obsidian prose-headings:tracking-tight
                     prose-a:text-burnished-gold prose-a:no-underline hover:prose-a:underline
                     prose-strong:text-obsidian prose-code:text-sm">
-          {post.get('content_html', '<p>Content not available.</p>')}
+          {_sanitize_html(post.get('content_html', '<p>Content not available.</p>'))}
         </div>
       </article>
 

@@ -9,9 +9,17 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
@@ -36,6 +44,8 @@ async def query(request: Request):
     user_input = body.get("query", "").strip()
     if not user_input:
         return JSONResponse({"error": "Empty query"}, status_code=400)
+    if len(user_input) > 2000:
+        return JSONResponse({"error": "Query too long (max 2000 characters)"}, status_code=400)
 
     try:
         routing, router_usage = await route(user_input)
@@ -101,10 +111,12 @@ async def query(request: Request):
 
         return JSONResponse(response_data)
 
-    except json.JSONDecodeError as e:
-        return JSONResponse({"error": f"LLM returned invalid JSON: {e}"}, status_code=502)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except json.JSONDecodeError:
+        return JSONResponse({"error": "LLM returned invalid JSON"}, status_code=502)
+    except Exception:
+        import logging
+        logging.exception("Unhandled error in /api/query")
+        return JSONResponse({"error": "An internal error occurred"}, status_code=500)
 
 
 

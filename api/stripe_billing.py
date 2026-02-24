@@ -8,9 +8,17 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
@@ -60,8 +68,11 @@ async def create_checkout(request: Request):
         from src.db import update_user_tier
         await update_user_tier(user["email"], db_user.get("tier", "free"), stripe_customer_id=customer_id)
 
-    # Determine success/cancel URLs from Origin header
+    # Validate Origin against allowlist to prevent open redirect
+    _ALLOWED_ORIGINS = {"https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"}
     origin = request.headers.get("origin", "https://tryseo.ai")
+    if origin not in _ALLOWED_ORIGINS:
+        origin = "https://tryseo.ai"
 
     session = stripe.checkout.Session.create(
         customer=customer_id,
@@ -157,7 +168,10 @@ async def create_portal(request: Request):
     if not db_user or not db_user.get("stripe_customer_id"):
         return JSONResponse({"error": "No active subscription found"}, status_code=404)
 
+    _PORTAL_ALLOWED = {"https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"}
     origin = request.headers.get("origin", "https://tryseo.ai")
+    if origin not in _PORTAL_ALLOWED:
+        origin = "https://tryseo.ai"
 
     session = stripe.billing_portal.Session.create(
         customer=db_user["stripe_customer_id"],

@@ -9,9 +9,17 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
@@ -49,9 +57,17 @@ async def add_tracked_url(request: Request):
     url = body.get("url", "").strip()
     if not url:
         return JSONResponse({"error": "URL is required"}, status_code=400)
+    if len(url) > 2000:
+        return JSONResponse({"error": "URL too long (max 2000 characters)"}, status_code=400)
 
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
+
+    # Block SSRF: prevent requests to internal/private networks
+    from urllib.parse import urlparse
+    hostname = urlparse(url).hostname or ""
+    if hostname in ("localhost", "127.0.0.1", "0.0.0.0") or hostname.startswith("10.") or hostname.startswith("192.168.") or hostname.startswith("172."):
+        return JSONResponse({"error": "Internal URLs are not allowed"}, status_code=400)
 
     ga4_property_id = body.get("ga4_property_id", "")
 
@@ -158,5 +174,7 @@ async def run_snapshot(request: Request):
             "category_scores": category_scores,
             "issues_summary": issues_summary,
         })
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except Exception:
+        import logging
+        logging.exception("Unhandled error in /api/tracking/snapshot")
+        return JSONResponse({"error": "An internal error occurred"}, status_code=500)

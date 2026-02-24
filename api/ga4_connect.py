@@ -10,9 +10,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import httpx
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
@@ -59,7 +67,7 @@ async def ga4_connect(request: Request):
         })
 
     if resp.status_code != 200:
-        return JSONResponse({"error": "Failed to exchange authorization code", "details": resp.text}, status_code=400)
+        return JSONResponse({"error": "Failed to exchange authorization code"}, status_code=400)
 
     data = resp.json()
     refresh_token = data.get("refresh_token")

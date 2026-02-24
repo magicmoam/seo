@@ -293,7 +293,7 @@ class TestFreeAuditSuccess:
                 )
 
         assert resp.status_code == 500
-        assert "Jina API down" in resp.json()["error"]
+        assert resp.json()["error"] == "An internal error occurred"
 
 
 class TestRateLimiting:

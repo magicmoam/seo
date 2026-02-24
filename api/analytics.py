@@ -9,9 +9,17 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
@@ -40,7 +48,9 @@ async def get_analytics(request: Request):
     try:
         report, usage, trace = await ga4.run(property_id, date_range, user_email=auth_result["email"])
         return JSONResponse(json.loads(report.model_dump_json()))
-    except ValueError as e:
-        return JSONResponse({"error": str(e)}, status_code=400)
-    except Exception as e:
-        return JSONResponse({"error": f"GA4 API error: {e}"}, status_code=500)
+    except ValueError:
+        return JSONResponse({"error": "Invalid GA4 property or parameters"}, status_code=400)
+    except Exception:
+        import logging
+        logging.exception("Unhandled error in /api/analytics")
+        return JSONResponse({"error": "GA4 API error"}, status_code=500)

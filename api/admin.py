@@ -9,9 +9,17 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 async def _authenticate_admin(request: Request) -> dict | JSONResponse:
@@ -28,8 +36,11 @@ async def list_users(request: Request):
     if isinstance(auth_result, JSONResponse):
         return auth_result
 
-    limit = int(request.query_params.get("limit", "50"))
-    offset = int(request.query_params.get("offset", "0"))
+    try:
+        limit = max(1, min(100, int(request.query_params.get("limit", "50"))))
+        offset = max(0, int(request.query_params.get("offset", "0")))
+    except (ValueError, TypeError):
+        limit, offset = 50, 0
     search = request.query_params.get("search", "")
 
     users = await list_all_users(limit, offset)
@@ -228,8 +239,10 @@ async def impersonate(request: Request):
 
         return JSONResponse(response_data)
 
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except Exception:
+        import logging
+        logging.exception("Unhandled error in /api/admin/impersonate")
+        return JSONResponse({"error": "An internal error occurred"}, status_code=500)
 
 
 @app.get("/api/admin/blog")
@@ -375,6 +388,14 @@ async def update_blog_post(post_id: str, request: Request):
             extensions=["extra", "toc", "sane_lists"],
             output_format="html",
         )
+
+    # Sanitize any HTML content to prevent XSS
+    if "content_html" in updates:
+        try:
+            import nh3
+            updates["content_html"] = nh3.clean(updates["content_html"])
+        except ImportError:
+            pass  # nh3 not available; skip sanitization
 
     success = await update_post(post_id, **updates)
     if not success:

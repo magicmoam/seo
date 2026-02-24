@@ -11,9 +11,17 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tryseo.ai", "https://www.tryseo.ai", "http://localhost:3002"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # In-memory rate limiter: 3 requests/hour/IP
 _rate_limit: dict[str, list[float]] = {}
@@ -119,14 +127,24 @@ async def free_audit(request: Request):
     url = body.get("url", "").strip()
     if not url:
         return JSONResponse({"error": "URL is required"}, status_code=400)
+    if len(url) > 2000:
+        return JSONResponse({"error": "URL too long (max 2000 characters)"}, status_code=400)
 
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
+
+    # Block SSRF: prevent requests to internal/private networks
+    from urllib.parse import urlparse
+    hostname = urlparse(url).hostname or ""
+    if hostname in ("localhost", "127.0.0.1", "0.0.0.0") or hostname.startswith("10.") or hostname.startswith("192.168.") or hostname.startswith("172."):
+        return JSONResponse({"error": "Internal URLs are not allowed"}, status_code=400)
 
     try:
         result, usage, trace = await website_analyzer.run(url)
         result_dict = json.loads(result.model_dump_json())
         redacted = _redact_analysis(result_dict)
         return JSONResponse(redacted)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+    except Exception:
+        import logging
+        logging.exception("Unhandled error in /api/free-audit")
+        return JSONResponse({"error": "An internal error occurred"}, status_code=500)
