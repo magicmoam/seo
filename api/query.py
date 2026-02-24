@@ -171,7 +171,7 @@ async def client_report(request: Request):
         response = AgentResponse(**body)
         docx_bytes = generate_client_report(response)
         domain = response.query.replace("https://", "").replace("http://", "").split("/")[0]
-        filename = f"tryseo_report_{domain}.docx"
+        filename = f"retune_report_{domain}.docx"
         return Response(
             content=docx_bytes,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

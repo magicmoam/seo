@@ -19,6 +19,7 @@ const authGuardedRoutes = new Set(['/app', '/account', '/admin']);
 
 let _currentPage = null;
 let _currentRoute = null;
+let _routeGeneration = 0;
 
 export function getCurrentRoute() {
   return _currentRoute;
@@ -63,6 +64,8 @@ async function handleRouteChange() {
   // Skip if same route
   if (routePath === _currentRoute) return;
 
+  const thisGeneration = ++_routeGeneration;
+
   // Unmount previous page
   if (_currentPage && typeof _currentPage.unmount === 'function') {
     _currentPage.unmount();
@@ -74,11 +77,13 @@ async function handleRouteChange() {
 
   try {
     const pageModule = await loader();
+    if (thisGeneration !== _routeGeneration) return; // Stale, abort
     _currentPage = pageModule;
     if (typeof pageModule.mount === 'function') {
       pageModule.mount(container);
     }
   } catch (err) {
+    if (thisGeneration !== _routeGeneration) return; // Stale, abort
     console.error('Failed to load page:', err);
     container.innerHTML = `<div style="text-align:center;padding:80px 20px">
       <p style="color:var(--c-text-tertiary)">Failed to load page.</p>
@@ -104,6 +109,8 @@ export async function remountCurrentPage() {
   const container = document.getElementById('page');
   if (!container) return;
 
+  const thisGeneration = ++_routeGeneration;
+
   if (_currentPage && typeof _currentPage.unmount === 'function') {
     _currentPage.unmount();
   }
@@ -125,11 +132,13 @@ export async function remountCurrentPage() {
   _currentRoute = routePath;
   try {
     const pageModule = await loader();
+    if (thisGeneration !== _routeGeneration) return; // Stale, abort
     _currentPage = pageModule;
     if (typeof pageModule.mount === 'function') {
       pageModule.mount(container);
     }
   } catch (err) {
+    if (thisGeneration !== _routeGeneration) return; // Stale, abort
     console.error('Failed to load page:', err);
   }
 

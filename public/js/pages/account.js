@@ -1,8 +1,15 @@
-// account.js - Account page for trySEO.ai
+// account.js - Account page for Retune
 import { getUser, onAuthStateChanged } from '../auth.js';
 import { getUsage, stripePortal } from '../api.js';
 import { navigate } from '../router.js';
 import { esc as _esc, formatNum as _formatNum } from '../utils/helpers.js';
+
+function isValidStripeUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname.endsWith('.stripe.com');
+  } catch { return false; }
+}
 
 let _container = null;
 let _unsubAuth = null;
@@ -31,7 +38,7 @@ async function _loadUsage() {
   try {
     _usage = await getUsage();
     const user = getUser();
-    if (user) _render(user);
+    if (user && _container) _render(user);
   } catch (e) { /* silent */ }
 }
 
@@ -43,82 +50,97 @@ function _render(user) {
   const totalQueries = _usage?.total_searches ?? 0;
   const maxCredits = tier === 'pro' ? 200 : 5;
   const creditPct = Math.min((credits / maxCredits) * 100, 100);
+  const tokensUsed = _formatNum(_usage?.total_tokens || 0);
+  const queriesToday = _usage?.today_queries || 0;
 
   _container.innerHTML = `
   <div style="max-width:640px;margin:0 auto;padding:100px 32px 64px">
-    <h1 class="fade-in" style="font-size:32px;font-weight:300;letter-spacing:-0.03em;color:var(--c-text-primary);margin-bottom:32px">Account</h1>
 
-    <!-- Profile Card -->
-    <div class="glass fade-in fade-in-delay-1" style="padding:24px;margin-bottom:16px;display:flex;align-items:center;gap:16px">
-      ${user.picture ? `<img src="${_esc(user.picture)}" style="width:48px;height:48px;border-radius:50%;border:1px solid var(--c-glass-border)" alt="">` : '<div style="width:48px;height:48px;border-radius:50%;background:var(--c-accent-dim);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--c-accent)">' + (user.name || user.email || '?').charAt(0).toUpperCase() + '</div>'}
-      <div style="flex:1">
-        <div style="font-size:16px;font-weight:500;color:var(--c-text-primary)">${_esc(user.name || user.email)}</div>
-        <div style="font-size:13px;color:var(--c-text-tertiary)">${_esc(user.email)}</div>
+    <div class="panel-label" style="margin-bottom:24px">[ACCOUNT]</div>
+
+    <!-- User Info Card -->
+    <div class="card" style="padding:20px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
+      ${user.picture
+        ? `<img src="${_esc(user.picture)}" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--border-subtle)" alt="">`
+        : `<div style="width:44px;height:44px;border-radius:50%;background:var(--bg-panel-light);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:16px;color:var(--accent-olive)">${(user.name || user.email || '?').charAt(0).toUpperCase()}</div>`
+      }
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_esc(user.name || user.email)}</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:2px">${_esc(user.email)}</div>
       </div>
-      <span style="font-family:'Space Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;padding:4px 12px;border-radius:var(--radius);${tier === 'pro' ? 'background:rgba(107,207,127,0.12);color:var(--c-green)' : 'background:rgba(255,255,255,0.05);color:var(--c-text-tertiary)'}">${tier}</span>
+      <span class="badge" style="${tier === 'pro' ? 'background:rgba(156,170,126,0.15);color:var(--accent-olive)' : ''}">${tier.toUpperCase()}</span>
     </div>
 
-    <!-- Credits -->
-    <div class="glass fade-in fade-in-delay-2" style="padding:24px;margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div class="label" style="padding:0">Credits Remaining</div>
-        <span style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--c-accent)">${credits}</span>
+    <!-- Credits Card -->
+    <div class="card" style="padding:20px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span class="label">[CREDITS_REMAINING]</span>
+        <span style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--accent-cyan);letter-spacing:-0.02em">${credits}</span>
       </div>
-      <div style="height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;margin-bottom:8px">
-        <div style="height:100%;width:${creditPct}%;background:${creditPct > 20 ? 'var(--c-accent)' : 'var(--c-red)'};border-radius:4px;transition:width 0.3s"></div>
+      <div class="progress-bar" style="margin-bottom:10px">
+        <div class="progress-fill" style="width:${creditPct}%;${creditPct <= 20 ? 'background:var(--accent-orange)' : ''}"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--c-text-tertiary)">
-        <span>${credits} of ${maxCredits} credits remaining</span>
-        <span>Resets monthly</span>
+      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">
+        <span>${credits} / ${maxCredits}</span>
+        <span>RESETS MONTHLY</span>
       </div>
+      ${tier !== 'pro' ? `
+        <a href="#/pricing" id="btn-upgrade" class="btn-action" style="display:block;text-align:center;text-decoration:none;margin-top:16px;width:100%">Upgrade to Pro</a>
+      ` : ''}
     </div>
 
     <!-- Usage Stats -->
-    <div class="glass fade-in fade-in-delay-3" style="padding:24px;margin-bottom:16px">
-      <div class="label" style="padding:0;margin-bottom:12px">Usage</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
-        <div>
-          <div style="font-size:11px;color:var(--c-text-tertiary);margin-bottom:4px">Total Cost</div>
-          <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--c-text-primary)">$${totalCost.toFixed(2)}</div>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--c-text-tertiary);margin-bottom:4px">Total Queries</div>
-          <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--c-text-primary)">${totalQueries}</div>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--c-text-tertiary);margin-bottom:4px">Tokens Used</div>
-          <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--c-text-primary)">${_formatNum(_usage?.total_tokens || 0)}</div>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--c-text-tertiary);margin-bottom:4px">Queries Today</div>
-          <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--c-text-primary)">${_usage?.today_queries || 0}</div>
-        </div>
+    <div class="panel-label" style="margin-bottom:12px;margin-top:24px">[USAGE]</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px">
+      <div class="card" style="padding:16px">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Total Cost</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--text-main)">$${totalCost.toFixed(2)}</div>
+      </div>
+      <div class="card" style="padding:16px">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Total Queries</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--text-main)">${totalQueries}</div>
+      </div>
+      <div class="card" style="padding:16px">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Tokens Used</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--text-main)">${tokensUsed}</div>
+      </div>
+      <div class="card" style="padding:16px">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Queries Today</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--text-main)">${queriesToday}</div>
       </div>
     </div>
 
-    <!-- By Tool Breakdown -->
+    <!-- Usage by Tool -->
     ${_usage?.by_tool ? `
-    <div class="glass fade-in fade-in-delay-4" style="padding:24px;margin-bottom:16px">
-      <div class="label" style="padding:0;margin-bottom:12px">Usage by Tool</div>
+    <div class="card" style="padding:0;margin-bottom:24px;overflow:hidden">
       <table class="data-table">
-        <thead><tr><th>Tool</th><th>Count</th></tr></thead>
+        <thead><tr><th>TOOL</th><th>COUNT</th></tr></thead>
         <tbody>
           ${Object.entries(_usage.by_tool).map(([tool, count]) =>
-            `<tr><td style="text-transform:capitalize">${tool.replace(/_/g, ' ')}</td><td style="font-family:'Space Mono',monospace">${count}</td></tr>`
+            `<tr><td>${_esc(tool.replace(/_/g, ' '))}</td><td style="font-family:var(--font-mono)">${_esc(String(count))}</td></tr>`
           ).join('')}
         </tbody>
       </table>
     </div>` : ''}
 
-    <!-- Actions -->
-    <div class="fade-in fade-in-delay-5" style="display:flex;gap:12px;flex-wrap:wrap">
-      ${tier === 'pro' ? `
-        <button id="btn-manage-sub" class="btn-ghost" style="flex:1">Manage Subscription</button>
-      ` : `
-        <a href="#/pricing" class="btn-primary-solid" style="flex:1;text-decoration:none;display:inline-block;text-align:center;padding:12px">Upgrade to Pro</a>
-      `}
-      <button id="btn-back-app" class="btn-ghost" style="flex:1">Back to App</button>
+    <!-- Subscription -->
+    <div class="panel-label" style="margin-bottom:12px;margin-top:24px">[SUBSCRIPTION]</div>
+    <div class="card" style="padding:20px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--font-display);font-size:14px;color:var(--text-main);margin-bottom:4px">Current Plan</div>
+          <span class="badge" style="${tier === 'pro' ? 'background:rgba(156,170,126,0.15);color:var(--accent-olive)' : ''}">${tier.toUpperCase()}</span>
+        </div>
+        ${tier === 'pro' ? `
+          <button id="btn-manage-sub" class="btn-ghost">Manage Subscription</button>
+        ` : `
+          <a href="#/pricing" class="btn-primary" style="text-decoration:none">Upgrade</a>
+        `}
+      </div>
     </div>
+
+    <!-- Back -->
+    <button id="btn-back-app" class="btn-ghost" style="width:100%">Back to App</button>
   </div>`;
 
   // Events
@@ -129,7 +151,7 @@ function _render(user) {
       manageBtn.disabled = true;
       try {
         const data = await stripePortal();
-        if (data.url) window.location.href = data.url;
+        if (data.url && isValidStripeUrl(data.url)) window.location.href = data.url;
         else { manageBtn.textContent = 'Manage Subscription'; manageBtn.disabled = false; }
       } catch (e) {
         manageBtn.textContent = 'Manage Subscription';
@@ -141,4 +163,3 @@ function _render(user) {
   const backBtn = _container.querySelector('#btn-back-app');
   if (backBtn) backBtn.addEventListener('click', () => navigate('/app'));
 }
-
