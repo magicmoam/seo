@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 
 from src.models import BacklinkStrategy
@@ -21,19 +22,11 @@ async def run(domain: str, niche: str = "") -> tuple[BacklinkStrategy, dict]:
 
     niche_query = niche if niche else homepage.get("title", domain)
 
-    # Search for competitor backlink patterns
-    competitor_results = await jina.search(
-        f"{niche_query} best sites resources", num_results=5
-    )
-
-    # Search for guest posting and outreach opportunities
-    outreach_results = await jina.search(
-        f"{niche_query} write for us guest post", num_results=5
-    )
-
-    # Search for link-worthy content ideas in niche
-    linkbait_results = await jina.search(
-        f"{niche_query} statistics data research study", num_results=5
+    # Run all three searches in parallel
+    competitor_results, outreach_results, linkbait_results = await asyncio.gather(
+        jina.search(f"{niche_query} best sites resources", num_results=5),
+        jina.search(f"{niche_query} write for us guest post", num_results=5),
+        jina.search(f"{niche_query} statistics data research study", num_results=5),
     )
 
     research_data = f"--- Domain homepage ---\nTitle: {homepage.get('title', '')}\n"

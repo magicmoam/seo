@@ -43,13 +43,8 @@ async def list_users(request: Request):
         limit, offset = 50, 0
     search = request.query_params.get("search", "")
 
-    users = await list_all_users(limit, offset)
+    users = await list_all_users(limit, offset, search=search)
     total = await count_users()
-
-    # Filter by search if provided
-    if search:
-        search_lower = search.lower()
-        users = [u for u in users if search_lower in u.get("email", "").lower() or search_lower in u.get("name", "").lower()]
 
     return JSONResponse({
         "users": users,

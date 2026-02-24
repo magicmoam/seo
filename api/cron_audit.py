@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import sys
@@ -11,6 +12,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
+_CONCURRENCY = 3  # max parallel audits to avoid overwhelming Jina
 
 app = FastAPI()
 app.add_middleware(
@@ -51,48 +54,54 @@ async def cron_audit(request: Request):
 
     results = []
     errors = []
+    sem = asyncio.Semaphore(_CONCURRENCY)
 
-    for tracked in tracked_urls:
+    async def _audit_one(tracked: dict) -> None:
         url = tracked.get("url", "")
         user_email = tracked.get("user_email", "")
         tracked_id = tracked.get("id")
 
         if not url or not user_email:
-            continue
+            return
 
-        try:
-            result, usage, trace = await website_analyzer.run(url)
-            result_dict = json.loads(result.model_dump_json())
+        async with sem:
+            try:
+                result, usage, trace = await website_analyzer.run(url)
+                result_dict = json.loads(result.model_dump_json())
 
-            category_scores = {
-                "performance": result_dict.get("performance_score", ""),
-                "seo": result_dict.get("seo_score", ""),
-                "content": result_dict.get("content_score", ""),
-                "technical": result_dict.get("technical_score", ""),
-            }
+                category_scores = {
+                    "performance": result_dict.get("performance_score", ""),
+                    "seo": result_dict.get("seo_score", ""),
+                    "content": result_dict.get("content_score", ""),
+                    "technical": result_dict.get("technical_score", ""),
+                }
 
-            issues = result_dict.get("issues", [])
-            issues_summary = {"critical": 0, "warning": 0, "info": 0}
-            for iss in issues:
-                sev = iss.get("severity", "info")
-                issues_summary[sev] = issues_summary.get(sev, 0) + 1
+                issues = result_dict.get("issues", [])
+                issues_summary = {"critical": 0, "warning": 0, "info": 0}
+                for iss in issues:
+                    sev = iss.get("severity", "info")
+                    issues_summary[sev] = issues_summary.get(sev, 0) + 1
 
-            snapshot_id = await save_audit_snapshot(
-                user_email=user_email,
-                url=url,
-                overall_score=result_dict.get("overall_score", 0),
-                category_scores=category_scores,
-                issues_summary=issues_summary,
-                tracked_url_id=tracked_id,
-            )
+                snapshot_id = await save_audit_snapshot(
+                    user_email=user_email,
+                    url=url,
+                    overall_score=result_dict.get("overall_score", 0),
+                    category_scores=category_scores,
+                    issues_summary=issues_summary,
+                    tracked_url_id=tracked_id,
+                )
 
-            results.append({
-                "url": url,
-                "score": result_dict.get("overall_score", 0),
-                "snapshot_id": snapshot_id,
-            })
-        except Exception as e:
-            errors.append({"url": url, "error": str(e)})
+                results.append({
+                    "url": url,
+                    "score": result_dict.get("overall_score", 0),
+                    "snapshot_id": snapshot_id,
+                })
+            except Exception:
+                import logging
+                logging.exception("Cron audit failed for %s", url)
+                errors.append({"url": url, "error": "Audit failed"})
+
+    await asyncio.gather(*(_audit_one(t) for t in tracked_urls))
 
     return JSONResponse({
         "message": f"Audited {len(results)} URLs",

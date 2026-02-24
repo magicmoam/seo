@@ -128,9 +128,10 @@ async def get_usage_stats(user_email: str) -> dict:
 
     resp = (
         client.table("api_usage")
-        .select("*")
+        .select("tool_used, estimated_cost_usd, input_tokens, output_tokens, jina_searches, created_at")
         .eq("user_email", user_email)
         .order("created_at", desc=True)
+        .limit(1000)
         .execute()
     )
     rows = resp.data or []

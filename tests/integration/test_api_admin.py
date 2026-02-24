@@ -118,14 +118,13 @@ class TestAdminListUsers:
         assert data["offset"] == 0
 
     async def test_supports_search_filter(self):
-        mock_users = [
-            {"email": "alice@test.com", "name": "Alice"},
-            {"email": "bob@test.com", "name": "Bob"},
-        ]
+        # DB-side filtering: mock returns only matching user
+        mock_users = [{"email": "alice@test.com", "name": "Alice"}]
+        mock_list = AsyncMock(return_value=mock_users)
 
         with (
             _mock_admin_auth_success(),
-            patch("src.db.list_all_users", new_callable=AsyncMock, return_value=mock_users),
+            patch("src.db.list_all_users", mock_list),
             patch("src.db.count_users", new_callable=AsyncMock, return_value=2),
         ):
             async with AsyncClient(
@@ -138,6 +137,8 @@ class TestAdminListUsers:
         data = resp.json()
         assert len(data["users"]) == 1
         assert data["users"][0]["email"] == "alice@test.com"
+        # Verify search was passed to DB layer
+        mock_list.assert_called_once_with(50, 0, search="alice")
 
 
 # ---------------------------------------------------------------------------

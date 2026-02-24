@@ -22,18 +22,33 @@ def _strip_fences(text: str) -> str:
     return re.sub(r"^```(?:json)?\s*\n?", "", text.strip(), flags=re.MULTILINE).rstrip("`").strip()
 
 
+_LLM_TIMEOUT = 120  # seconds — fail fast rather than hang indefinitely
+
+
 async def complete(system: str, user: str, temperature: float = 0.3) -> LLMResult:
-    """Send a chat completion request to the configured LLM provider."""
+    """Send a chat completion request to the configured LLM provider.
+
+    Raises asyncio.TimeoutError if the call exceeds _LLM_TIMEOUT seconds.
+    """
+    import asyncio
+
     if config.llm_provider == "anthropic":
-        return await _anthropic(system, user, temperature)
+        return await asyncio.wait_for(_anthropic(system, user, temperature), timeout=_LLM_TIMEOUT)
     else:
-        return await _openai(system, user, temperature)
+        return await asyncio.wait_for(_openai(system, user, temperature), timeout=_LLM_TIMEOUT)
+
+
+_openai_client = None
+_anthropic_client = None
 
 
 async def _openai(system: str, user: str, temperature: float) -> LLMResult:
     from openai import AsyncOpenAI
 
-    client = AsyncOpenAI(api_key=config.openai_api_key)
+    global _openai_client
+    if _openai_client is None:
+        _openai_client = AsyncOpenAI(api_key=config.openai_api_key)
+    client = _openai_client
     resp = await client.chat.completions.create(
         model=config.openai_model,
         temperature=temperature,
@@ -58,7 +73,10 @@ async def _openai(system: str, user: str, temperature: float) -> LLMResult:
 async def _anthropic(system: str, user: str, temperature: float) -> LLMResult:
     from anthropic import AsyncAnthropic
 
-    client = AsyncAnthropic(api_key=config.anthropic_api_key)
+    global _anthropic_client
+    if _anthropic_client is None:
+        _anthropic_client = AsyncAnthropic(api_key=config.anthropic_api_key)
+    client = _anthropic_client
     resp = await client.messages.create(
         model=config.anthropic_model,
         max_tokens=config.content_max_tokens,

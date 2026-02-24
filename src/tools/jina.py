@@ -18,6 +18,20 @@ _TIMEOUT = 30.0
 _MAX_RETRIES = 2
 _RETRY_BACKOFF = 1.0  # seconds, doubles each retry
 
+# Module-level pooled client — reuses TCP connections across requests.
+_client: httpx.AsyncClient | None = None
+
+
+def _get_client() -> httpx.AsyncClient:
+    """Return a shared httpx client, creating it on first use."""
+    global _client
+    if _client is None or _client.is_closed:
+        _client = httpx.AsyncClient(
+            timeout=_TIMEOUT,
+            limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
+        )
+    return _client
+
 
 def _is_retryable(exc: Exception) -> bool:
     """Return True if the error is transient and worth retrying."""
@@ -39,13 +53,13 @@ def _headers() -> dict[str, str]:
 
 async def search(query: str, num_results: int = 5) -> list[dict]:
     """Search the web via Jina Search API. Returns list of {title, url, description, content}."""
-    async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-        resp = await client.get(
-            f"{SEARCH_URL}/{query}",
-            headers=_headers(),
-        )
-        resp.raise_for_status()
-        data = resp.json()
+    client = _get_client()
+    resp = await client.get(
+        f"{SEARCH_URL}/{query}",
+        headers=_headers(),
+    )
+    resp.raise_for_status()
+    data = resp.json()
 
     results = []
     for item in (data.get("data") or [])[:num_results]:
@@ -65,13 +79,13 @@ async def scrape(url: str) -> dict:
     last_exc: Exception | None = None
     for attempt in range(_MAX_RETRIES + 1):
         try:
-            async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-                resp = await client.get(
-                    f"{READER_URL}/{url}",
-                    headers=_headers(),
-                )
-                resp.raise_for_status()
-                data = resp.json()
+            client = _get_client()
+            resp = await client.get(
+                f"{READER_URL}/{url}",
+                headers=_headers(),
+            )
+            resp.raise_for_status()
+            data = resp.json()
 
             page = data.get("data") or {}
             return {
@@ -92,13 +106,13 @@ async def scrape(url: str) -> dict:
 
 async def search_with_raw(query: str, num_results: int = 5) -> tuple[list[dict], list[dict]]:
     """Search and return both truncated and raw (untruncated) results."""
-    async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-        resp = await client.get(
-            f"{SEARCH_URL}/{query}",
-            headers=_headers(),
-        )
-        resp.raise_for_status()
-        data = resp.json()
+    client = _get_client()
+    resp = await client.get(
+        f"{SEARCH_URL}/{query}",
+        headers=_headers(),
+    )
+    resp.raise_for_status()
+    data = resp.json()
 
     truncated = []
     raw = []
@@ -128,13 +142,13 @@ async def scrape_with_raw(url: str) -> tuple[dict, dict]:
     last_exc: Exception | None = None
     for attempt in range(_MAX_RETRIES + 1):
         try:
-            async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-                resp = await client.get(
-                    f"{READER_URL}/{url}",
-                    headers=_headers(),
-                )
-                resp.raise_for_status()
-                data = resp.json()
+            client = _get_client()
+            resp = await client.get(
+                f"{READER_URL}/{url}",
+                headers=_headers(),
+            )
+            resp.raise_for_status()
+            data = resp.json()
 
             page = data.get("data") or {}
             full_content = page.get("content") or ""
@@ -161,29 +175,31 @@ async def scrape_with_raw(url: str) -> tuple[dict, dict]:
 
 
 async def search_and_scrape_with_raw(query: str, num_results: int = 3) -> tuple[list[dict], list[dict]]:
-    """Search then scrape, returning both truncated and raw results."""
+    """Search then scrape in parallel, returning both truncated and raw results."""
     search_truncated, search_raw = await search_with_raw(query, num_results)
-    scraped_truncated = []
-    scraped_raw = []
-    for i, result in enumerate(search_truncated):
+
+    async def _scrape_one(i: int, result: dict) -> tuple[dict, dict]:
         try:
-            trunc, raw = await scrape_with_raw(result["url"])
-            scraped_truncated.append(trunc)
-            scraped_raw.append(raw)
+            return await scrape_with_raw(result["url"])
         except Exception:
-            scraped_truncated.append(result)
-            scraped_raw.append(search_raw[i])
+            return result, search_raw[i]
+
+    pairs = await asyncio.gather(
+        *(_scrape_one(i, r) for i, r in enumerate(search_truncated))
+    )
+    scraped_truncated = [p[0] for p in pairs]
+    scraped_raw = [p[1] for p in pairs]
     return scraped_truncated, scraped_raw
 
 
 async def search_and_scrape(query: str, num_results: int = 3) -> list[dict]:
-    """Search then scrape top results for deeper content."""
+    """Search then scrape top results in parallel for deeper content."""
     search_results = await search(query, num_results)
-    scraped = []
-    for result in search_results:
+
+    async def _scrape_one(result: dict) -> dict:
         try:
-            page = await scrape(result["url"])
-            scraped.append(page)
+            return await scrape(result["url"])
         except Exception:
-            scraped.append(result)  # fall back to search snippet
-    return scraped
+            return result  # fall back to search snippet
+
+    return list(await asyncio.gather(*(_scrape_one(r) for r in search_results)))

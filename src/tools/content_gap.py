@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 
 from src.models import ContentGapResult, EvidenceTrace
@@ -10,14 +11,14 @@ from src.tools import jina, llm
 
 
 async def run(query: str) -> tuple[ContentGapResult, dict, EvidenceTrace]:
-    # Search for existing content in the niche
-    existing, raw_existing = await jina.search_with_raw(query, num_results=8)
-
-    # Search for questions people ask
-    questions, raw_questions = await jina.search_with_raw(f"{query} questions answers", num_results=5)
-
-    # Search for gaps explicitly
-    gaps_search, raw_gaps = await jina.search_with_raw(f"{query} underserved topics", num_results=3)
+    # Run all three searches in parallel
+    (existing, raw_existing), (questions, raw_questions), (gaps_search, raw_gaps) = (
+        await asyncio.gather(
+            jina.search_with_raw(query, num_results=8),
+            jina.search_with_raw(f"{query} questions answers", num_results=5),
+            jina.search_with_raw(f"{query} underserved topics", num_results=3),
+        )
+    )
 
     gap_data = "--- Existing top content ---\n\n"
     gap_data += "\n\n".join(

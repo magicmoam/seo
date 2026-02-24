@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 
 from src.models import TopicalAuthorityMap
@@ -21,16 +22,12 @@ async def run(domain: str, niche: str = "") -> tuple[TopicalAuthorityMap, dict]:
 
     # Search for the domain's niche to understand the competitive landscape
     niche_query = niche if niche else homepage.get("title", domain)
-    niche_results = await jina.search(niche_query, num_results=8)
 
-    # Search for topic cluster ideas in the niche
-    cluster_results = await jina.search(
-        f"{niche_query} comprehensive guide topics", num_results=5
-    )
-
-    # Search for what people ask about in this niche
-    questions = await jina.search(
-        f"{niche_query} most important topics to cover", num_results=5
+    # Run all three searches in parallel
+    niche_results, cluster_results, questions = await asyncio.gather(
+        jina.search(niche_query, num_results=8),
+        jina.search(f"{niche_query} comprehensive guide topics", num_results=5),
+        jina.search(f"{niche_query} most important topics to cover", num_results=5),
     )
 
     research_data = f"--- Homepage ---\nTitle: {homepage.get('title', '')}\n"

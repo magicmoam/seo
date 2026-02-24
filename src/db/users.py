@@ -137,15 +137,18 @@ async def reset_credits(email: str, amount: int) -> bool:
     return True
 
 
-async def list_all_users(limit: int = 50, offset: int = 0) -> list[dict]:
-    """List all users (for admin). Returns list of user dicts."""
+async def list_all_users(limit: int = 50, offset: int = 0, search: str = "") -> list[dict]:
+    """List all users (for admin). Optionally filter by email/name via ilike."""
     client = _db_client._get_client()
     if not client:
         return []
 
+    query = client.table("users").select("*")
+    if search:
+        # Supabase PostgREST ilike filter — search email or name
+        query = query.or_(f"email.ilike.%{search}%,name.ilike.%{search}%")
     resp = (
-        client.table("users")
-        .select("*")
+        query
         .order("created_at", desc=True)
         .range(offset, offset + limit - 1)
         .execute()

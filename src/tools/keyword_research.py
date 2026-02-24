@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 
 from src.models import EvidenceTrace, KeywordResearchResult
@@ -10,16 +11,16 @@ from src.tools import jina, llm
 
 
 async def run(seed_keyword: str) -> tuple[KeywordResearchResult, dict, EvidenceTrace]:
-    # Gather real search data via Jina
-    results, raw_results = await jina.search_with_raw(seed_keyword, num_results=8)
+    # Run both searches in parallel
+    (results, raw_results), (related, raw_related) = await asyncio.gather(
+        jina.search_with_raw(seed_keyword, num_results=8),
+        jina.search_with_raw(f"{seed_keyword} best keywords", num_results=3),
+    )
 
     search_data = "\n\n".join(
         f"### {r['title']}\nURL: {r['url']}\n{r['description']}\n{r['content'][:1500]}"
         for r in results
     )
-
-    # Also search for related queries
-    related, raw_related = await jina.search_with_raw(f"{seed_keyword} best keywords", num_results=3)
     search_data += "\n\n--- Related searches ---\n\n"
     search_data += "\n\n".join(
         f"### {r['title']}\n{r['description']}\n{r['content'][:800]}"
