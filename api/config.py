@@ -31,3 +31,14 @@ async def get_config():
         "stripe_pro_monthly_price_id": config.stripe_pro_monthly_price_id,
         "stripe_pro_annual_price_id": config.stripe_pro_annual_price_id,
     })
+
+
+@app.get("/api/tools")
+async def list_tools():
+    """Return the tool catalog with names and credit costs."""
+    from src.credits import TOOL_COSTS
+    tools = [
+        {"name": name, "credits": cost}
+        for name, cost in sorted(TOOL_COSTS.items())
+    ]
+    return JSONResponse({"tools": tools})

@@ -31,5 +31,12 @@ async def history(request: Request):
         return auth_result
     user = auth_result
 
-    records = await get_history(user["email"])
-    return JSONResponse(records)
+    try:
+        limit = max(1, min(100, int(request.query_params.get("limit", "50"))))
+        offset = max(0, int(request.query_params.get("offset", "0")))
+    except (ValueError, TypeError):
+        limit, offset = 50, 0
+    tool = request.query_params.get("tool", "")
+
+    records = await get_history(user["email"], limit=limit, offset=offset, tool=tool)
+    return JSONResponse({"history": records, "limit": limit, "offset": offset})

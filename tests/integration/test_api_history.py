@@ -92,10 +92,11 @@ class TestGetHistory:
 
         assert resp.status_code == 200
         data = resp.json()
-        assert isinstance(data, list)
-        assert len(data) == 2
-        assert data[0]["id"] == "search-1"
-        assert data[1]["tool_used"] == "website_analyzer"
+        assert len(data["history"]) == 2
+        assert data["history"][0]["id"] == "search-1"
+        assert data["history"][1]["tool_used"] == "website_analyzer"
+        assert data["limit"] == 50
+        assert data["offset"] == 0
 
     async def test_returns_empty_list_when_no_history(self):
         with (
@@ -113,20 +114,23 @@ class TestGetHistory:
 
         assert resp.status_code == 200
         data = resp.json()
-        assert data == []
+        assert data["history"] == []
 
-    async def test_passes_user_email_to_db(self):
+    async def test_passes_pagination_params_to_db(self):
+        mock_get = AsyncMock(return_value=[])
+
         with (
             _mock_authenticate_success(),
-            patch(
-                "src.db.get_history",
-                new_callable=AsyncMock,
-                return_value=[],
-            ) as mock_get,
+            patch("src.db.get_history", mock_get),
         ):
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:
-                await client.get("/api/history", headers=AUTH_HEADER)
+                await client.get(
+                    "/api/history?limit=10&offset=20&tool=keyword_research",
+                    headers=AUTH_HEADER,
+                )
 
-        mock_get.assert_called_once_with("user@test.com")
+        mock_get.assert_called_once_with(
+            "user@test.com", limit=10, offset=20, tool="keyword_research"
+        )

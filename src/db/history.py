@@ -174,18 +174,25 @@ async def get_usage_stats(user_email: str) -> dict:
     }
 
 
-async def get_history(user_email: str, limit: int = 50) -> list[dict]:
-    """Get search history for a user."""
+async def get_history(
+    user_email: str, limit: int = 50, offset: int = 0, tool: str = ""
+) -> list[dict]:
+    """Get search history for a user with pagination and optional tool filter."""
     client = _db_client._get_client()
     if not client:
         return []
 
-    resp = (
+    query = (
         client.table("search_history")
         .select("id, query, tool_used, result, created_at")
         .eq("user_email", user_email)
+    )
+    if tool:
+        query = query.eq("tool_used", tool)
+    resp = (
+        query
         .order("created_at", desc=True)
-        .limit(limit)
+        .range(offset, offset + limit - 1)
         .execute()
     )
     return resp.data or []

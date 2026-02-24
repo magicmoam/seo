@@ -48,10 +48,21 @@ async def query(request: Request):
         return JSONResponse({"error": "Query too long (max 2000 characters)"}, status_code=400)
 
     try:
-        routing, router_usage = await route(user_input)
-        tool_name = routing["tool"]
-        q = routing["query"]
-        extras = routing.get("extras", {})
+        # Direct tool invocation: skip LLM router when tool is specified
+        direct_tool = body.get("tool", "").strip()
+        if direct_tool:
+            from src.credits import TOOL_COSTS
+            if direct_tool not in TOOL_COSTS:
+                return JSONResponse({"error": f"Unknown tool: {direct_tool}"}, status_code=400)
+            tool_name = direct_tool
+            q = user_input
+            extras = body.get("extras", {})
+            router_usage = {"input_tokens": 0, "output_tokens": 0}
+        else:
+            routing, router_usage = await route(user_input)
+            tool_name = routing["tool"]
+            q = routing["query"]
+            extras = routing.get("extras", {})
 
         # Credit enforcement
         from src.credits import get_tool_cost
