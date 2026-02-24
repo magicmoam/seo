@@ -23,7 +23,7 @@ import asyncio
 import json
 import logging
 
-from src.models import SEOStrategy
+from src.models import EvidenceTrace, SEOStrategy
 from src.prompts.templates import STRATEGY_SYNTHESIS_SYSTEM, STRATEGY_SYNTHESIS_USER
 from src.tools import (
     backlink_strategy,
@@ -75,7 +75,7 @@ async def _run_safe(name: str, coro):
         return None
 
 
-async def run(url: str, niche: str = "") -> tuple[SEOStrategy, dict]:
+async def run(url: str, niche: str = "") -> tuple[SEOStrategy, dict, EvidenceTrace]:
     """Run the full multi-agent SEO strategy pipeline.
 
     Args:
@@ -180,23 +180,26 @@ async def run(url: str, niche: str = "") -> tuple[SEOStrategy, dict]:
     technical_schema = technical_text[:3000] if technical_result else '"see technical_audit above"'
     backlink_schema = backlink_text[:3000] if backlink_result else '"see backlink_strategy above"'
 
+    system_prompt = STRATEGY_SYNTHESIS_SYSTEM
+    user_prompt = STRATEGY_SYNTHESIS_USER.format(
+        domain=domain,
+        site_audit=site_audit_text[:3000],
+        keyword_data=keyword_text[:2000],
+        competitor_data=competitor_text[:2000],
+        gap_data=gap_text[:2000],
+        authority_data=authority_text[:3000],
+        calendar_data=calendar_text[:3000],
+        technical_data=technical_text[:3000],
+        backlink_data=backlink_text[:3000],
+        authority_schema=authority_schema,
+        calendar_schema=calendar_schema,
+        technical_schema=technical_schema,
+        backlink_schema=backlink_schema,
+    )
+
     synthesis_result = await llm.complete(
-        system=STRATEGY_SYNTHESIS_SYSTEM,
-        user=STRATEGY_SYNTHESIS_USER.format(
-            domain=domain,
-            site_audit=site_audit_text[:3000],
-            keyword_data=keyword_text[:2000],
-            competitor_data=competitor_text[:2000],
-            gap_data=gap_text[:2000],
-            authority_data=authority_text[:3000],
-            calendar_data=calendar_text[:3000],
-            technical_data=technical_text[:3000],
-            backlink_data=backlink_text[:3000],
-            authority_schema=authority_schema,
-            calendar_schema=calendar_schema,
-            technical_schema=technical_schema,
-            backlink_schema=backlink_schema,
-        ),
+        system=system_prompt,
+        user=user_prompt,
         temperature=0.2,
     )
 
@@ -225,4 +228,14 @@ async def run(url: str, niche: str = "") -> tuple[SEOStrategy, dict]:
 
     merged_usage = _merge_usage(*all_usages)
     strategy = SEOStrategy(**synthesis_data)
-    return strategy, merged_usage
+    trace = EvidenceTrace(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        llm_raw_response=synthesis_result.raw_text,
+        tool_used="seo_strategy",
+        query=url,
+        model=synthesis_result.model,
+        total_input_tokens=merged_usage["input_tokens"],
+        total_output_tokens=merged_usage["output_tokens"],
+    )
+    return strategy, merged_usage, trace

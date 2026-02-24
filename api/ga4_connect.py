@@ -24,17 +24,8 @@ app.add_middleware(
 
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
-    from src.auth import verify_google_token
-
-    auth = request.headers.get("Authorization", "")
-    if not auth.startswith("Bearer "):
-        return JSONResponse({"error": "Missing authorization token"}, status_code=401)
-
-    user = await verify_google_token(auth[7:])
-    if not user:
-        return JSONResponse({"error": "Invalid or expired token"}, status_code=401)
-
-    return user
+    from src.middleware import authenticate
+    return await authenticate(request)
 
 
 @app.post("/api/ga4/connect")

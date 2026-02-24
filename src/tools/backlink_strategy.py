@@ -5,12 +5,12 @@ from __future__ import annotations
 import asyncio
 import json
 
-from src.models import BacklinkStrategy
+from src.models import BacklinkStrategy, EvidenceTrace
 from src.prompts.templates import BACKLINK_STRATEGY_SYSTEM, BACKLINK_STRATEGY_USER
 from src.tools import jina, llm
 
 
-async def run(domain: str, niche: str = "") -> tuple[BacklinkStrategy, dict]:
+async def run(domain: str, niche: str = "") -> tuple[BacklinkStrategy, dict, EvidenceTrace]:
     """Build a comprehensive backlink acquisition strategy."""
     # Scrape domain homepage
     scrape_count = 0
@@ -50,11 +50,14 @@ async def run(domain: str, niche: str = "") -> tuple[BacklinkStrategy, dict]:
         f"### {r['title']}\n{r['content'][:400]}" for r in linkbait_results
     )
 
+    system_prompt = BACKLINK_STRATEGY_SYSTEM
+    user_prompt = BACKLINK_STRATEGY_USER.format(
+        domain=domain, research_data=research_data
+    )
+
     result = await llm.complete(
-        system=BACKLINK_STRATEGY_SYSTEM,
-        user=BACKLINK_STRATEGY_USER.format(
-            domain=domain, research_data=research_data
-        ),
+        system=system_prompt,
+        user=user_prompt,
     )
 
     data = json.loads(result.text)
@@ -65,4 +68,14 @@ async def run(domain: str, niche: str = "") -> tuple[BacklinkStrategy, dict]:
         "jina_searches": 3,
         "jina_scrapes": scrape_count,
     }
-    return BacklinkStrategy(**data), usage
+    trace = EvidenceTrace(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        llm_raw_response=result.raw_text,
+        tool_used="backlink_strategy",
+        query=domain,
+        model=result.model,
+        total_input_tokens=result.input_tokens,
+        total_output_tokens=result.output_tokens,
+    )
+    return BacklinkStrategy(**data), usage, trace

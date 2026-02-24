@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import json
 
-from src.models import TechnicalSEOAudit
+from src.models import EvidenceTrace, TechnicalSEOAudit
 from src.prompts.templates import TECHNICAL_SEO_SYSTEM, TECHNICAL_SEO_USER
 from src.tools import jina, llm
 
 
-async def run(url: str) -> tuple[TechnicalSEOAudit, dict]:
+async def run(url: str) -> tuple[TechnicalSEOAudit, dict, EvidenceTrace]:
     """Run a deep technical SEO audit on a URL."""
     # Scrape the target page
     try:
@@ -36,9 +36,12 @@ async def run(url: str) -> tuple[TechnicalSEOAudit, dict]:
     if robots_content:
         page_data += f"--- robots.txt ---\n{robots_content}\n\n"
 
+    system_prompt = TECHNICAL_SEO_SYSTEM
+    user_prompt = TECHNICAL_SEO_USER.format(url=url, page_data=page_data)
+
     result = await llm.complete(
-        system=TECHNICAL_SEO_SYSTEM,
-        user=TECHNICAL_SEO_USER.format(url=url, page_data=page_data),
+        system=system_prompt,
+        user=user_prompt,
     )
 
     data = json.loads(result.text)
@@ -49,4 +52,14 @@ async def run(url: str) -> tuple[TechnicalSEOAudit, dict]:
         "jina_searches": 0,
         "jina_scrapes": scrape_count,
     }
-    return TechnicalSEOAudit(**data), usage
+    trace = EvidenceTrace(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        llm_raw_response=result.raw_text,
+        tool_used="technical_seo",
+        query=url,
+        model=result.model,
+        total_input_tokens=result.input_tokens,
+        total_output_tokens=result.output_tokens,
+    )
+    return TechnicalSEOAudit(**data), usage, trace

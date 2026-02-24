@@ -28,6 +28,24 @@ from src.scoring_rubric import (
 from src.tools import jina, llm
 
 
+def extract_audit_summary(result_dict: dict) -> tuple[dict, dict]:
+    """Extract category scores and issues summary from a WebsiteAnalysisResult dict.
+
+    Returns (category_scores, issues_summary).
+    """
+    category_scores = {
+        "performance": result_dict.get("performance_score", ""),
+        "seo": result_dict.get("seo_score", ""),
+        "content": result_dict.get("content_score", ""),
+        "technical": result_dict.get("technical_score", ""),
+    }
+    issues_summary: dict[str, int] = {"critical": 0, "warning": 0, "info": 0}
+    for iss in result_dict.get("issues", []):
+        sev = iss.get("severity", "info")
+        issues_summary[sev] = issues_summary.get(sev, 0) + 1
+    return category_scores, issues_summary
+
+
 def _score_to_label(score: int) -> str:
     """Convert a numeric score to a dimension label."""
     if score >= 80:

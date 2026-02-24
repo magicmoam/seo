@@ -5,12 +5,12 @@ from __future__ import annotations
 import asyncio
 import json
 
-from src.models import TopicalAuthorityMap
+from src.models import EvidenceTrace, TopicalAuthorityMap
 from src.prompts.templates import TOPICAL_AUTHORITY_SYSTEM, TOPICAL_AUTHORITY_USER
 from src.tools import jina, llm
 
 
-async def run(domain: str, niche: str = "") -> tuple[TopicalAuthorityMap, dict]:
+async def run(domain: str, niche: str = "") -> tuple[TopicalAuthorityMap, dict, EvidenceTrace]:
     """Build a topical authority map with content clusters and silo architecture."""
     # Scrape the domain homepage to understand current state
     scrape_count = 0
@@ -50,11 +50,14 @@ async def run(domain: str, niche: str = "") -> tuple[TopicalAuthorityMap, dict]:
         f"### {r['title']}\n{r['content'][:600]}" for r in questions
     )
 
+    system_prompt = TOPICAL_AUTHORITY_SYSTEM
+    user_prompt = TOPICAL_AUTHORITY_USER.format(
+        domain=domain, niche=niche_query, research_data=research_data
+    )
+
     result = await llm.complete(
-        system=TOPICAL_AUTHORITY_SYSTEM,
-        user=TOPICAL_AUTHORITY_USER.format(
-            domain=domain, niche=niche_query, research_data=research_data
-        ),
+        system=system_prompt,
+        user=user_prompt,
         temperature=0.3,
     )
 
@@ -66,4 +69,14 @@ async def run(domain: str, niche: str = "") -> tuple[TopicalAuthorityMap, dict]:
         "jina_searches": 3,
         "jina_scrapes": scrape_count,
     }
-    return TopicalAuthorityMap(**data), usage
+    trace = EvidenceTrace(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        llm_raw_response=result.raw_text,
+        tool_used="topical_authority",
+        query=domain,
+        model=result.model,
+        total_input_tokens=result.input_tokens,
+        total_output_tokens=result.output_tokens,
+    )
+    return TopicalAuthorityMap(**data), usage, trace

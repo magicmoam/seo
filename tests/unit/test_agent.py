@@ -40,20 +40,6 @@ class TestUnpackToolResult:
         assert trace_out is trace
         assert trace_out.tool_used == "keyword_research"
 
-    def test_handles_2_tuple_legacy(self):
-        result_obj = {"data": "legacy"}
-        usage = {"input_tokens": 50}
-
-        result, usage_out, trace_out = unpack_tool_result(
-            (result_obj, usage), "backlink_strategy", "example.com"
-        )
-
-        assert result == result_obj
-        assert usage_out == usage
-        assert isinstance(trace_out, EvidenceTrace)
-        assert trace_out.tool_used == "backlink_strategy"
-        assert trace_out.query == "example.com"
-
     def test_3_tuple_preserves_trace_fields(self):
         trace = EvidenceTrace(
             tool_used="serp_analysis",

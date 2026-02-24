@@ -23,23 +23,8 @@ app.add_middleware(
 
 async def _authenticate(request: Request) -> dict | JSONResponse:
     """Verify Google token from Authorization header or query param."""
-    from src.auth import verify_google_token
-
-    # Support token via query param (for new-tab download)
-    token = request.query_params.get("token", "")
-    if not token:
-        auth = request.headers.get("Authorization", "")
-        if auth.startswith("Bearer "):
-            token = auth[7:]
-
-    if not token:
-        return JSONResponse({"error": "Missing authorization token"}, status_code=401)
-
-    user = await verify_google_token(token)
-    if not user:
-        return JSONResponse({"error": "Invalid or expired token"}, status_code=401)
-
-    return user
+    from src.middleware import authenticate_with_query_param
+    return await authenticate_with_query_param(request)
 
 
 @app.get("/api/report/{search_id}")

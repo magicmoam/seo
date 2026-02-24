@@ -137,23 +137,11 @@ async def run_snapshot(request: Request):
         url = "https://" + url
 
     try:
+        from src.tools.website_analyzer import extract_audit_summary
+
         result, usage, trace = await website_analyzer.run(url)
         result_dict = json.loads(result.model_dump_json())
-
-        # Extract category scores
-        category_scores = {
-            "performance": result_dict.get("performance_score", ""),
-            "seo": result_dict.get("seo_score", ""),
-            "content": result_dict.get("content_score", ""),
-            "technical": result_dict.get("technical_score", ""),
-        }
-
-        # Extract issues summary
-        issues = result_dict.get("issues", [])
-        issues_summary = {"critical": 0, "warning": 0, "info": 0}
-        for iss in issues:
-            sev = iss.get("severity", "info")
-            issues_summary[sev] = issues_summary.get(sev, 0) + 1
+        category_scores, issues_summary = extract_audit_summary(result_dict)
 
         # Ensure URL is tracked
         tracked_id = await save_tracked_url(auth_result["email"], url)

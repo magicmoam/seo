@@ -42,6 +42,42 @@ async def authenticate(request: Request) -> dict | JSONResponse:
     return user
 
 
+async def authenticate_with_query_param(request: Request) -> dict | JSONResponse:
+    """Authenticate via header or query-param token (for new-tab downloads).
+
+    Tries Authorization header first, falls back to ?token=... query param.
+    """
+    # Support token via query param (for new-tab downloads)
+    token = request.query_params.get("token", "")
+    if not token:
+        auth = request.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            token = auth[7:]
+
+    if not token:
+        return JSONResponse({"error": "Missing authorization token"}, status_code=401)
+
+    google_user = await verify_google_token(token)
+    if not google_user:
+        return JSONResponse({"error": "Invalid or expired token"}, status_code=401)
+
+    # Upsert user in DB
+    db_user = await get_or_create_user(
+        google_user["email"],
+        google_user.get("name", ""),
+        google_user.get("picture", ""),
+    )
+
+    return {
+        "email": google_user["email"],
+        "name": google_user.get("name", ""),
+        "picture": google_user.get("picture", ""),
+        "tier": db_user.get("tier", "free") if db_user else "free",
+        "credits_remaining": db_user.get("credits_remaining", 5) if db_user else 5,
+        "is_admin": is_admin(google_user["email"]),
+    }
+
+
 async def authenticate_admin(request: Request) -> dict | JSONResponse:
     """Authenticate and verify admin access.
 
