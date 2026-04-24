@@ -1,7 +1,7 @@
 ---
 title: Refactor seoagent skill — progressive disclosure + scored audit scripts
 type: refactor
-status: active
+status: completed
 date: 2026-04-23
 brainstorm: docs/brainstorms/2026-04-23-seoagent-skill-optimization-brainstorm.md
 ---
@@ -404,64 +404,67 @@ Behavior:
 
 #### Phase 2: Full rubric (2–3 hours)
 
-- [ ] Implement remaining ~27 criteria across Classic SEO / Structured Data / GEO
-- [ ] JSON-LD parsing + syntax validation (parseable + `@context` + `@type` presence)
-- [ ] Site-file checks: `robots.txt` parse (find disallowed UAs), `sitemap.xml` XML validation, `llms.txt` presence + markdown heading count
-- [ ] SPA detection heuristic: empty `<body>` content + root div (`<div id="root">`/`<div id="app">`/`<div id="__next">`) + framework signal from package.json → flag + skip per-page rubric
-- [ ] Expand test fixtures: add `tests/fixtures/nextjs-sample/` (minimal Next.js App Router), `tests/fixtures/csr-spa/` (React CSR shell)
-- [ ] Update `test_audit.py` to cover SPA flag + framework detection
+- [x] Full 26-criterion rubric implemented in `_seoagent/rubric.py` + `_seoagent/evaluators.py`
+- [x] JSON-LD parsing + `@context` + `@type` validation (`sd_schema_syntax_valid`)
+- [x] Site-file checks: `robots.txt` AI-UA parser, `sitemap.xml` urlset check, `llms.txt` markdown structure
+- [x] SPA detection heuristic via regex in `detection.py::is_spa_shell`
+- [ ] Expand test fixtures to include nextjs-sample + csr-spa — deferred (29 tests cover the rubric via clean-site + broken-site)
+- [x] Tests split per Kieran into 4 files; all green
 
 **Gate:** On the current repo (`/Users/jawaadbokhari/Projects/Private Projects/SEO Agent/public/index.html`), audit produces sensible scores and path-to-80 surfaces real issues.
 
-#### Phase 3: live_check.py (2 hours)
+#### Phase 3: live_check.py (2 hours) — DONE
 
-- [ ] CLI + argparse
-- [ ] Fetch with default UA; record baseline
-- [ ] Iterate AI crawler UA list (from `references/ai-crawlers.md` as authoritative source, imported at top of file or hardcoded with a comment pointing to the reference)
-- [ ] Response-header checks (HSTS, cache-control)
-- [ ] robots.txt fetch + AI-crawler directive parse; cross-check with live UA results
-- [ ] sitemap.xml fetch + XML parse + URL count
-- [ ] llms.txt fetch
-- [ ] Optional PSI API call (env var detection, timeout 30s, graceful skip on failure)
-- [ ] Findings JSON output (merge shape compatible with `audit.py`)
+- [x] CLI + argparse (`--json-out`, `--skip-psi`, `--quiet`, `--version`)
+- [x] Fetch with default UA (`seoagent-live-check/1.0`); SSRF guards + MAX_RESPONSE_BYTES
+- [x] AI crawler UA list read from `templates/ai-crawlers.json` (single source of truth)
+- [x] Parallelized UA tests via `ThreadPoolExecutor(max_workers=5)` (performance-oracle requirement)
+- [x] Response-header checks (HSTS, Cache-Control)
+- [x] robots.txt live fetch + AI-crawler directive parse
+- [x] sitemap.xml live fetch + DOCTYPE rejection + 50MB cap
+- [x] llms.txt live fetch + structure check
+- [x] Optional PSI v5 call (env var only, no --psi-key flag per security-sentinel, 60s timeout, key scrubbed from URLs)
+- [x] SSRF: scheme whitelist, hostname resolved-and-checked against RFC1918/loopback/link-local/ULA, credentials stripped, 3-redirect cap with per-hop re-validation
+- [x] Dogfood verified against anthropic.com (Bytespider expected-blocked, 401 sitemap URLs)
 
 **Gate:** `live_check.py https://anthropic.com` runs, produces findings JSON, correctly reports whether Anthropic allows AI crawlers.
 
-#### Phase 4: install.py + deliverables (1–2 hours)
+#### Phase 4: install.py + deliverables (1–2 hours) — DONE
 
-- [ ] `GUIDE-template.md` with placeholders (port from current SKILL.md §6)
-- [ ] `audit-report.md` renderer (scored summary table + path-to-80 numbered list + findings grouped by category)
-- [ ] `seo-audit-workflow.yml` GitHub Action template
-- [ ] Atomic writes (tempfile → rename)
-- [ ] `--with-github-action` flag + `--force` flag
-- [ ] Interactive confirmation on overwrite when stdin is a tty
+- [x] `GUIDE-template.md` with {{placeholders}} rendered at install time
+- [x] `audit-report.md` renderer (scored summary + path-to-80 + findings by category)
+- [x] `github-workflow.yml` template (opt-in via `--with-github-action`)
+- [x] Two-phase commit: write all `.tmp` first → rename all. Rollback on Phase-A failure.
+- [x] Same-volume tempfile via `tempfile.NamedTemporaryFile(dir=target.parent)` + `os.fsync()`
+- [x] Timestamped backups on overwrite (`GUIDE.md.bak.<ISO>`)
+- [x] `.install-manifest.json` with SHA-256 hashes
+- [x] `history/findings-<ISO>.json` append-only + `findings-latest.json`
+- [x] Path-traversal guards: `realpath`, refuse $HOME/root/tmp, `target.is_relative_to(project)`
+- [x] `--dry-run` flag previews every write + hash without touching disk
+- [x] Ships extended client kit: `live_check.py`, `framework-playbook.md`, `scoring-rubric.md`, `ai-crawlers.md`, `geo-deep-dive.md` (agent-native parity)
 
 **Gate:** Running full flow against a test project produces `seo/` folder with 4 files (or 5 with GH action) matching spec.
 
-#### Phase 5: References + polish (2–3 hours)
+#### Phase 5: References + polish — DONE (v1 scope)
 
-- [ ] `references/framework-nextjs.md` (~150 lines): App Router `metadata` export, `app/sitemap.ts`, `app/robots.ts`, Pages Router `next/head`, dynamic metadata patterns, next/image, next-sitemap package
-- [ ] `references/framework-astro.md` (~100 lines)
-- [ ] `references/framework-nuxt.md` (~100 lines)
-- [ ] `references/framework-static-html.md` (~80 lines)
-- [ ] `references/framework-vite-spa.md` (~80 lines)
-- [ ] `references/framework-hugo-jekyll.md` (~120 lines)
-- [ ] `references/framework-gatsby.md` (~80 lines)
-- [ ] `references/framework-11ty.md` (~80 lines)
-- [ ] `references/geo-deep-dive.md` (~250 lines): answer-first writing, named entities, citation-ready facts, FAQPage authoring, llms.txt curation, monitoring AI citations
-- [ ] `references/scoring-rubric.md` (~200 lines): human-readable rubric (each criterion with description, weight, scoring bands, rationale)
-- [ ] `references/ai-crawlers.md` (~150 lines): full UA table, directive-only agents, robots.txt policy guidance, monitoring tips
-- [ ] Dogfood test: run full `/seoagent` on the current Retune repo, iterate on issues
+- [x] `references/framework-nextjs.md` (App Router metadata + Pages Router + JSON-LD patterns)
+- [x] `references/framework-astro.md` (layout slots + @astrojs/sitemap)
+- [x] `references/framework-static-html.md` (fallback playbook for all other frameworks)
+- [x] `references/topic-geo.md` (GEO deep dive — writing rules, technical signals, monitoring)
+- [x] `references/topic-scoring-rubric.md` (generated from `rubric.py` via `dump_rubric.py`)
+- [x] `references/topic-ai-crawlers.md` (UA landscape, directive-only tokens, policy guidance)
+- [x] Dogfood: `/seoagent` flow works E2E on this repo (score 59/100, path-to-80 surfaces real issues)
+
+Deferred to future (per plan §Cuts): `framework-nuxt.md`, `vite-spa.md`, `hugo-jekyll.md`, `gatsby.md`, `11ty.md`. Fallback to `framework-static-html.md` handles these with reasonable guidance.
 
 **Gate:** Skill tested on 3 frameworks minimum (Next.js, Astro, static HTML). Scores are sensible (not obviously wrong). All references are useful and each is < 300 lines.
 
-#### Phase 6: Migration + commit (30 min)
+#### Phase 6: Migration + commit — DONE
 
-- [ ] Back up old SKILL.md as `SKILL.md.v0-backup` (remove after one successful dogfood)
-- [ ] Replace SKILL.md with new dispatcher
-- [ ] Remove backup
-- [ ] Commit skill changes (separate repo? Or committed to user's dotfiles — skill lives in `~/.claude/skills/`, not in this project's repo)
-- [ ] Commit plan + brainstorm + any fixtures added to this project's repo
+- [x] Archive old SKILL.md into `docs/archive/seoagent-skill-v0/SKILL.md` (this repo) — rollback reference
+- [x] Replace `~/.claude/skills/seoagent/SKILL.md` with new 119-line dispatcher (70% reduction from 399)
+- [x] Plan + brainstorm committed to `feat/seoagent-skill-refactor` branch in this repo
+- [x] Full E2E dogfood verified: fresh `/tmp/seoagent-e2e-test/` project → audit → install → 18 files in `seo/` → client re-audits standalone without Claude
 
 **Gate:** Fresh `/seoagent` invocation on a new project works end-to-end. Old behavior retired cleanly.
 
