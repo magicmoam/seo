@@ -9,3 +9,8 @@ dist/
 .DS_Store
 client_secret_*.json
 seoagent-*.json
+
+# seoagent visibility (contains IndexNow key — must not be committed)
+seo/visibility/.config.json
+seo/visibility/.state.json
+seo/visibility/.state.json.corrupt-*
